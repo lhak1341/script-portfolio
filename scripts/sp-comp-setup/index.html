@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SP Comp Setup - After Effects Scripts Portfolio</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/overlay-system.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav style="margin-bottom: 1rem;">
+                <a href="../../index.html" style="color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem;">&larr; Back to Scripts</a>
+            </nav>
+            <h1 class="site-title">SP Comp Setup</h1>
+            <p class="site-subtitle">Streamlined composition setup with auto-interpretation and template management</p>
+            <div style="margin-top: 1rem;">
+                <span style="background: rgba(255,255,255,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem;">v0.8.2</span>
+                <span style="background: rgba(255,255,255,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; margin-left: 0.5rem;">Utility Tool</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="script-showcase">
+                <div style="text-align: center; margin-bottom: 1rem;">
+                    <button id="overlay-toggle" class="btn btn-secondary" style="padding: 0.5rem 1rem; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">
+                        👁️ Show All Overlays
+                    </button>
+                </div>
+                <div id="overlay-container" class="script-image-container">
+                    <!-- Overlay system will be initialized here -->
+                </div>
+                
+                <div style="margin-top: 2rem; padding: 2rem; background: white; border-radius: 12px; text-align: left;">
+                    <h2 style="margin-bottom: 1rem; color: #333; text-align: left;">About This Script</h2>
+                    <p style="line-height: 1.6; color: #666; margin-bottom: 1rem; text-align: left;">
+                        SP Comp Setup is a comprehensive composition setup tool that streamlines the process of creating new compositions in After Effects. It provides intelligent template selection, automatic footage interpretation, and advanced settings management.
+                    </p>
+                    <p style="line-height: 1.6; color: #666; margin-bottom: 1rem; text-align: left;">
+                        The script features an intuitive interface that guides you through the composition setup process, from importing footage to applying proper settings and organizing your project structure.
+                    </p>
+                    
+                    <h3 style="margin: 1.5rem 0 1rem 0; color: #333; text-align: left;">Key Features</h3>
+                    <ul style="line-height: 1.8; color: #666; margin-left: 2rem; text-align: left;">
+                        <li>Automatic footage interpretation and import</li>
+                        <li>Template-based composition creation</li>
+                        <li>Batch composition setup from multiple sources</li>
+                        <li>Advanced color settings and frame rate management</li>
+                        <li>Project organization and naming conventions</li>
+                        <li>Integration with existing After Effects workflows</li>
+                    </ul>
+                    
+                    <h3 style="margin: 1.5rem 0 1rem 0; color: #333; text-align: left;">Tags</h3>
+                    <div class="script-tags" style="text-align: left;">
+                        <a href="../../index.html?tag=composition" class="tag">composition</a>
+                        <a href="../../index.html?tag=setup" class="tag">setup</a>
+                        <a href="../../index.html?tag=automation" class="tag">automation</a>
+                        <a href="../../index.html?tag=template" class="tag">template</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 After Effects Scripts Portfolio</p>
+        </div>
+    </footer>
+
+    <script src="../../js/utils.js"></script>
+    <script src="../../js/overlay-engine.js"></script>
+    <script>
+        // Theme detection for script pages
+        function updateThemeForScriptPage() {
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            console.log(`Theme: ${isDark ? 'Dark' : 'Light'} Mode`);
+        }
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Setup theme detection
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            updateThemeForScriptPage();
+            mediaQuery.addEventListener('change', updateThemeForScriptPage);
+            
+            // Initialize overlay engine for this script
+            const engine = initializeOverlayEngine('overlay-container');
+            
+            // Load the configuration from config.json
+            const success = await engine.loadConfig('config.json');
+            
+            if (!success) {
+                console.error('Failed to load config.json for SP Comp Setup');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overlay Configuration Builder - After Effects Scripts Portfolio</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        .builder-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .image-workspace {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+            text-align: center;
+        }
+
+        .control-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .image-canvas {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+            border: 2px dashed #e9ecef;
+            border-radius: 8px;
+            background: #f8f9fa;
+            text-align: left;
+        }
+
+        .workspace-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 6px;
+        }
+
+        .upload-area {
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e3f2fd;
+            transform: scale(1.02);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .color-input-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .color-picker {
+            width: 50px !important;
+            height: 40px;
+            padding: 0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-full {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .overlay-preview {
+            position: absolute;
+            pointer-events: none;
+            border: 2px solid;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .hotspot-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .hotspot-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hotspot-item:hover {
+            background: #f8f9fa;
+        }
+
+        .hotspot-item.active {
+            background: #e3f2fd;
+            border-left: 4px solid #667eea;
+        }
+
+        .hotspot-item:last-child {
+            border-bottom: none;
+        }
+
+        .json-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.85rem;
+            padding: 1rem;
+            border-radius: 6px;
+            max-height: 300px;
+            overflow: auto;
+            white-space: pre;
+            margin-bottom: 1rem;
+        }
+
+        .instructions {
+            background: #e3f2fd;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 1.5rem 0 1rem 0;
+            color: #333;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.5rem;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: #f0f4ff;
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        /* Enhanced form styling */
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Enhanced section titles */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem 0;
+            color: #2d3748;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Enhanced hotspot list */
+        .hotspot-item {
+            padding: 0.875rem;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 6px;
+            margin: 0.25rem;
+        }
+
+        .hotspot-item:hover {
+            background: #f8f9fa;
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .hotspot-item.active {
+            background: linear-gradient(135deg, #e3f2fd, #f0f4ff);
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 12px rgba(102, 126, 234, 0.2);
+            transform: translateX(4px);
+        }
+
+        /* Enhanced buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Status messages */
+        .status-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 1px solid #b8daab;
+            color: #155724;
+        }
+
+        .status-error {
+            background: linear-gradient(135deg, #f8d7da, #f5c2c7);
+            border: 1px solid #f1aeb5;
+            color: #721c24;
+        }
+
+        .status-info {
+            background: linear-gradient(135deg, #d1ecf1, #b8daff);
+            border: 1px solid #a6d8ff;
+            color: #0c5460;
+        }
+
+        .coordinate-display {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e9ecef;
+        }
+
+        @media (max-width: 1200px) {
+            .builder-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-panel {
+                position: static;
+                max-height: none;
+            }
+        }
+
+        /* Selection rectangle for creating hotspots */
+        .selection-rect {
+            position: absolute;
+            border: 2px dashed #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            pointer-events: none;
+            z-index: 20;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="site-title">Overlay Configuration Builder</h1>
+            <p class="site-subtitle">Create interactive overlay configurations for your After Effects scripts</p>
+        </div>
+    </header>
+
+    <div class="builder-container">
+        <div class="image-workspace">
+            <div id="image-canvas" class="image-canvas">
+                <div id="script-display" class="upload-area" style="display: block;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12l2 2 4-4"></path>
+                        <path d="M21 12c.552 0 1-.448 1-1V5c0-.552-.448-1-1-1H3c-.552 0-1 .448-1 1v6c0 .552.448 1 1 1h18z"></path>
+                        <path d="M3 17h18v2H3z"></path>
+                    </svg>
+                    <h3 style="margin: 1rem 0 0.5rem 0; color: #666;">Select a Script</h3>
+                    <p style="color: #999; margin: 0;">Choose a script from the dropdown to configure its overlays</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="instructions">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#667eea" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="m9 12 2 2 4-4"></path>
+                    </svg>
+                    <strong style="color: #667eea;">Quick Start Guide</strong>
+                </div>
+                1. Select a script below to load its screenshot<br>
+                2. Switch to "Create Hotspot" mode<br>
+                3. Click and drag on the image to define areas<br>
+                4. Edit properties in the panel below<br>
+                5. Save automatically updates the script config
+            </div>
+
+            <div class="section-title">📋 Script Selection</div>
+            
+            <div class="form-group">
+                <label>Choose Script to Configure</label>
+                <select id="script-selector" onchange="loadSelectedScript()" style="font-size: 1rem; padding: 0.875rem;">
+                    <option value="">🎯 Select a script to begin...</option>
+                    <option value="sp-comp-setup">🔧 SP Comp Setup v0.8.2</option>
+                    <option value="sp-comp-edit">✏️ SP Comp Edit v0.1.6</option>
+                    <option value="sp-versioning-setup-toolkit">📂 SP Versioning Setup Toolkit v0.2.2</option>
+                    <option value="sp-versioning-csv">📊 SP Versioning CSV v0.1.0</option>
+                    <option value="sp-srt-importer">📝 SP SRT Importer v0.2.0</option>
+                    <option value="sp-deadline">⏰ SP Deadline v1.0.1</option>
+                    <option value="effect-usage-analyzer">🔍 Effect Usage Analyzer v0.0.4</option>
+                    <option value="expression-usage-analyzer">📈 Expression Usage Analyzer v0.0.1</option>
+                    <option value="find-replace-expression">🔎 Find and Replace in Expression</option>
+                    <option value="khoa-sharing-toolbar">🤝 Khoa Sharing Toolbar v1.0.2</option>
+                </select>
+            </div>
+
+            <div id="script-status" style="display: none; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem;">
+                <div class="status-content"></div>
+            </div>
+
+            <div class="mode-toggle">
+                <div id="select-mode" class="mode-btn active">
+                    <span>👆</span> Select Mode
+                </div>
+                <div id="create-mode" class="mode-btn">
+                    <span>➕</span> Create Hotspot
+                </div>
+            </div>
+
+            <div class="section-title">ℹ️ Script Information</div>
+            
+            <div class="form-group">
+                <label>Script Name</label>
+                <input type="text" id="script-name" placeholder="e.g., SP Comp Setup">
+            </div>
+
+            <div class="form-group">
+                <label>Version</label>
+                <input type="text" id="script-version" placeholder="e.g., 1.0.0">
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="script-description" rows="2" placeholder="Brief script description"></textarea>
+            </div>
+
+            <div class="section-title">
+                🎯 Hotspots 
+                <span id="hotspot-count" style="background: #667eea; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 8px;">0</span>
+            </div>
+
+            <div id="hotspot-list" class="hotspot-list">
+                <div style="padding: 1.5rem; text-align: center; color: #999; background: #f8f9fa; border-radius: 6px;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎯</div>
+                    <div>No hotspots created yet</div>
+                    <div style="font-size: 0.85rem; margin-top: 0.5rem; color: #6c757d;">Switch to "Create Hotspot" mode and click-drag on the image</div>
+                </div>
+            </div>
+
+            <div class="section-title">⚙️ Hotspot Properties</div>
+
+            <div id="hotspot-properties" style="display: none;">
+                <div class="form-group">
+                    <label>Hotspot ID</label>
+                    <input type="text" id="hotspot-id" placeholder="e.g., import-section">
+                </div>
+
+                <div class="coordinate-display" id="coordinate-display">
+                    No hotspot selected
+                </div>
+
+                <div class="form-group">
+                    <label>Highlight Color</label>
+                    <div class="color-input-group">
+                        <input type="color" id="highlight-color" class="color-picker" value="#3498db">
+                        <input type="text" id="highlight-color-text" value="#3498db">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Border Radius (px)</label>
+                    <input type="number" id="border-radius" value="4" min="0" max="20">
+                </div>
+
+                <div class="form-group">
+                    <label>Line Direction</label>
+                    <select id="line-direction">
+                        <option value="left">Left</option>
+                        <option value="right">Right</option>
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Line Length (px)</label>
+                    <input type="number" id="line-length" value="120" min="20" max="300">
+                </div>
+
+                <div class="form-group">
+                    <label>Line Thickness (px)</label>
+                    <input type="number" id="line-thickness" value="2" min="1" max="10">
+                </div>
+
+                <div class="form-group">
+                    <label>Description (supports **bold** and _italic_)</label>
+                    <textarea id="description-text" rows="3" placeholder="Brief tooltip description with **bold** and _italic_ markdown support"></textarea>
+                </div>
+
+                <button class="btn btn-danger btn-small btn-full" onclick="deleteCurrentHotspot()">Delete Hotspot</button>
+            </div>
+
+            <div class="section-title">💾 Save Configuration</div>
+
+            <button class="btn btn-success btn-full" onclick="saveConfiguration()">
+                <span style="margin-right: 0.5rem;">💾</span>Save to Script Config
+            </button>
+
+            <div id="json-output" class="json-output" style="display: none;"></div>
+            <button class="btn btn-full" onclick="copyToClipboard()" style="display: none;" id="copy-btn">Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <script src="../js/utils.js"></script>
+    <script src="config-builder.js"></script>
+</body>
+</html>

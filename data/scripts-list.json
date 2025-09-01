@@ -1,0 +1,134 @@
+{
+  "scripts": [
+    {
+      "id": "sp-comp-setup",
+      "name": "SP Comp Setup",
+      "version": "0.8.2",
+      "category": "utility",
+      "description": "Streamlined composition setup with auto-interpretation and template management",
+      "thumbnail": "images/script-screenshots/SPCompSetup_0.8.2.png",
+      "screenshot": "images/script-screenshots/SPCompSetup_0.8.2.png",
+      "featured": true,
+      "tags": ["composition", "setup", "automation", "template"]
+    },
+    {
+      "id": "sp-comp-edit",
+      "name": "SP Comp Edit",
+      "version": "0.1.6",
+      "category": "workflow",
+      "description": "Advanced composition editing tools with batch operations and property management",
+      "thumbnail": "images/script-screenshots/SPCompEdit_0.1.6.png",
+      "screenshot": "images/script-screenshots/SPCompEdit_0.1.6.png",
+      "featured": false,
+      "tags": ["editing", "batch", "properties", "workflow"]
+    },
+    {
+      "id": "sp-versioning-setup-toolkit",
+      "name": "SP Versioning Setup Toolkit",
+      "version": "0.2.2",
+      "category": "workflow",
+      "description": "Complete project versioning system with automated backup and restoration",
+      "thumbnail": "images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
+      "screenshot": "images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
+      "featured": false,
+      "tags": ["versioning", "backup", "project", "management"]
+    },
+    {
+      "id": "sp-versioning-csv",
+      "name": "SP Versioning CSV",
+      "version": "0.1.0",
+      "category": "utility",
+      "description": "CSV-based version tracking and export system for project management",
+      "thumbnail": "images/script-screenshots/SPVersioningCSV_0.1.0.png",
+      "screenshot": "images/script-screenshots/SPVersioningCSV_0.1.0.png",
+      "featured": false,
+      "tags": ["csv", "export", "tracking", "data"]
+    },
+    {
+      "id": "sp-srt-importer",
+      "name": "SP SRT Importer",
+      "version": "0.2.0",
+      "category": "automation",
+      "description": "Automated SRT subtitle file import with timing and formatting options",
+      "thumbnail": "images/script-screenshots/SPSRTImporter_0.2.0.png",
+      "screenshot": "images/script-screenshots/SPSRTImporter_0.2.0.png",
+      "featured": true,
+      "tags": ["subtitle", "import", "srt", "timing"]
+    },
+    {
+      "id": "sp-deadline",
+      "name": "SP Deadline",
+      "version": "1.0.1",
+      "category": "automation",
+      "description": "Deadline render farm integration with job submission and monitoring",
+      "thumbnail": "images/script-screenshots/SPDeadline_1.0.1.png",
+      "screenshot": "images/script-screenshots/SPDeadline_1.0.1.png",
+      "featured": false,
+      "tags": ["deadline", "render", "farm", "submission"]
+    },
+    {
+      "id": "effect-usage-analyzer",
+      "name": "Effect Usage Analyzer",
+      "version": "0.0.4",
+      "category": "utility",
+      "description": "Comprehensive analysis tool for tracking effect usage across projects",
+      "thumbnail": "images/script-screenshots/EffectUsageAnalyzer_0.0.4.png",
+      "screenshot": "images/script-screenshots/EffectUsageAnalyzer_0.0.4.png",
+      "featured": false,
+      "tags": ["analysis", "effects", "tracking", "optimization"]
+    },
+    {
+      "id": "expression-usage-analyzer",
+      "name": "Expression Usage Analyzer",
+      "version": "0.0.1",
+      "category": "utility",
+      "description": "Advanced expression analysis and optimization tool for After Effects projects",
+      "thumbnail": "images/script-screenshots/ExpressionUsageAnalyzer_0.0.1.png",
+      "screenshot": "images/script-screenshots/ExpressionUsageAnalyzer_0.0.1.png",
+      "featured": false,
+      "tags": ["expressions", "analysis", "optimization", "debugging"]
+    },
+    {
+      "id": "find-replace-expression",
+      "name": "Find and Replace in Expression",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Powerful search and replace functionality for expressions across entire projects",
+      "thumbnail": "images/script-screenshots/FindAndReplaceInExpression.png",
+      "screenshot": "images/script-screenshots/FindAndReplaceInExpression.png",
+      "featured": true,
+      "tags": ["find", "replace", "expressions", "batch"]
+    },
+    {
+      "id": "khoa-sharing-toolbar",
+      "name": "Khoa Sharing Toolbar",
+      "version": "1.0.2",
+      "category": "workflow",
+      "description": "Collaborative toolbar for team sharing and project management features",
+      "thumbnail": "images/script-screenshots/KhoaSharingToolbar_1.0.2.png",
+      "screenshot": "images/script-screenshots/KhoaSharingToolbar_1.0.2.png",
+      "featured": false,
+      "tags": ["sharing", "collaboration", "toolbar", "team"]
+    }
+  ],
+  "categories": [
+    {
+      "id": "utility",
+      "name": "Utility Tools",
+      "color": "#4CAF50",
+      "description": "Essential tools for everyday After Effects work"
+    },
+    {
+      "id": "automation",
+      "name": "Automation",
+      "color": "#2196F3",
+      "description": "Scripts that automate repetitive tasks and workflows"
+    },
+    {
+      "id": "workflow",
+      "name": "Workflow",
+      "color": "#FF9800",
+      "description": "Tools to enhance and streamline your creative workflow"
+    }
+  ]
+}

@@ -1,0 +1,1038 @@
+/**
+ * Visual Configuration Builder for Overlay System
+ */
+
+class ConfigurationBuilder {
+    constructor() {
+        this.mode = 'select'; // 'select' or 'create'
+        this.currentImage = null;
+        this.currentScript = null;
+        this.hotspots = [];
+        this.selectedHotspot = null;
+        this.isSelecting = false;
+        this.selectionStart = null;
+        this.selectionRect = null;
+        
+        // Script metadata mapping
+        this.scriptData = {
+            'sp-comp-setup': {
+                name: 'SP Comp Setup',
+                version: '0.8.2',
+                description: 'Streamlined composition setup with auto-interpretation and template management',
+                image: 'SPCompSetup_0.8.2.png'
+            },
+            'sp-comp-edit': {
+                name: 'SP Comp Edit',
+                version: '0.1.6',
+                description: 'Advanced composition editing tools with batch operations and property management',
+                image: 'SPCompEdit_0.1.6.png'
+            },
+            'sp-versioning-setup-toolkit': {
+                name: 'SP Versioning Setup Toolkit',
+                version: '0.2.2',
+                description: 'Complete project versioning system with automated backup and restoration',
+                image: 'SPVersioningSetupToolkit_0.2.2.png'
+            },
+            'sp-versioning-csv': {
+                name: 'SP Versioning CSV',
+                version: '0.1.0',
+                description: 'CSV-based version tracking and export system for project management',
+                image: 'SPVersioningCSV_0.1.0.png'
+            },
+            'sp-srt-importer': {
+                name: 'SP SRT Importer',
+                version: '0.2.0',
+                description: 'Automated SRT subtitle file import with timing and formatting options',
+                image: 'SPSRTImporter_0.2.0.png'
+            },
+            'sp-deadline': {
+                name: 'SP Deadline',
+                version: '1.0.1',
+                description: 'Deadline render farm integration with job submission and monitoring',
+                image: 'SPDeadline_1.0.1.png'
+            },
+            'effect-usage-analyzer': {
+                name: 'Effect Usage Analyzer',
+                version: '0.0.4',
+                description: 'Comprehensive analysis tool for tracking effect usage across projects',
+                image: 'EffectUsageAnalyzer_0.0.4.png'
+            },
+            'expression-usage-analyzer': {
+                name: 'Expression Usage Analyzer',
+                version: '0.0.1',
+                description: 'Advanced expression analysis and optimization tool for After Effects projects',
+                image: 'ExpressionUsageAnalyzer_0.0.1.png'
+            },
+            'find-replace-expression': {
+                name: 'Find and Replace in Expression',
+                version: '1.0.0',
+                description: 'Powerful search and replace functionality for expressions across entire projects',
+                image: 'FindAndReplaceInExpression.png'
+            },
+            'khoa-sharing-toolbar': {
+                name: 'Khoa Sharing Toolbar',
+                version: '1.0.2',
+                description: 'Collaborative toolbar for team sharing and project management features',
+                image: 'KhoaSharingToolbar_1.0.2.png'
+            }
+        };
+        
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+        this.updateModeButtons();
+    }
+
+    setupEventListeners() {
+        // Mode toggle
+        document.getElementById('select-mode').addEventListener('click', () => this.setMode('select'));
+        document.getElementById('create-mode').addEventListener('click', () => this.setMode('create'));
+
+        // Canvas interactions
+        const canvas = document.getElementById('image-canvas');
+        canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+        canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+        canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+
+        // Property inputs
+        this.setupPropertyListeners();
+    }
+
+    /**
+     * Show status message
+     */
+    showStatus(message, type = 'info', duration = 5000) {
+        const status = document.getElementById('script-status');
+        const content = status.querySelector('.status-content');
+        
+        content.textContent = message;
+        status.className = `status-${type}`;
+        status.style.display = 'block';
+        
+        if (duration > 0) {
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, duration);
+        }
+    }
+
+    /**
+     * Load selected script from dropdown
+     */
+    async loadSelectedScript() {
+        const scriptId = document.getElementById('script-selector').value;
+        if (!scriptId) {
+            // Clear everything when no script selected
+            this.currentScript = null;
+            this.currentImage = null;
+            this.hotspots = [];
+            this.selectedHotspot = null;
+            document.getElementById('image-canvas').innerHTML = `
+                <div id="script-display" class="upload-area" style="display: block;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12l2 2 4-4"></path>
+                        <path d="M21 12c.552 0 1-.448 1-1V5c0-.552-.448-1-1-1H3c-.552 0-1 .448-1 1v6c0 .552.448 1 1 1h18z"></path>
+                        <path d="M3 17h18v2H3z"></path>
+                    </svg>
+                    <h3 style="margin: 1rem 0 0.5rem 0; color: #666;">Select a Script</h3>
+                    <p style="color: #999; margin: 0;">Choose a script from the dropdown to configure its overlays</p>
+                </div>
+            `;
+            this.updateHotspotList();
+            this.updatePropertiesPanel();
+            document.getElementById('script-status').style.display = 'none';
+            return;
+        }
+
+        this.showStatus(`Loading ${scriptId}...`, 'info', 0);
+
+        this.currentScript = scriptId;
+        const scriptInfo = this.scriptData[scriptId];
+        
+        // Update script info fields
+        document.getElementById('script-name').value = scriptInfo.name;
+        document.getElementById('script-version').value = scriptInfo.version;
+        document.getElementById('script-description').value = scriptInfo.description;
+
+        // Load the screenshot
+        const imagePath = `../images/script-screenshots/${scriptInfo.image}`;
+        try {
+            await this.loadImageFromPath(imagePath);
+            
+            // Try to load existing configuration
+            const configPath = `../scripts/${scriptId}/config.json`;
+            let configLoaded = false;
+            try {
+                // Add cache-busting parameter like in overlay engine
+                const cacheBuster = Date.now();
+                const response = await fetch(`${configPath}?v=${cacheBuster}`);
+                if (response.ok) {
+                    const config = await response.json();
+                    console.log('Builder loaded config:', config); // Debug log
+                    this.loadConfiguration(config);
+                    configLoaded = true;
+                    this.showStatus(`✅ Loaded ${scriptInfo.name} with ${config.overlays?.length || 0} existing hotspots`, 'success');
+                }
+            } catch (error) {
+                console.error('Failed to load config in builder:', error);
+            }
+            
+            if (!configLoaded) {
+                this.showStatus(`✅ Loaded ${scriptInfo.name} - Ready to create hotspots!`, 'success');
+            }
+            
+        } catch (error) {
+            console.error('Failed to load script:', error);
+            this.showStatus(`❌ Failed to load script image: ${scriptInfo.image}`, 'error');
+        }
+    }
+
+    /**
+     * Load image from path instead of file upload
+     */
+    async loadImageFromPath(imagePath) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                this.currentImage = {
+                    element: img,
+                    width: img.naturalWidth,
+                    height: img.naturalHeight,
+                    path: imagePath
+                };
+                this.displayImage();
+                resolve();
+            };
+            img.onerror = () => {
+                reject(new Error(`Failed to load image: ${imagePath}`));
+            };
+            img.src = imagePath;
+        });
+    }
+
+    /**
+     * Save configuration - show instructions for direct update
+     */
+    async saveConfiguration() {
+        if (!this.currentScript) {
+            alert('Please select a script first');
+            return;
+        }
+
+        const config = this.generateConfiguration();
+        
+        // Show the JSON for copying
+        const jsonOutput = document.getElementById('json-output');
+        const copyBtn = document.getElementById('copy-btn');
+        
+        jsonOutput.textContent = JSON.stringify(config, null, 2);
+        jsonOutput.style.display = 'block';
+        copyBtn.style.display = 'block';
+
+        // Show clear instructions
+        const instructions = document.createElement('div');
+        instructions.style.cssText = `
+            background: #e3f2fd;
+            border: 1px solid #2196F3;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        `;
+        instructions.innerHTML = `
+            <strong>📋 Next Steps:</strong><br>
+            1. Click "Copy to Clipboard" below<br>
+            2. Open: <code>scripts/${this.currentScript}/config.json</code><br>
+            3. Replace ALL content with the copied JSON<br>
+            4. Save the file<br>
+            5. Refresh your script page to see changes
+        `;
+
+        // Insert instructions before JSON output
+        jsonOutput.parentNode.insertBefore(instructions, jsonOutput);
+
+        // Auto-copy to clipboard
+        try {
+            await navigator.clipboard.writeText(jsonOutput.textContent);
+            copyBtn.textContent = 'Copied! ✓';
+            copyBtn.style.background = '#4CAF50';
+            setTimeout(() => {
+                copyBtn.textContent = 'Copy to Clipboard';
+                copyBtn.style.background = '#667eea';
+            }, 3000);
+        } catch (error) {
+            console.log('Auto-copy failed, user will need to click copy button');
+        }
+    }
+
+    /**
+     * Generate configuration object
+     */
+    generateConfiguration() {
+        const scriptInfo = this.scriptData[this.currentScript];
+        
+        return {
+            scriptName: document.getElementById('script-name').value || scriptInfo.name,
+            version: document.getElementById('script-version').value || scriptInfo.version,
+            description: document.getElementById('script-description').value || scriptInfo.description,
+            baseImage: {
+                src: `../../images/script-screenshots/${scriptInfo.image}`,
+                width: this.currentImage ? this.currentImage.width : 800,
+                height: this.currentImage ? this.currentImage.height : 600
+            },
+            overlays: this.hotspots
+        };
+    }
+
+    setupPropertyListeners() {
+        const inputs = [
+            'hotspot-id', 'highlight-color', 'highlight-color-text', 'border-radius',
+            'line-direction', 'line-length', 'line-thickness', 'description-text'
+        ];
+
+        inputs.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('input', this.updateCurrentHotspot.bind(this));
+                element.addEventListener('change', this.updateCurrentHotspot.bind(this));
+            }
+        });
+
+        // Color picker sync
+        const colorPicker = document.getElementById('highlight-color');
+        const colorText = document.getElementById('highlight-color-text');
+        
+        colorPicker.addEventListener('input', () => {
+            colorText.value = colorPicker.value;
+            this.updateCurrentHotspot();
+        });
+        
+        colorText.addEventListener('input', () => {
+            if (/^#[0-9A-F]{6}$/i.test(colorText.value)) {
+                colorPicker.value = colorText.value;
+                this.updateCurrentHotspot();
+            }
+        });
+    }
+
+    handleDragOver(e) {
+        e.preventDefault();
+        e.currentTarget.classList.add('dragover');
+    }
+
+    handleDrop(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith('image/')) {
+            this.loadImage(files[0]);
+        }
+    }
+
+    handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            this.loadImage(file);
+        }
+    }
+
+    async loadImage(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                this.currentImage = {
+                    element: img,
+                    width: img.naturalWidth,
+                    height: img.naturalHeight,
+                    file: file
+                };
+                this.displayImage();
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    displayImage() {
+        const canvas = document.getElementById('image-canvas');
+        const uploadArea = document.getElementById('upload-area');
+        
+        // Clear existing content
+        canvas.innerHTML = '';
+        
+        // Add image
+        const img = document.createElement('img');
+        img.src = this.currentImage.element.src;
+        img.className = 'workspace-image';
+        img.draggable = false;
+        canvas.appendChild(img);
+        
+        // Reset hotspots
+        this.hotspots = [];
+        this.selectedHotspot = null;
+        this.updateHotspotList();
+        this.updatePropertiesPanel();
+    }
+
+    setMode(mode) {
+        this.mode = mode;
+        this.updateModeButtons();
+        this.clearSelection();
+    }
+
+    updateModeButtons() {
+        document.getElementById('select-mode').classList.toggle('active', this.mode === 'select');
+        document.getElementById('create-mode').classList.toggle('active', this.mode === 'create');
+    }
+
+    handleMouseDown(e) {
+        if (!this.currentImage) return;
+
+        const canvas = document.getElementById('image-canvas');
+        const rect = canvas.getBoundingClientRect();
+        const img = canvas.querySelector('.workspace-image');
+        const imgRect = img.getBoundingClientRect();
+
+        // Check if click is on image
+        const x = e.clientX - imgRect.left;
+        const y = e.clientY - imgRect.top;
+
+        if (x < 0 || y < 0 || x > img.offsetWidth || y > img.offsetHeight) return;
+
+        if (this.mode === 'create') {
+            this.startSelection(x, y);
+        } else if (this.mode === 'select') {
+            this.selectHotspotAt(x, y);
+        }
+    }
+
+    handleMouseMove(e) {
+        if (!this.isSelecting || this.mode !== 'create') return;
+
+        const canvas = document.getElementById('image-canvas');
+        const img = canvas.querySelector('.workspace-image');
+        const imgRect = img.getBoundingClientRect();
+
+        const x = e.clientX - imgRect.left;
+        const y = e.clientY - imgRect.top;
+
+        this.updateSelection(x, y);
+    }
+
+    handleMouseUp(e) {
+        if (!this.isSelecting || this.mode !== 'create') return;
+
+        const canvas = document.getElementById('image-canvas');
+        const img = canvas.querySelector('.workspace-image');
+        const imgRect = img.getBoundingClientRect();
+
+        const x = e.clientX - imgRect.left;
+        const y = e.clientY - imgRect.top;
+
+        this.endSelection(x, y);
+    }
+
+    startSelection(x, y) {
+        this.isSelecting = true;
+        this.selectionStart = { x, y };
+        
+        // Create selection rectangle
+        this.selectionRect = document.createElement('div');
+        this.selectionRect.className = 'selection-rect';
+        document.getElementById('image-canvas').appendChild(this.selectionRect);
+        
+        this.updateSelection(x, y);
+    }
+
+    updateSelection(x, y) {
+        if (!this.selectionRect || !this.selectionStart) return;
+
+        const left = Math.min(this.selectionStart.x, x);
+        const top = Math.min(this.selectionStart.y, y);
+        const width = Math.abs(x - this.selectionStart.x);
+        const height = Math.abs(y - this.selectionStart.y);
+
+        this.selectionRect.style.left = `${left}px`;
+        this.selectionRect.style.top = `${top}px`;
+        this.selectionRect.style.width = `${width}px`;
+        this.selectionRect.style.height = `${height}px`;
+    }
+
+    endSelection(x, y) {
+        if (!this.selectionStart) return;
+
+        const left = Math.min(this.selectionStart.x, x);
+        const top = Math.min(this.selectionStart.y, y);
+        const width = Math.abs(x - this.selectionStart.x);
+        const height = Math.abs(y - this.selectionStart.y);
+
+        // Only create hotspot if selection is large enough
+        if (width > 10 && height > 10) {
+            this.createHotspot(left, top, width, height);
+        }
+
+        this.clearSelection();
+    }
+
+    clearSelection() {
+        this.isSelecting = false;
+        this.selectionStart = null;
+        
+        if (this.selectionRect) {
+            this.selectionRect.remove();
+            this.selectionRect = null;
+        }
+    }
+
+    createHotspot(x, y, width, height) {
+        // Convert to image coordinates
+        const img = document.querySelector('.workspace-image');
+        const scaleX = this.currentImage.width / img.offsetWidth;
+        const scaleY = this.currentImage.height / img.offsetHeight;
+
+        const hotspot = {
+            id: `hotspot-${this.hotspots.length + 1}`,
+            hotspot: {
+                x: Math.round(x * scaleX),
+                y: Math.round(y * scaleY),
+                width: Math.round(width * scaleX),
+                height: Math.round(height * scaleY)
+            },
+            highlight: {
+                x: Math.round((x - 2) * scaleX),
+                y: Math.round((y - 2) * scaleY),
+                width: Math.round((width + 4) * scaleX),
+                height: Math.round((height + 4) * scaleY),
+                color: '#3498db',
+                borderRadius: 4
+            },
+            line: {
+                direction: 'left',
+                length: 120,
+                color: '#3498db',
+                thickness: 2
+            },
+            description: {
+                content: 'Add description here with **bold** and _italic_ formatting'
+            }
+        };
+
+        this.hotspots.push(hotspot);
+        this.selectedHotspot = hotspot;
+        this.updateHotspotList();
+        this.updatePropertiesPanel();
+        this.renderHotspots();
+    }
+
+    selectHotspotAt(x, y) {
+        // Convert to image coordinates
+        const img = document.querySelector('.workspace-image');
+        const scaleX = this.currentImage.width / img.offsetWidth;
+        const scaleY = this.currentImage.height / img.offsetHeight;
+
+        const imageX = x * scaleX;
+        const imageY = y * scaleY;
+
+        // Find hotspot at this position
+        const hotspot = this.hotspots.find(h => {
+            const hs = h.hotspot;
+            return imageX >= hs.x && imageX <= hs.x + hs.width &&
+                   imageY >= hs.y && imageY <= hs.y + hs.height;
+        });
+
+        if (hotspot) {
+            this.selectedHotspot = hotspot;
+            this.updateHotspotList();
+            this.updatePropertiesPanel();
+        }
+    }
+
+    updateHotspotList() {
+        const list = document.getElementById('hotspot-list');
+        const countBadge = document.getElementById('hotspot-count');
+        
+        // Update counter
+        countBadge.textContent = this.hotspots.length;
+        
+        if (this.hotspots.length === 0) {
+            list.innerHTML = `
+                <div style="padding: 1.5rem; text-align: center; color: #999; background: #f8f9fa; border-radius: 6px;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎯</div>
+                    <div>No hotspots created yet</div>
+                    <div style="font-size: 0.85rem; margin-top: 0.5rem; color: #6c757d;">Switch to "Create Hotspot" mode and click-drag on the image</div>
+                </div>
+            `;
+            return;
+        }
+
+        list.innerHTML = '';
+        this.hotspots.forEach((hotspot, index) => {
+            const item = document.createElement('div');
+            item.className = `hotspot-item ${hotspot === this.selectedHotspot ? 'active' : ''}`;
+            
+            // Get direction icon
+            const directionIcons = { left: '⬅️', right: '➡️', top: '⬆️', bottom: '⬇️' };
+            const directionIcon = directionIcons[hotspot.line.direction] || '🔗';
+            
+            item.innerHTML = `
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                        <strong style="color: #2d3748;">${hotspot.id}</strong>
+                        <span style="font-size: 0.9rem;">${directionIcon}</span>
+                        <div style="width: 12px; height: 12px; background: ${hotspot.highlight.color}; border-radius: 2px; border: 1px solid #ddd;"></div>
+                    </div>
+                    <small style="color: #666; font-family: monospace;">
+                        ${hotspot.hotspot.width}×${hotspot.hotspot.height} @ (${hotspot.hotspot.x}, ${hotspot.hotspot.y})
+                    </small>
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <button class="btn btn-danger btn-small" onclick="builder.deleteHotspot(${index})" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                        🗑️
+                    </button>
+                </div>
+            `;
+            
+            item.addEventListener('click', (e) => {
+                // Don't select if clicking delete button
+                if (e.target.closest('button')) return;
+                
+                this.selectedHotspot = hotspot;
+                this.updateHotspotList();
+                this.updatePropertiesPanel();
+            });
+            list.appendChild(item);
+        });
+    }
+
+    updatePropertiesPanel() {
+        const panel = document.getElementById('hotspot-properties');
+        const display = document.getElementById('coordinate-display');
+
+        if (!this.selectedHotspot) {
+            panel.style.display = 'none';
+            display.textContent = 'No hotspot selected';
+            return;
+        }
+
+        panel.style.display = 'block';
+        
+        // Update form fields
+        document.getElementById('hotspot-id').value = this.selectedHotspot.id;
+        document.getElementById('highlight-color').value = this.selectedHotspot.highlight.color;
+        document.getElementById('highlight-color-text').value = this.selectedHotspot.highlight.color;
+        document.getElementById('border-radius').value = this.selectedHotspot.highlight.borderRadius;
+        document.getElementById('line-direction').value = this.selectedHotspot.line.direction;
+        document.getElementById('line-length').value = this.selectedHotspot.line.length;
+        document.getElementById('line-thickness').value = this.selectedHotspot.line.thickness;
+        document.getElementById('description-text').value = this.selectedHotspot.description.content;
+
+        // Update coordinate display
+        const hs = this.selectedHotspot.hotspot;
+        display.textContent = `Hotspot: (${hs.x}, ${hs.y}) ${hs.width}×${hs.height}\nHighlight: (${this.selectedHotspot.highlight.x}, ${this.selectedHotspot.highlight.y}) ${this.selectedHotspot.highlight.width}×${this.selectedHotspot.highlight.height}`;
+    }
+
+    updateCurrentHotspot() {
+        if (!this.selectedHotspot) return;
+
+        // Update properties from form
+        this.selectedHotspot.id = document.getElementById('hotspot-id').value;
+        this.selectedHotspot.highlight.color = document.getElementById('highlight-color').value;
+        this.selectedHotspot.highlight.borderRadius = parseInt(document.getElementById('border-radius').value);
+        this.selectedHotspot.line.direction = document.getElementById('line-direction').value;
+        this.selectedHotspot.line.length = parseInt(document.getElementById('line-length').value);
+        this.selectedHotspot.line.thickness = parseInt(document.getElementById('line-thickness').value);
+        this.selectedHotspot.line.color = this.selectedHotspot.highlight.color;
+        this.selectedHotspot.description.content = document.getElementById('description-text').value;
+
+        this.updateHotspotList();
+        this.renderHotspots();
+        
+        // Show live feedback
+        this.showStatus(`🎯 Updated "${this.selectedHotspot.id}" properties`, 'success', 2000);
+    }
+
+    renderHotspots() {
+        if (!this.currentImage) return;
+
+        // Remove existing overlays
+        const canvas = document.getElementById('image-canvas');
+        const existingOverlays = canvas.querySelectorAll('.preview-element');
+        existingOverlays.forEach(overlay => overlay.remove());
+
+        const img = canvas.querySelector('.workspace-image');
+        if (!img) return;
+
+        // Calculate scale
+        const scaleX = img.offsetWidth / this.currentImage.width;
+        const scaleY = img.offsetHeight / this.currentImage.height;
+
+        // Render each hotspot with full preview
+        this.hotspots.forEach((hotspot, index) => {
+            this.renderFullHotspotPreview(hotspot, scaleX, scaleY, canvas);
+        });
+    }
+
+    /**
+     * Render complete preview including hotspot, highlight, line, and tooltip
+     */
+    renderFullHotspotPreview(hotspot, scaleX, scaleY, canvas) {
+        // Create hotspot container
+        const hotspotContainer = document.createElement('div');
+        hotspotContainer.className = 'preview-element hotspot-preview';
+        hotspotContainer.style.position = 'absolute';
+        hotspotContainer.style.left = `${hotspot.hotspot.x * scaleX}px`;
+        hotspotContainer.style.top = `${hotspot.hotspot.y * scaleY}px`;
+        hotspotContainer.style.width = `${hotspot.hotspot.width * scaleX}px`;
+        hotspotContainer.style.height = `${hotspot.hotspot.height * scaleY}px`;
+        hotspotContainer.style.zIndex = '10';
+        
+        // Add selection border if this is the selected hotspot
+        if (hotspot === this.selectedHotspot) {
+            hotspotContainer.style.border = '2px dashed rgba(102, 126, 234, 0.8)';
+            hotspotContainer.style.backgroundColor = 'rgba(102, 126, 234, 0.1)';
+        }
+
+        // Create highlight
+        if (hotspot.highlight) {
+            const highlight = document.createElement('div');
+            highlight.className = 'preview-element highlight-preview';
+            highlight.style.position = 'absolute';
+            highlight.style.left = `${hotspot.highlight.x * scaleX}px`;
+            highlight.style.top = `${hotspot.highlight.y * scaleY}px`;
+            highlight.style.width = `${hotspot.highlight.width * scaleX}px`;
+            highlight.style.height = `${hotspot.highlight.height * scaleY}px`;
+            highlight.style.border = `2px solid ${hotspot.highlight.color}`;
+            highlight.style.borderRadius = `${hotspot.highlight.borderRadius}px`;
+            highlight.style.backgroundColor = this.hexToRgba(hotspot.highlight.color, 0.1);
+            highlight.style.pointerEvents = 'none';
+            highlight.style.zIndex = '5';
+            canvas.appendChild(highlight);
+        }
+
+        // Create line (append to hotspot container like real engine)
+        if (hotspot.line) {
+            const line = this.createPreviewLine(hotspot, scaleX, scaleY, hotspotContainer);
+            hotspotContainer.appendChild(line);
+        }
+
+        // Create tooltip
+        if (hotspot.description) {
+            const tooltip = this.createPreviewTooltip(hotspot, scaleX, scaleY);
+            canvas.appendChild(tooltip);
+        }
+
+        canvas.appendChild(hotspotContainer);
+    }
+
+    /**
+     * Create preview line - matches real overlay engine structure exactly
+     */
+    createPreviewLine(hotspot, scaleX, scaleY, hotspotContainer) {
+        // Create line element positioned relative to hotspot (like real engine)
+        const line = document.createElement('div');
+        line.className = `preview-element overlay-line line-${hotspot.line.direction}`;
+        line.style.position = 'absolute';
+        line.style.pointerEvents = 'none';
+        line.style.zIndex = '15';
+
+        // Scale the line dimensions like the real engine
+        const scaledLength = hotspot.line.length * Math.min(scaleX, scaleY);
+        const thickness = hotspot.line.thickness || 2;
+        
+        // Set CSS custom properties like real engine
+        line.style.setProperty('--line-length', `${scaledLength}px`);
+        line.style.setProperty('--line-thickness', `${thickness}px`);
+        line.style.setProperty('--line-color', hotspot.line.color);
+
+        // Position line at hotspot edge like real engine (relative positioning)
+        switch (hotspot.line.direction) {
+            case 'left':
+                line.style.left = '0px';
+                line.style.top = '50%';
+                line.style.transform = 'translateY(-50%)';
+                break;
+            case 'right':
+                line.style.right = '0px';
+                line.style.top = '50%';
+                line.style.transform = 'translateY(-50%)';
+                break;
+            case 'top':
+                line.style.top = '0px';
+                line.style.left = '50%';
+                line.style.transform = 'translateX(-50%)';
+                break;
+            case 'bottom':
+                line.style.bottom = '0px';
+                line.style.left = '50%';
+                line.style.transform = 'translateX(-50%)';
+                break;
+        }
+
+        // Create the visual line using ::before pseudo-element styles directly
+        const pseudoElement = document.createElement('div');
+        pseudoElement.style.position = 'absolute';
+        pseudoElement.style.backgroundColor = hotspot.line.color;
+        pseudoElement.style.content = '';
+        
+        switch (hotspot.line.direction) {
+            case 'left':
+                pseudoElement.style.width = `${scaledLength}px`;
+                pseudoElement.style.height = `${thickness}px`;
+                pseudoElement.style.top = '50%';
+                pseudoElement.style.right = '100%';
+                pseudoElement.style.transform = 'translateY(-50%)';
+                break;
+            case 'right':
+                pseudoElement.style.width = `${scaledLength}px`;
+                pseudoElement.style.height = `${thickness}px`;
+                pseudoElement.style.top = '50%';
+                pseudoElement.style.left = '100%';
+                pseudoElement.style.transform = 'translateY(-50%)';
+                break;
+            case 'top':
+                pseudoElement.style.width = `${thickness}px`;
+                pseudoElement.style.height = `${scaledLength}px`;
+                pseudoElement.style.bottom = '100%';
+                pseudoElement.style.left = '50%';
+                pseudoElement.style.transform = 'translateX(-50%)';
+                break;
+            case 'bottom':
+                pseudoElement.style.width = `${thickness}px`;
+                pseudoElement.style.height = `${scaledLength}px`;
+                pseudoElement.style.top = '100%';
+                pseudoElement.style.left = '50%';
+                pseudoElement.style.transform = 'translateX(-50%)';
+                break;
+        }
+
+        line.appendChild(pseudoElement);
+        return line;
+    }
+
+    /**
+     * Create preview tooltip
+     */
+    createPreviewTooltip(hotspot, scaleX, scaleY) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'preview-element tooltip-preview';
+        tooltip.innerHTML = this.processMarkdown(hotspot.description.content);
+        
+        // Apply tooltip styling
+        tooltip.style.cssText = `
+            position: absolute;
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            line-height: 1.4;
+            max-width: 280px;
+            min-width: 180px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            z-index: 25;
+            pointer-events: none;
+            word-wrap: break-word;
+        `;
+
+        // Use EXACT same calculation as real overlay engine
+        const hotspotCenterX = (hotspot.hotspot.x + hotspot.hotspot.width / 2) * scaleX;
+        const hotspotCenterY = (hotspot.hotspot.y + hotspot.hotspot.height / 2) * scaleY;
+        const length = hotspot.line.length * Math.min(scaleX, scaleY); // Same scaling as real engine
+        const offset = 15; // Same offset as real engine
+
+        switch (hotspot.line.direction) {
+            case 'left':
+                tooltip.style.right = `calc(100% - ${hotspotCenterX - length - offset}px)`;
+                tooltip.style.top = `${hotspotCenterY}px`;
+                tooltip.style.transform = 'translateY(-50%)';
+                tooltip.style.left = 'auto';
+                tooltip.style.bottom = 'auto';
+                break;
+            case 'right':
+                tooltip.style.left = `${hotspotCenterX + length + offset}px`;
+                tooltip.style.top = `${hotspotCenterY}px`;
+                tooltip.style.transform = 'translateY(-50%)';
+                tooltip.style.right = 'auto';
+                tooltip.style.bottom = 'auto';
+                break;
+            case 'top':
+                tooltip.style.left = `${hotspotCenterX}px`;
+                tooltip.style.bottom = `calc(100% - ${hotspotCenterY - length - offset}px)`;
+                tooltip.style.transform = 'translateX(-50%)';
+                tooltip.style.top = 'auto';
+                tooltip.style.right = 'auto';
+                break;
+            case 'bottom':
+                tooltip.style.left = `${hotspotCenterX}px`;
+                tooltip.style.top = `${hotspotCenterY + length + offset}px`;
+                tooltip.style.transform = 'translateX(-50%)';
+                tooltip.style.bottom = 'auto';
+                tooltip.style.right = 'auto';
+                break;
+        }
+
+        return tooltip;
+    }
+
+    /**
+     * Convert hex to rgba
+     */
+    hexToRgba(hex, alpha) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        if (!result) return `rgba(52, 152, 219, ${alpha})`;
+        
+        const r = parseInt(result[1], 16);
+        const g = parseInt(result[2], 16);
+        const b = parseInt(result[3], 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    /**
+     * Process markdown for tooltip preview
+     */
+    processMarkdown(text) {
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #f39c12;">$1</strong>')
+            .replace(/__(.*?)__/g, '<strong style="color: #f39c12;">$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em style="color: #3498db;">$1</em>')
+            .replace(/_(.*?)_/g, '<em style="color: #3498db;">$1</em>');
+    }
+
+    deleteHotspot(index) {
+        this.hotspots.splice(index, 1);
+        if (this.selectedHotspot === this.hotspots[index]) {
+            this.selectedHotspot = null;
+        }
+        this.updateHotspotList();
+        this.updatePropertiesPanel();
+        this.renderHotspots();
+    }
+
+    deleteCurrentHotspot() {
+        if (!this.selectedHotspot) return;
+        
+        const index = this.hotspots.indexOf(this.selectedHotspot);
+        if (index !== -1) {
+            this.deleteHotspot(index);
+        }
+    }
+
+    exportConfiguration() {
+        const scriptName = document.getElementById('script-name').value || 'Untitled Script';
+        const version = document.getElementById('script-version').value || '1.0.0';
+        const description = document.getElementById('script-description').value || 'Script description';
+
+        const config = {
+            scriptName: scriptName,
+            version: version,
+            description: description,
+            baseImage: {
+                src: this.currentImage ? `path/to/${this.currentImage.file.name}` : 'screenshot.png',
+                width: this.currentImage ? this.currentImage.width : 800,
+                height: this.currentImage ? this.currentImage.height : 600
+            },
+            overlays: this.hotspots
+        };
+
+        const jsonOutput = document.getElementById('json-output');
+        const copyBtn = document.getElementById('copy-btn');
+        
+        jsonOutput.textContent = JSON.stringify(config, null, 2);
+        jsonOutput.style.display = 'block';
+        copyBtn.style.display = 'block';
+
+        // Also trigger download
+        this.downloadJSON(config, `${scriptName.replace(/\s+/g, '-').toLowerCase()}-config.json`);
+    }
+
+    downloadJSON(config, filename) {
+        const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    importConfiguration() {
+        document.getElementById('import-input').click();
+    }
+
+    handleImportFile(e) {
+        const file = e.target.files[0];
+        if (!file || !file.name.endsWith('.json')) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const config = JSON.parse(e.target.result);
+                this.loadConfiguration(config);
+            } catch (error) {
+                alert('Invalid JSON file');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    loadConfiguration(config) {
+        // Load script info
+        document.getElementById('script-name').value = config.scriptName || '';
+        document.getElementById('script-version').value = config.version || '';
+        document.getElementById('script-description').value = config.description || '';
+
+        // Load hotspots
+        this.hotspots = config.overlays || [];
+        this.selectedHotspot = null;
+        
+        this.updateHotspotList();
+        this.updatePropertiesPanel();
+        this.renderHotspots();
+    }
+
+}
+
+// Initialize the builder
+let builder;
+
+document.addEventListener('DOMContentLoaded', function() {
+    builder = new ConfigurationBuilder();
+});
+
+// Global functions for button clicks
+function loadSelectedScript() {
+    builder.loadSelectedScript();
+}
+
+function deleteCurrentHotspot() {
+    builder.deleteCurrentHotspot();
+}
+
+function saveConfiguration() {
+    builder.saveConfiguration();
+}
+
+function exportConfiguration() {
+    builder.exportConfiguration();
+}
+
+
+function copyToClipboard() {
+    const jsonOutput = document.getElementById('json-output');
+    navigator.clipboard.writeText(jsonOutput.textContent).then(() => {
+        const btn = document.getElementById('copy-btn');
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => {
+            btn.textContent = originalText;
+        }, 2000);
+    });
+}
