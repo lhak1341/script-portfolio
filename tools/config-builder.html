@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Overlay Configuration Builder - After Effects Scripts Portfolio</title>
     <link rel="stylesheet" href="../css/main.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
         .builder-container {
             display: grid;
@@ -16,19 +17,19 @@
         }
 
         .image-workspace {
-            background: white;
+            background: var(--bg-secondary);
             border-radius: 12px;
             padding: 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: var(--card-shadow);
             position: relative;
             text-align: center;
         }
 
         .control-panel {
-            background: white;
+            background: var(--bg-secondary);
             border-radius: 12px;
             padding: 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: var(--card-shadow);
             max-height: calc(100vh - 200px);
             overflow-y: auto;
             position: sticky;
@@ -39,9 +40,9 @@
             position: relative;
             display: inline-block;
             max-width: 100%;
-            border: 2px dashed #e9ecef;
+            border: 2px dashed var(--border-color);
             border-radius: 8px;
-            background: #f8f9fa;
+            background: var(--bg-tertiary);
             text-align: left;
         }
 
@@ -60,16 +61,18 @@
             flex-direction: column;
             cursor: pointer;
             transition: all 0.3s ease;
+            padding: 3rem 2rem;
+            gap: 1rem;
         }
 
         .upload-area:hover {
-            border-color: #667eea;
-            background: #f0f4ff;
+            border-color: var(--accent-color);
+            background: var(--bg-tertiary);
         }
 
         .upload-area.dragover {
-            border-color: #667eea;
-            background: #e3f2fd;
+            border-color: var(--accent-color);
+            background: var(--bg-tertiary);
             transform: scale(1.02);
         }
 
@@ -81,7 +84,7 @@
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
         }
 
         .form-group input,
@@ -89,17 +92,19 @@
         .form-group textarea {
             width: 100%;
             padding: 0.75rem;
-            border: 2px solid #e9ecef;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
             font-size: 1rem;
             transition: border-color 0.3s;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--accent-color);
         }
 
         .color-input-group {
@@ -120,7 +125,7 @@
         .btn {
             display: inline-block;
             padding: 0.75rem 1.5rem;
-            background: #667eea;
+            background: var(--accent-color);
             color: white;
             border: none;
             border-radius: 8px;
@@ -132,16 +137,16 @@
         }
 
         .btn:hover {
-            background: #5a67d8;
+            background: var(--accent-hover);
             transform: translateY(-1px);
         }
 
         .btn-secondary {
-            background: #6c757d;
+            background: var(--text-secondary);
         }
 
         .btn-secondary:hover {
-            background: #5a6268;
+            background: var(--text-muted);
         }
 
         .btn-success {
@@ -182,14 +187,14 @@
         .hotspot-list {
             max-height: 200px;
             overflow-y: auto;
-            border: 1px solid #e9ecef;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             margin-bottom: 1rem;
         }
 
         .hotspot-item {
             padding: 0.75rem;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid var(--border-color);
             cursor: pointer;
             transition: background 0.2s;
             display: flex;
@@ -198,12 +203,12 @@
         }
 
         .hotspot-item:hover {
-            background: #f8f9fa;
+            background: var(--bg-tertiary);
         }
 
         .hotspot-item.active {
-            background: #e3f2fd;
-            border-left: 4px solid #667eea;
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-color);
         }
 
         .hotspot-item:last-child {
@@ -211,8 +216,8 @@
         }
 
         .json-output {
-            background: #2d3748;
-            color: #e2e8f0;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             font-size: 0.85rem;
             padding: 1rem;
@@ -221,63 +226,69 @@
             overflow: auto;
             white-space: pre;
             margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
         }
 
         .instructions {
-            background: #e3f2fd;
+            background: var(--bg-tertiary);
             padding: 1rem;
             border-radius: 6px;
             margin-bottom: 1.5rem;
             font-size: 0.9rem;
             line-height: 1.5;
+            border: 1px solid var(--border-color);
         }
 
         .section-title {
             font-size: 1.1rem;
             font-weight: 600;
             margin: 1.5rem 0 1rem 0;
-            color: #333;
-            border-bottom: 2px solid #e9ecef;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-color);
             padding-bottom: 0.5rem;
         }
 
         .mode-toggle {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem;
             margin-bottom: 1.5rem;
         }
 
         .mode-btn {
             flex: 1;
-            padding: 0.5rem 1rem;
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             text-align: center;
             font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
         }
 
         .mode-btn.active {
-            background: #667eea;
+            background: var(--accent-color);
             color: white;
-            border-color: #667eea;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-            transform: translateY(-1px);
+            border-color: var(--accent-color);
+            font-weight: 600;
         }
 
         .mode-btn:hover:not(.active) {
-            background: #f0f4ff;
-            border-color: #667eea;
-            transform: translateY(-1px);
+            border-color: var(--accent-color);
+            color: var(--text-primary);
         }
 
         /* Enhanced form styling */
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
-            border-color: #667eea;
+            border-color: var(--accent-color);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
@@ -286,8 +297,8 @@
             font-size: 1.1rem;
             font-weight: 600;
             margin: 2rem 0 1rem 0;
-            color: #2d3748;
-            border-bottom: 2px solid #e9ecef;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-color);
             padding-bottom: 0.5rem;
             display: flex;
             align-items: center;
@@ -297,7 +308,7 @@
         /* Enhanced hotspot list */
         .hotspot-item {
             padding: 0.875rem;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid var(--border-color);
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
@@ -308,15 +319,15 @@
         }
 
         .hotspot-item:hover {
-            background: #f8f9fa;
+            background: var(--bg-tertiary);
             transform: translateX(4px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: var(--card-shadow);
         }
 
         .hotspot-item.active {
-            background: linear-gradient(135deg, #e3f2fd, #f0f4ff);
-            border-left: 4px solid #667eea;
-            box-shadow: 0 2px 12px rgba(102, 126, 234, 0.2);
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-color);
+            box-shadow: var(--card-shadow-hover);
             transform: translateX(4px);
         }
 
@@ -326,7 +337,7 @@
             align-items: center;
             justify-content: center;
             padding: 0.75rem 1.5rem;
-            background: #667eea;
+            background: var(--accent-color);
             color: white;
             border: none;
             border-radius: 8px;
@@ -336,13 +347,13 @@
             transition: all 0.3s ease;
             text-decoration: none;
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: var(--card-shadow);
         }
 
         .btn:hover {
-            background: #5a67d8;
+            background: var(--accent-hover);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: var(--card-shadow-hover);
         }
 
         /* Status messages */
@@ -365,13 +376,86 @@
         }
 
         .coordinate-display {
-            background: #f8f9fa;
+            background: var(--bg-tertiary);
             padding: 0.75rem;
             border-radius: 6px;
             font-family: monospace;
             font-size: 0.85rem;
             margin-bottom: 1rem;
-            border: 1px solid #e9ecef;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* Color Palette */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .color-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 0.25rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .color-option:hover {
+            background: var(--bg-secondary);
+        }
+
+        .color-option.active {
+            background: var(--bg-secondary);
+            border-color: var(--accent-color);
+        }
+
+        .color-swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-option span {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .color-option.active span {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        /* Color swatches - theme adaptive */
+        .color-swatch.red { background: #ef4444; }
+        .color-swatch.orange { background: #f97316; }
+        .color-swatch.yellow { background: #eab308; }
+        .color-swatch.green { background: #22c55e; }
+        .color-swatch.cyan { background: #06b6d4; }
+        .color-swatch.purple { background: #a855f7; }
+        .color-swatch.pink { background: #ec4899; }
+
+        /* Dark theme color adjustments */
+        @media (prefers-color-scheme: dark) {
+            .color-swatch.red { background: #f87171; }
+            .color-swatch.orange { background: #fb923c; }
+            .color-swatch.yellow { background: #facc15; }
+            .color-swatch.green { background: #4ade80; }
+            .color-swatch.cyan { background: #22d3ee; }
+            .color-swatch.purple { background: #c084fc; }
+            .color-swatch.pink { background: #f472b6; }
         }
 
         @media (max-width: 1200px) {
@@ -388,7 +472,7 @@
         /* Selection rectangle for creating hotspots */
         .selection-rect {
             position: absolute;
-            border: 2px dashed #667eea;
+            border: 2px dashed var(--accent-color);
             background: rgba(102, 126, 234, 0.1);
             pointer-events: none;
             z-index: 20;
@@ -407,13 +491,9 @@
         <div class="image-workspace">
             <div id="image-canvas" class="image-canvas">
                 <div id="script-display" class="upload-area" style="display: block;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 12l2 2 4-4"></path>
-                        <path d="M21 12c.552 0 1-.448 1-1V5c0-.552-.448-1-1-1H3c-.552 0-1 .448-1 1v6c0 .552.448 1 1 1h18z"></path>
-                        <path d="M3 17h18v2H3z"></path>
-                    </svg>
-                    <h3 style="margin: 1rem 0 0.5rem 0; color: #666;">Select a Script</h3>
-                    <p style="color: #999; margin: 0;">Choose a script from the dropdown to configure its overlays</p>
+                    <i data-lucide="image" style="width: 48px; height: 48px; color: var(--text-muted);"></i>
+                    <h3 style="color: var(--text-secondary); margin: 0;">Select a Script</h3>
+                    <p style="color: var(--text-muted); margin: 0; text-align: center; max-width: 280px;">Choose a script from the dropdown to configure its overlays</p>
                 </div>
             </div>
         </div>
@@ -421,11 +501,8 @@
         <div class="control-panel">
             <div class="instructions">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#667eea" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="m9 12 2 2 4-4"></path>
-                    </svg>
-                    <strong style="color: #667eea;">Quick Start Guide</strong>
+                    <i data-lucide="check-circle" style="width: 20px; height: 20px; color: var(--accent-color);"></i>
+                    <strong style="color: var(--accent-color);">Quick Start Guide</strong>
                 </div>
                 1. Select a script below to load its screenshot<br>
                 2. Switch to "Create Hotspot" mode<br>
@@ -434,22 +511,25 @@
                 5. Save automatically updates the script config
             </div>
 
-            <div class="section-title">📋 Script Selection</div>
+            <div class="section-title">
+                <i data-lucide="clipboard-list" style="width: 18px; height: 18px;"></i>
+                Script Selection
+            </div>
             
             <div class="form-group">
                 <label>Choose Script to Configure</label>
                 <select id="script-selector" onchange="loadSelectedScript()" style="font-size: 1rem; padding: 0.875rem;">
-                    <option value="">🎯 Select a script to begin...</option>
-                    <option value="sp-comp-setup">🔧 SP Comp Setup v0.8.2</option>
-                    <option value="sp-comp-edit">✏️ SP Comp Edit v0.1.6</option>
-                    <option value="sp-versioning-setup-toolkit">📂 SP Versioning Setup Toolkit v0.2.2</option>
-                    <option value="sp-versioning-csv">📊 SP Versioning CSV v0.1.0</option>
-                    <option value="sp-srt-importer">📝 SP SRT Importer v0.2.0</option>
-                    <option value="sp-deadline">⏰ SP Deadline v1.0.1</option>
-                    <option value="effect-usage-analyzer">🔍 Effect Usage Analyzer v0.0.4</option>
-                    <option value="expression-usage-analyzer">📈 Expression Usage Analyzer v0.0.1</option>
-                    <option value="find-replace-expression">🔎 Find and Replace in Expression</option>
-                    <option value="khoa-sharing-toolbar">🤝 Khoa Sharing Toolbar v1.0.2</option>
+                    <option value="">Select a script to begin...</option>
+                    <option value="sp-comp-setup">SP Comp Setup v0.8.2</option>
+                    <option value="sp-comp-edit">SP Comp Edit v0.1.6</option>
+                    <option value="sp-versioning-setup-toolkit">SP Versioning Setup Toolkit v0.2.2</option>
+                    <option value="sp-versioning-csv">SP Versioning CSV v0.1.0</option>
+                    <option value="sp-srt-importer">SP SRT Importer v0.2.0</option>
+                    <option value="sp-deadline">SP Deadline v1.0.1</option>
+                    <option value="effect-usage-analyzer">Effect Usage Analyzer v0.0.4</option>
+                    <option value="expression-usage-analyzer">Expression Usage Analyzer v0.0.1</option>
+                    <option value="find-replace-expression">Find and Replace in Expression</option>
+                    <option value="khoa-sharing-toolbar">Khoa Sharing Toolbar v1.0.2</option>
                 </select>
             </div>
 
@@ -459,14 +539,19 @@
 
             <div class="mode-toggle">
                 <div id="select-mode" class="mode-btn active">
-                    <span>👆</span> Select Mode
+                    <i data-lucide="hand" style="width: 16px; height: 16px; margin-right: 0.5rem;"></i>
+                    Select Mode
                 </div>
                 <div id="create-mode" class="mode-btn">
-                    <span>➕</span> Create Hotspot
+                    <i data-lucide="plus" style="width: 16px; height: 16px; margin-right: 0.5rem;"></i>
+                    Create Hotspot
                 </div>
             </div>
 
-            <div class="section-title">ℹ️ Script Information</div>
+            <div class="section-title">
+                <i data-lucide="info" style="width: 18px; height: 18px;"></i>
+                Script Information
+            </div>
             
             <div class="form-group">
                 <label>Script Name</label>
@@ -484,19 +569,23 @@
             </div>
 
             <div class="section-title">
-                🎯 Hotspots 
-                <span id="hotspot-count" style="background: #667eea; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 8px;">0</span>
+                <i data-lucide="target" style="width: 18px; height: 18px;"></i>
+                Hotspots
+                <span id="hotspot-count" style="background: var(--accent-color); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 8px;">0</span>
             </div>
 
             <div id="hotspot-list" class="hotspot-list">
-                <div style="padding: 1.5rem; text-align: center; color: #999; background: #f8f9fa; border-radius: 6px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎯</div>
+                <div style="padding: 1.5rem; text-align: center; color: var(--text-muted); background: var(--bg-tertiary); border-radius: 6px;">
+                    <i data-lucide="target" style="width: 48px; height: 48px; margin-bottom: 0.5rem; opacity: 0.6;"></i>
                     <div>No hotspots created yet</div>
-                    <div style="font-size: 0.85rem; margin-top: 0.5rem; color: #6c757d;">Switch to "Create Hotspot" mode and click-drag on the image</div>
+                    <div style="font-size: 0.85rem; margin-top: 0.5rem; color: var(--text-secondary);">Switch to "Create Hotspot" mode and click-drag on the image</div>
                 </div>
             </div>
 
-            <div class="section-title">⚙️ Hotspot Properties</div>
+            <div class="section-title">
+                <i data-lucide="settings" style="width: 18px; height: 18px;"></i>
+                Hotspot Properties
+            </div>
 
             <div id="hotspot-properties" style="display: none;">
                 <div class="form-group">
@@ -510,15 +599,36 @@
 
                 <div class="form-group">
                     <label>Highlight Color</label>
-                    <div class="color-input-group">
-                        <input type="color" id="highlight-color" class="color-picker" value="#3498db">
-                        <input type="text" id="highlight-color-text" value="#3498db">
+                    <div class="color-palette" id="color-palette">
+                        <div class="color-option" data-color="red">
+                            <div class="color-swatch red"></div>
+                            <span>Red</span>
+                        </div>
+                        <div class="color-option" data-color="orange">
+                            <div class="color-swatch orange"></div>
+                            <span>Orange</span>
+                        </div>
+                        <div class="color-option" data-color="yellow">
+                            <div class="color-swatch yellow"></div>
+                            <span>Yellow</span>
+                        </div>
+                        <div class="color-option active" data-color="green">
+                            <div class="color-swatch green"></div>
+                            <span>Green</span>
+                        </div>
+                        <div class="color-option" data-color="cyan">
+                            <div class="color-swatch cyan"></div>
+                            <span>Cyan</span>
+                        </div>
+                        <div class="color-option" data-color="purple">
+                            <div class="color-swatch purple"></div>
+                            <span>Purple</span>
+                        </div>
+                        <div class="color-option" data-color="pink">
+                            <div class="color-swatch pink"></div>
+                            <span>Pink</span>
+                        </div>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Border Radius (px)</label>
-                    <input type="number" id="border-radius" value="4" min="0" max="20">
                 </div>
 
                 <div class="form-group">
@@ -537,11 +647,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Line Thickness (px)</label>
-                    <input type="number" id="line-thickness" value="2" min="1" max="10">
-                </div>
-
-                <div class="form-group">
                     <label>Description (supports **bold** and _italic_)</label>
                     <textarea id="description-text" rows="3" placeholder="Brief tooltip description with **bold** and _italic_ markdown support"></textarea>
                 </div>
@@ -549,10 +654,14 @@
                 <button class="btn btn-danger btn-small btn-full" onclick="deleteCurrentHotspot()">Delete Hotspot</button>
             </div>
 
-            <div class="section-title">💾 Save Configuration</div>
+            <div class="section-title">
+                <i data-lucide="save" style="width: 18px; height: 18px;"></i>
+                Save Configuration
+            </div>
 
             <button class="btn btn-success btn-full" onclick="saveConfiguration()">
-                <span style="margin-right: 0.5rem;">💾</span>Save to Script Config
+                <i data-lucide="save" style="width: 16px; height: 16px; margin-right: 0.5rem;"></i>
+                Save to Script Config
             </button>
 
             <div id="json-output" class="json-output" style="display: none;"></div>
@@ -562,5 +671,34 @@
 
     <script src="../js/utils.js"></script>
     <script src="config-builder.js"></script>
+    <script>
+        // Initialize Lucide icons
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+        
+        // Re-initialize icons when content is dynamically added
+        function refreshIcons() {
+            if (typeof lucide !== 'undefined') {
+                setTimeout(() => lucide.createIcons(), 10);
+            }
+        }
+        
+        // Observe for dynamic content changes
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    refreshIcons();
+                }
+            });
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    </script>
 </body>
 </html>

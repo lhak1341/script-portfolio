@@ -8,6 +8,7 @@
     --text-muted: #999999;
     --border-color: #e9ecef;
     --accent-color: #667eea;
+    --accent-color-rgb: 102, 126, 234;
     --accent-hover: #5a67d8;
     --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -25,6 +26,7 @@
         --text-muted: #a0a0a0;
         --border-color: #404040;
         --accent-color: #7c8aed;
+        --accent-color-rgb: 124, 138, 237;
         --accent-hover: #6b7ce8;
         --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);

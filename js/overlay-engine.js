@@ -2,6 +2,23 @@
  * Overlay Engine - Core functionality for interactive script showcases
  */
 
+// Default configuration constants - centralized for easy modification
+const OVERLAY_DEFAULTS = {
+    BORDER_RADIUS: 4,    // px - default border radius for highlights
+    LINE_THICKNESS: 2,   // px - default line thickness
+    
+    // Predefined color palette - optimized for light/dark themes
+    COLORS: {
+        red: { light: '#ef4444', dark: '#f87171' },      // Red 500/400
+        orange: { light: '#f97316', dark: '#fb923c' },   // Orange 500/400
+        yellow: { light: '#eab308', dark: '#facc15' },   // Yellow 500/400
+        green: { light: '#22c55e', dark: '#4ade80' },    // Green 500/400
+        cyan: { light: '#06b6d4', dark: '#22d3ee' },     // Cyan 500/400
+        purple: { light: '#a855f7', dark: '#c084fc' },   // Purple 500/400
+        pink: { light: '#ec4899', dark: '#f472b6' }      // Pink 500/400
+    }
+};
+
 class OverlayEngine {
     constructor(container) {
         this.container = container;
@@ -9,6 +26,21 @@ class OverlayEngine {
         this.overlays = [];
         this.showAllMode = false;
         this.setupToggleButton();
+    }
+
+    /**
+     * Get color value based on current theme
+     */
+    getCurrentColorValue(colorName) {
+        // Handle legacy hex colors
+        if (colorName.startsWith('#')) {
+            return colorName;
+        }
+        // Handle new color system
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return OVERLAY_DEFAULTS.COLORS[colorName] ? 
+            OVERLAY_DEFAULTS.COLORS[colorName][isDark ? 'dark' : 'light'] : 
+            colorName;
     }
 
     /**
@@ -202,17 +234,18 @@ class OverlayEngine {
         highlight.style.height = `${coords.height * scaleY}px`;
 
         if (styleConfig && styleConfig.color) {
-            highlight.style.borderColor = styleConfig.color;
+            const colorValue = this.getCurrentColorValue(styleConfig.color);
+            highlight.style.borderColor = colorValue;
             // Create semi-transparent background
-            const rgb = this.hexToRgb(styleConfig.color);
+            const rgb = this.hexToRgb(colorValue);
             if (rgb) {
                 highlight.style.background = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`;
             }
         }
 
-        if (styleConfig && styleConfig.borderRadius) {
-            highlight.style.borderRadius = `${styleConfig.borderRadius}px`;
-        }
+        // Apply border radius (use default if not specified)
+        const borderRadius = styleConfig?.borderRadius || OVERLAY_DEFAULTS.BORDER_RADIUS;
+        highlight.style.borderRadius = `${borderRadius}px`;
 
         return highlight;
     }
@@ -226,10 +259,10 @@ class OverlayEngine {
 
         // Set CSS custom properties for line dimensions
         line.style.setProperty('--line-length', `${lineConfig.length}px`);
-        line.style.setProperty('--line-thickness', `${lineConfig.thickness || 2}px`);
+        line.style.setProperty('--line-thickness', `${lineConfig.thickness || OVERLAY_DEFAULTS.LINE_THICKNESS}px`);
         
         // Set the line color directly and use !important to override CSS
-        const lineColor = lineConfig.color || '#3498db';
+        const lineColor = this.getCurrentColorValue(lineConfig.color || 'cyan');
         line.style.backgroundColor = lineColor;
         line.style.setProperty('--line-color', lineColor);
 
@@ -260,7 +293,7 @@ class OverlayEngine {
         console.log(`Line created for ${lineConfig.direction}:`, {
             color: lineColor,
             length: lineConfig.length,
-            thickness: lineConfig.thickness
+            thickness: lineConfig.thickness || OVERLAY_DEFAULTS.LINE_THICKNESS
         });
 
         return line;

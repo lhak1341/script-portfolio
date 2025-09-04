@@ -2,6 +2,23 @@
  * Visual Configuration Builder for Overlay System
  */
 
+// Default configuration constants - must match overlay-engine.js
+const OVERLAY_DEFAULTS = {
+    BORDER_RADIUS: 4,    // px - default border radius for highlights
+    LINE_THICKNESS: 2,   // px - default line thickness
+    
+    // Predefined color palette - optimized for light/dark themes
+    COLORS: {
+        red: { light: '#ef4444', dark: '#f87171' },      // Red 500/400
+        orange: { light: '#f97316', dark: '#fb923c' },   // Orange 500/400
+        yellow: { light: '#eab308', dark: '#facc15' },   // Yellow 500/400
+        green: { light: '#22c55e', dark: '#4ade80' },    // Green 500/400
+        cyan: { light: '#06b6d4', dark: '#22d3ee' },     // Cyan 500/400
+        purple: { light: '#a855f7', dark: '#c084fc' },   // Purple 500/400
+        pink: { light: '#ec4899', dark: '#f472b6' }      // Pink 500/400
+    }
+};
+
 class ConfigurationBuilder {
     constructor() {
         this.mode = 'select'; // 'select' or 'create'
@@ -12,6 +29,7 @@ class ConfigurationBuilder {
         this.isSelecting = false;
         this.selectionStart = null;
         this.selectionRect = null;
+        this.selectedColor = 'green'; // Default color
         
         // Script metadata mapping
         this.scriptData = {
@@ -83,6 +101,36 @@ class ConfigurationBuilder {
     init() {
         this.setupEventListeners();
         this.updateModeButtons();
+        this.setupColorPalette();
+    }
+
+    /**
+     * Get color value based on current theme
+     */
+    getCurrentColorValue(colorName) {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return OVERLAY_DEFAULTS.COLORS[colorName][isDark ? 'dark' : 'light'];
+    }
+
+    /**
+     * Setup color palette event listeners
+     */
+    setupColorPalette() {
+        const colorOptions = document.querySelectorAll('.color-option');
+        colorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // Remove active class from all options
+                colorOptions.forEach(opt => opt.classList.remove('active'));
+                // Add active class to clicked option
+                option.classList.add('active');
+                // Update selected color
+                this.selectedColor = option.dataset.color;
+                // Update current hotspot if selected
+                if (this.selectedHotspot) {
+                    this.updateCurrentHotspot();
+                }
+            });
+        });
     }
 
     setupEventListeners() {
@@ -131,13 +179,9 @@ class ConfigurationBuilder {
             this.selectedHotspot = null;
             document.getElementById('image-canvas').innerHTML = `
                 <div id="script-display" class="upload-area" style="display: block;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 12l2 2 4-4"></path>
-                        <path d="M21 12c.552 0 1-.448 1-1V5c0-.552-.448-1-1-1H3c-.552 0-1 .448-1 1v6c0 .552.448 1 1 1h18z"></path>
-                        <path d="M3 17h18v2H3z"></path>
-                    </svg>
-                    <h3 style="margin: 1rem 0 0.5rem 0; color: #666;">Select a Script</h3>
-                    <p style="color: #999; margin: 0;">Choose a script from the dropdown to configure its overlays</p>
+                    <i data-lucide="image" style="width: 48px; height: 48px; color: var(--text-muted);"></i>
+                    <h3 style="color: var(--text-secondary); margin: 0;">Select a Script</h3>
+                    <p style="color: var(--text-muted); margin: 0; text-align: center; max-width: 280px;">Choose a script from the dropdown to configure its overlays</p>
                 </div>
             `;
             this.updateHotspotList();
@@ -243,7 +287,7 @@ class ConfigurationBuilder {
             line-height: 1.5;
         `;
         instructions.innerHTML = `
-            <strong>📋 Next Steps:</strong><br>
+            <strong><i data-lucide="clipboard-list" style="width: 16px; height: 16px; margin-right: 0.5rem;"></i>Next Steps:</strong><br>
             1. Click "Copy to Clipboard" below<br>
             2. Open: <code>scripts/${this.currentScript}/config.json</code><br>
             3. Replace ALL content with the copied JSON<br>
@@ -289,8 +333,7 @@ class ConfigurationBuilder {
 
     setupPropertyListeners() {
         const inputs = [
-            'hotspot-id', 'highlight-color', 'highlight-color-text', 'border-radius',
-            'line-direction', 'line-length', 'line-thickness', 'description-text'
+            'hotspot-id', 'line-direction', 'line-length', 'description-text'
         ];
 
         inputs.forEach(id => {
@@ -298,22 +341,6 @@ class ConfigurationBuilder {
             if (element) {
                 element.addEventListener('input', this.updateCurrentHotspot.bind(this));
                 element.addEventListener('change', this.updateCurrentHotspot.bind(this));
-            }
-        });
-
-        // Color picker sync
-        const colorPicker = document.getElementById('highlight-color');
-        const colorText = document.getElementById('highlight-color-text');
-        
-        colorPicker.addEventListener('input', () => {
-            colorText.value = colorPicker.value;
-            this.updateCurrentHotspot();
-        });
-        
-        colorText.addEventListener('input', () => {
-            if (/^#[0-9A-F]{6}$/i.test(colorText.value)) {
-                colorPicker.value = colorText.value;
-                this.updateCurrentHotspot();
             }
         });
     }
@@ -504,14 +531,12 @@ class ConfigurationBuilder {
                 height: Math.round(height * scaleY)
             },
             style: {
-                color: '#3498db',
-                borderRadius: 4
+                color: this.selectedColor
             },
             line: {
                 direction: 'left',
                 length: 120,
-                color: '#3498db',
-                thickness: 2
+                color: this.selectedColor
             },
             description: {
                 content: 'Add description here with **bold** and _italic_ formatting'
@@ -557,10 +582,10 @@ class ConfigurationBuilder {
         
         if (this.hotspots.length === 0) {
             list.innerHTML = `
-                <div style="padding: 1.5rem; text-align: center; color: #999; background: #f8f9fa; border-radius: 6px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎯</div>
+                <div style="padding: 1.5rem; text-align: center; color: var(--text-muted); background: var(--bg-tertiary); border-radius: 6px;">
+                    <i data-lucide="target" style="width: 48px; height: 48px; margin-bottom: 0.5rem; opacity: 0.6;"></i>
                     <div>No hotspots created yet</div>
-                    <div style="font-size: 0.85rem; margin-top: 0.5rem; color: #6c757d;">Switch to "Create Hotspot" mode and click-drag on the image</div>
+                    <div style="font-size: 0.85rem; margin-top: 0.5rem; color: var(--text-secondary);">Switch to "Create Hotspot" mode and click-drag on the image</div>
                 </div>
             `;
             return;
@@ -572,15 +597,20 @@ class ConfigurationBuilder {
             item.className = `hotspot-item ${hotspot === this.selectedHotspot ? 'active' : ''}`;
             
             // Get direction icon
-            const directionIcons = { left: '⬅️', right: '➡️', top: '⬆️', bottom: '⬇️' };
-            const directionIcon = directionIcons[hotspot.line.direction] || '🔗';
+            const directionIcons = { 
+                left: '<i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>', 
+                right: '<i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>', 
+                top: '<i data-lucide="arrow-up" style="width: 14px; height: 14px;"></i>', 
+                bottom: '<i data-lucide="arrow-down" style="width: 14px; height: 14px;"></i>' 
+            };
+            const directionIcon = directionIcons[hotspot.line.direction] || '<i data-lucide="link" style="width: 14px; height: 14px;"></i>';
             
             item.innerHTML = `
                 <div style="flex: 1;">
                     <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-                        <strong style="color: #2d3748;">${hotspot.id}</strong>
+                        <strong style="color: var(--text-primary);">${hotspot.id}</strong>
                         <span style="font-size: 0.9rem;">${directionIcon}</span>
-                        <div style="width: 12px; height: 12px; background: ${hotspot.style.color}; border-radius: 2px; border: 1px solid #ddd;"></div>
+                        <div style="width: 12px; height: 12px; background: ${this.getCurrentColorValue(hotspot.style.color)}; border-radius: 2px; border: 1px solid var(--border-color);"></div>
                     </div>
                     <small style="color: #666; font-family: monospace;">
                         ${hotspot.coordinates.width}×${hotspot.coordinates.height} @ (${hotspot.coordinates.x}, ${hotspot.coordinates.y})
@@ -588,7 +618,7 @@ class ConfigurationBuilder {
                 </div>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
                     <button class="btn btn-danger btn-small" onclick="builder.deleteHotspot(${index})" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
-                        🗑️
+                        <i data-lucide="trash-2" style="width: 12px; height: 12px;"></i>
                     </button>
                 </div>
             `;
@@ -619,13 +649,18 @@ class ConfigurationBuilder {
         
         // Update form fields
         document.getElementById('hotspot-id').value = this.selectedHotspot.id;
-        document.getElementById('highlight-color').value = this.selectedHotspot.style.color;
-        document.getElementById('highlight-color-text').value = this.selectedHotspot.style.color;
-        document.getElementById('border-radius').value = this.selectedHotspot.style.borderRadius;
         document.getElementById('line-direction').value = this.selectedHotspot.line.direction;
         document.getElementById('line-length').value = this.selectedHotspot.line.length;
-        document.getElementById('line-thickness').value = this.selectedHotspot.line.thickness;
         document.getElementById('description-text').value = this.selectedHotspot.description.content;
+
+        // Update color palette selection
+        const colorOptions = document.querySelectorAll('.color-option');
+        colorOptions.forEach(opt => opt.classList.remove('active'));
+        const activeColor = document.querySelector(`[data-color="${this.selectedHotspot.style.color}"]`);
+        if (activeColor) {
+            activeColor.classList.add('active');
+            this.selectedColor = this.selectedHotspot.style.color;
+        }
 
         // Update coordinate display
         const coords = this.selectedHotspot.coordinates;
@@ -637,19 +672,17 @@ class ConfigurationBuilder {
 
         // Update properties from form
         this.selectedHotspot.id = document.getElementById('hotspot-id').value;
-        this.selectedHotspot.style.color = document.getElementById('highlight-color').value;
-        this.selectedHotspot.style.borderRadius = parseInt(document.getElementById('border-radius').value);
+        this.selectedHotspot.style.color = this.selectedColor;
         this.selectedHotspot.line.direction = document.getElementById('line-direction').value;
         this.selectedHotspot.line.length = parseInt(document.getElementById('line-length').value);
-        this.selectedHotspot.line.thickness = parseInt(document.getElementById('line-thickness').value);
-        this.selectedHotspot.line.color = this.selectedHotspot.style.color;
+        this.selectedHotspot.line.color = this.selectedColor;
         this.selectedHotspot.description.content = document.getElementById('description-text').value;
 
         this.updateHotspotList();
         this.renderHotspots();
         
         // Show live feedback
-        this.showStatus(`🎯 Updated "${this.selectedHotspot.id}" properties`, 'success', 2000);
+        this.showStatus(`Updated "${this.selectedHotspot.id}" properties`, 'success', 2000);
     }
 
     renderHotspots() {
@@ -702,9 +735,11 @@ class ConfigurationBuilder {
             highlight.style.top = `${hotspot.coordinates.y * scaleY}px`;
             highlight.style.width = `${hotspot.coordinates.width * scaleX}px`;
             highlight.style.height = `${hotspot.coordinates.height * scaleY}px`;
-            highlight.style.border = `2px solid ${hotspot.style.color}`;
-            highlight.style.borderRadius = `${hotspot.style.borderRadius}px`;
-            highlight.style.backgroundColor = this.hexToRgba(hotspot.style.color, 0.1);
+            
+            const colorValue = this.getCurrentColorValue(hotspot.style.color);
+            highlight.style.border = `2px solid ${colorValue}`;
+            highlight.style.borderRadius = `${OVERLAY_DEFAULTS.BORDER_RADIUS}px`;
+            highlight.style.backgroundColor = this.hexToRgba(colorValue, 0.1);
             highlight.style.pointerEvents = 'none';
             highlight.style.zIndex = '5';
             canvas.appendChild(highlight);
@@ -738,12 +773,14 @@ class ConfigurationBuilder {
 
         // Scale the line dimensions like the real engine
         const scaledLength = hotspot.line.length * Math.min(scaleX, scaleY);
-        const thickness = hotspot.line.thickness || 2;
+        const thickness = OVERLAY_DEFAULTS.LINE_THICKNESS;
         
         // Set CSS custom properties like real engine
         line.style.setProperty('--line-length', `${scaledLength}px`);
         line.style.setProperty('--line-thickness', `${thickness}px`);
-        line.style.setProperty('--line-color', hotspot.line.color);
+        
+        const lineColor = this.getCurrentColorValue(hotspot.line.color);
+        line.style.setProperty('--line-color', lineColor);
 
         // Position line at hotspot edge like real engine (relative positioning)
         switch (hotspot.line.direction) {
@@ -772,7 +809,7 @@ class ConfigurationBuilder {
         // Create the visual line using ::before pseudo-element styles directly
         const pseudoElement = document.createElement('div');
         pseudoElement.style.position = 'absolute';
-        pseudoElement.style.backgroundColor = hotspot.line.color;
+        pseudoElement.style.backgroundColor = lineColor;
         pseudoElement.style.content = '';
         
         switch (hotspot.line.direction) {

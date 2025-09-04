@@ -21,7 +21,7 @@ Interactive showcase website for After Effects scripts with hover-based UI overl
 - **Z-index layering**: Highlights (z-5), hotspots (z-10), lines (z-30), tooltips (z-25) prevent visual conflicts
 
 #### Configuration Schema
-Each script overlay configuration follows this consolidated structure (50% less coordinate data):
+Each script overlay configuration follows this consolidated structure with theme-aware color system:
 ```json
 {
   "scriptName": "Script Name",
@@ -39,11 +39,11 @@ Each script overlay configuration follows this consolidated structure (50% less 
         "x": 24, "y": 66, "width": 227, "height": 18
       },
       "style": {
-        "color": "#3498db", "borderRadius": 4
+        "color": "cyan", "borderRadius": 4
       },
       "line": {
         "direction": "left", "length": 150,
-        "color": "#3498db", "thickness": 2
+        "color": "cyan", "thickness": 2
       },
       "description": {
         "content": "**Bold** and _italic_ markdown support in tooltips"
@@ -53,42 +53,57 @@ Each script overlay configuration follows this consolidated structure (50% less 
 }
 ```
 
-**Coordinate Consolidation**: Eliminated duplicate `hotspot`/`highlight` coordinate sets that were always identical. Single `coordinates` object now defines both interactive area and visual highlight, preventing sync issues and reducing configuration file size by ~50%.
+**Schema Breaking Changes**:
+- **Coordinate consolidation**: Eliminated duplicate `hotspot`/`highlight` coordinate sets. Single `coordinates` object defines both interactive area and visual highlight, reducing file size by 50% and preventing synchronization issues
+- **Theme-aware color system**: Colors now use semantic names (`red`, `orange`, `yellow`, `green`, `cyan`, `purple`, `pink`) instead of hex values. Engine automatically selects light/dark variants based on system theme (e.g., `cyan`: light `#06b6d4` → dark `#22d3ee`)
+- **Default value handling**: `borderRadius` and `thickness` properties now optional with system defaults (4px and 2px respectively)
 
 #### Theme System Implementation
-- **CSS custom properties**: 15 variables for colors, backgrounds, shadows automatically switch based on system preference
+- **CSS custom properties**: 16 variables for colors, backgrounds, shadows automatically switch based on system preference
 - **Real-time detection**: JavaScript `matchMedia('prefers-color-scheme: dark')` with event listeners for instant theme changes
 - **Complete dark mode coverage**: All interface elements adapt to theme changes, including:
   - Script screenshot backgrounds (`--bg-tertiary` replaces hardcoded `#f8f9fa`)
   - Version badges (`--bg-tertiary` replaces hardcoded `#e9ecef`)
   - Category pills (dark-specific color variants: green `#2d5a3d→#90ee90`, blue `#1e3a5f→#87ceeb`, brown `#5d4e37→#ffd700`)
   - Tag elements (`--bg-tertiary` and `--border-color` replace hardcoded grays)
+  - Script content sections (new `.script-content` CSS class with theme-aware typography)
+- **RGBA color calculations**: Added `--accent-color-rgb: 102, 126, 234` for transparency calculations (e.g., `rgba(var(--accent-color-rgb), 0.1)`)
 - **Theme indicator**: Header displays current theme with sun/moon icons
 
 #### Architecture Changes & Implementation Updates
 
 **Configuration Schema Breaking Changes**:
 - **Coordinate consolidation**: `overlay.hotspot` and `overlay.highlight` merged into single `overlay.coordinates` object
-- **Style separation**: Visual properties moved to `overlay.style` object containing `color` and `borderRadius`
-- **File size reduction**: Configuration files ~50% smaller, eliminates coordinate synchronization issues
+- **Theme-aware color system**: Colors changed from hex values to semantic names (`#3498db` → `cyan`), automatically resolve to light/dark variants
+- **Default value centralization**: `OVERLAY_DEFAULTS` constant in engine provides system-wide defaults (borderRadius: 4px, thickness: 2px)
 - **Breaking change impact**: All existing `config.json` files require migration to new schema
 
 **Engine Implementation Updates**:
-- **Overlay positioning logic**: `getOverlayCoordinates()` method provides single coordinate source across engine
+- **Color resolution system**: `getCurrentColorValue()` method maps semantic colors to theme-appropriate hex values using `matchMedia()` detection
+- **Centralized defaults**: `OVERLAY_DEFAULTS` object contains predefined color palette with light/dark variants for 7 colors
 - **Highlight rendering**: Positioned at `(0,0)` relative to hotspot container instead of separate absolute positioning
 - **Toggle mechanism**: Replaced button click events with checkbox change events, state synchronization through `updateOverlayVisibility()`
 
-**Interface Component Changes**:
-- **Toggle switch**: Replaced `<button>` with `<input type="checkbox">` wrapped in iPhone-style CSS slider (42×24px with 18px slide distance)
-- **Theme coverage**: Added dark mode variants for 4 previously hardcoded UI elements (backgrounds, badges, category pills, tags)
-- **Configuration builder**: Updated coordinate display to show single set instead of duplicated hotspot/highlight pairs
+**Configuration Builder Interface Overhaul**:
+- **Theme-aware UI**: All hardcoded colors replaced with CSS custom properties (`--bg-secondary`, `--text-primary`, `--border-color`)
+- **Color palette system**: Visual color picker with 7 predefined colors, automatic theme adaptation using CSS classes
+- **Lucide icons integration**: Replaced inline SVG with Lucide icon library for consistent iconography
+- **iPhone-style mode toggle**: Replaced basic buttons with iOS-style toggle switches using `cubic-bezier(0.4, 0.0, 0.2, 1)` animations
+- **Coordinate display consolidation**: Single coordinate set replaces duplicate hotspot/highlight pairs
+
+**Script Page Content Structure**:
+- **Semantic HTML sections**: Added `.script-content` CSS class for structured content areas below screenshots
+- **Theme-aware typography**: All text colors use CSS variables (`--text-primary`, `--text-secondary`) instead of hardcoded values
+- **Consistent tag styling**: `.script-tags` flex layout with theme-appropriate colors
 
 **File Modification Summary**:
-- `js/overlay-engine.js`: Coordinate consolidation logic, checkbox toggle handling
-- `css/main.css`: iPhone toggle CSS, dark theme UI element coverage
-- `tools/config-builder.js`: Single coordinate generation, new schema output
-- `scripts/sp-comp-setup/config.json`: Migrated to consolidated schema
-- `scripts/sp-comp-setup/index.html`: Button replaced with toggle switch HTML
+- `js/overlay-engine.js`: Color resolution system, defaults constants, theme detection integration (23 new lines)
+- `css/main.css`: Added `--accent-color-rgb` variable for RGBA calculations (2 new variables)
+- `css/overlay-system.css`: Added `.script-content` styling with 40 new lines of theme-aware typography
+- `tools/config-builder.html`: Complete UI overhaul with Lucide icons, color palette, theme integration (200+ line changes)
+- `tools/config-builder.js`: Color system integration, theme-aware preview updates (modification scope unknown)
+- `scripts/sp-comp-setup/config.json`: Migrated 3 overlays from hex colors to semantic names (`#3498db` → `cyan`, `orange`, `purple`)
+- `scripts/sp-comp-setup/index.html`: Replaced hardcoded styling with `.script-content` class structure
 
 ### Visual Configuration Builder (✅ Complete)
 

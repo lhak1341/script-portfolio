@@ -17,14 +17,12 @@
         "height": 22
       },
       "style": {
-        "color": "#3498db",
-        "borderRadius": 4
+        "color": "cyan"
       },
       "line": {
         "direction": "left",
         "length": 150,
-        "color": "#3498db",
-        "thickness": 2
+        "color": "cyan"
       },
       "description": {
         "content": "**Green** if the project is already saved at the correct path"
@@ -39,14 +37,12 @@
         "height": 22
       },
       "style": {
-        "color": "#3498db",
-        "borderRadius": 4
+        "color": "orange"
       },
       "line": {
         "direction": "right",
         "length": 170,
-        "color": "#3498db",
-        "thickness": 2
+        "color": "orange"
       },
       "description": {
         "content": "Allow user to choose between **predefined** template, and _custom_ ones"
@@ -61,14 +57,12 @@
         "height": 26
       },
       "style": {
-        "color": "#3498db",
-        "borderRadius": 4
+        "color": "purple"
       },
       "line": {
         "direction": "left",
         "length": 120,
-        "color": "#3498db",
-        "thickness": 2
+        "color": "purple"
       },
       "description": {
         "content": "Set project color space to **linear**, **32bpc**"

@@ -256,3 +256,43 @@
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+/* Script Content Section */
+.script-content {
+    margin-top: 2rem;
+    padding: 2rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    text-align: left;
+    box-shadow: var(--card-shadow);
+}
+
+.script-content h2,
+.script-content h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.script-content h3 {
+    margin-top: 1.5rem;
+}
+
+.script-content p,
+.script-content li {
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.script-content ul {
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-left: 2rem;
+}
+
+.script-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
