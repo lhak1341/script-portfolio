@@ -26,9 +26,13 @@
         <div class="container">
             <div class="script-showcase">
                 <div style="text-align: center; margin-bottom: 1rem;">
-                    <button id="overlay-toggle" class="btn btn-secondary" style="padding: 0.5rem 1rem; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">
-                        👁️ Show All Overlays
-                    </button>
+                    <div class="toggle-switch">
+                        <span class="toggle-switch-label">Show All Overlays</span>
+                        <label class="toggle-switch-container">
+                            <input type="checkbox" id="overlay-toggle" class="toggle-switch-input">
+                            <span class="toggle-switch-slider"></span>
+                        </label>
+                    </div>
                 </div>
                 <div id="overlay-container" class="script-image-container">
                     <!-- Overlay system will be initialized here -->

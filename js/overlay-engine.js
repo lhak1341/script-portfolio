@@ -142,11 +142,14 @@ class OverlayEngine {
         hotspot.className = 'hotspot';
         hotspot.id = `hotspot-${overlay.id || index}`;
 
+        // Get coordinates (support both old and new format)
+        const coords = this.getOverlayCoordinates(overlay);
+        
         // Position and size hotspot
-        const left = overlay.hotspot.x * scaleX;
-        const top = overlay.hotspot.y * scaleY;
-        const width = overlay.hotspot.width * scaleX;
-        const height = overlay.hotspot.height * scaleY;
+        const left = coords.x * scaleX;
+        const top = coords.y * scaleY;
+        const width = coords.width * scaleX;
+        const height = coords.height * scaleY;
 
         hotspot.style.left = `${left}px`;
         hotspot.style.top = `${top}px`;
@@ -159,10 +162,8 @@ class OverlayEngine {
         this.currentOverlay = overlay;
 
         // Create highlight
-        if (overlay.highlight) {
-            const highlight = this.createHighlight(overlay.highlight, scaleX, scaleY);
-            hotspot.appendChild(highlight);
-        }
+        const highlight = this.createHighlight(coords, overlay.style, scaleX, scaleY);
+        hotspot.appendChild(highlight);
 
         // Create line
         if (overlay.line) {
@@ -190,30 +191,27 @@ class OverlayEngine {
     /**
      * Create highlight element
      */
-    createHighlight(highlightConfig, scaleX, scaleY) {
+    createHighlight(coords, styleConfig, scaleX, scaleY) {
         const highlight = document.createElement('div');
         highlight.className = 'highlight';
 
-        // Position relative to hotspot
-        const offsetX = (highlightConfig.x * scaleX) - (this.getCurrentHotspot().x * scaleX);
-        const offsetY = (highlightConfig.y * scaleY) - (this.getCurrentHotspot().y * scaleY);
+        // Position relative to hotspot (now always at 0,0 since coords match)
+        highlight.style.left = '0px';
+        highlight.style.top = '0px';
+        highlight.style.width = `${coords.width * scaleX}px`;
+        highlight.style.height = `${coords.height * scaleY}px`;
 
-        highlight.style.left = `${offsetX}px`;
-        highlight.style.top = `${offsetY}px`;
-        highlight.style.width = `${highlightConfig.width * scaleX}px`;
-        highlight.style.height = `${highlightConfig.height * scaleY}px`;
-
-        if (highlightConfig.color) {
-            highlight.style.borderColor = highlightConfig.color;
+        if (styleConfig && styleConfig.color) {
+            highlight.style.borderColor = styleConfig.color;
             // Create semi-transparent background
-            const rgb = this.hexToRgb(highlightConfig.color);
+            const rgb = this.hexToRgb(styleConfig.color);
             if (rgb) {
                 highlight.style.background = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`;
             }
         }
 
-        if (highlightConfig.borderRadius) {
-            highlight.style.borderRadius = `${highlightConfig.borderRadius}px`;
+        if (styleConfig && styleConfig.borderRadius) {
+            highlight.style.borderRadius = `${styleConfig.borderRadius}px`;
         }
 
         return highlight;
@@ -298,9 +296,12 @@ class OverlayEngine {
         const content = this.processMarkdown(overlay.description.content);
         tooltip.innerHTML = content;
 
+        // Get coordinates (support both old and new format)
+        const coords = this.getOverlayCoordinates(overlay);
+        
         // Calculate hotspot center position
-        const hotspotCenterX = (overlay.hotspot.x + overlay.hotspot.width / 2) * scaleX;
-        const hotspotCenterY = (overlay.hotspot.y + overlay.hotspot.height / 2) * scaleY;
+        const hotspotCenterX = (coords.x + coords.width / 2) * scaleX;
+        const hotspotCenterY = (coords.y + coords.height / 2) * scaleY;
 
         // Calculate tooltip position based on line direction
         const direction = overlay.line.direction;
@@ -417,11 +418,18 @@ class OverlayEngine {
     }
 
     /**
+     * Get overlay coordinates
+     */
+    getOverlayCoordinates(overlay) {
+        return overlay.coordinates || { x: 0, y: 0, width: 0, height: 0 };
+    }
+
+    /**
      * Get current hotspot being processed (utility method)
      */
     getCurrentHotspot() {
-        if (this.currentOverlay && this.currentOverlay.hotspot) {
-            return this.currentOverlay.hotspot;
+        if (this.currentOverlay) {
+            return this.getOverlayCoordinates(this.currentOverlay);
         }
         return { x: 0, y: 0 };
     }
@@ -451,21 +459,19 @@ class OverlayEngine {
      * Setup toggle button functionality
      */
     setupToggleButton() {
-        const toggleBtn = document.getElementById('overlay-toggle');
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', () => {
-                this.toggleShowAll();
+        const toggleInput = document.getElementById('overlay-toggle');
+        if (toggleInput) {
+            toggleInput.addEventListener('change', () => {
+                this.showAllMode = toggleInput.checked;
+                this.updateOverlayVisibility();
             });
         }
     }
 
     /**
-     * Toggle show all overlays mode
+     * Update overlay visibility based on current mode
      */
-    toggleShowAll() {
-        this.showAllMode = !this.showAllMode;
-        const toggleBtn = document.getElementById('overlay-toggle');
-        
+    updateOverlayVisibility() {
         if (this.showAllMode) {
             // Show all overlays permanently
             this.overlays.forEach(overlay => {
@@ -477,11 +483,6 @@ class OverlayEngine {
                 lines.forEach(l => l.style.opacity = '1');
                 tooltips.forEach(t => t.style.opacity = '1');
             });
-            
-            if (toggleBtn) {
-                toggleBtn.innerHTML = '👁️‍🗨️ Hide Overlays';
-                toggleBtn.style.background = '#dc3545';
-            }
         } else {
             // Return to hover-only mode by removing inline opacity styles
             // This allows CSS hover states to work again
@@ -494,12 +495,21 @@ class OverlayEngine {
                 lines.forEach(l => l.style.opacity = '');
                 tooltips.forEach(t => t.style.opacity = '');
             });
-            
-            if (toggleBtn) {
-                toggleBtn.innerHTML = '👁️ Show All Overlays';
-                toggleBtn.style.background = '#6c757d';
-            }
         }
+    }
+
+    /**
+     * Toggle show all overlays mode (legacy method for compatibility)
+     */
+    toggleShowAll() {
+        const toggleInput = document.getElementById('overlay-toggle');
+        this.showAllMode = !this.showAllMode;
+        
+        if (toggleInput) {
+            toggleInput.checked = this.showAllMode;
+        }
+        
+        this.updateOverlayVisibility();
     }
 
     /**

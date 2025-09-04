@@ -497,17 +497,13 @@ class ConfigurationBuilder {
 
         const hotspot = {
             id: `hotspot-${this.hotspots.length + 1}`,
-            hotspot: {
+            coordinates: {
                 x: Math.round(x * scaleX),
                 y: Math.round(y * scaleY),
                 width: Math.round(width * scaleX),
                 height: Math.round(height * scaleY)
             },
-            highlight: {
-                x: Math.round((x - 2) * scaleX),
-                y: Math.round((y - 2) * scaleY),
-                width: Math.round((width + 4) * scaleX),
-                height: Math.round((height + 4) * scaleY),
+            style: {
                 color: '#3498db',
                 borderRadius: 4
             },
@@ -540,9 +536,9 @@ class ConfigurationBuilder {
 
         // Find hotspot at this position
         const hotspot = this.hotspots.find(h => {
-            const hs = h.hotspot;
-            return imageX >= hs.x && imageX <= hs.x + hs.width &&
-                   imageY >= hs.y && imageY <= hs.y + hs.height;
+            const coords = h.coordinates;
+            return imageX >= coords.x && imageX <= coords.x + coords.width &&
+                   imageY >= coords.y && imageY <= coords.y + coords.height;
         });
 
         if (hotspot) {
@@ -584,10 +580,10 @@ class ConfigurationBuilder {
                     <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
                         <strong style="color: #2d3748;">${hotspot.id}</strong>
                         <span style="font-size: 0.9rem;">${directionIcon}</span>
-                        <div style="width: 12px; height: 12px; background: ${hotspot.highlight.color}; border-radius: 2px; border: 1px solid #ddd;"></div>
+                        <div style="width: 12px; height: 12px; background: ${hotspot.style.color}; border-radius: 2px; border: 1px solid #ddd;"></div>
                     </div>
                     <small style="color: #666; font-family: monospace;">
-                        ${hotspot.hotspot.width}×${hotspot.hotspot.height} @ (${hotspot.hotspot.x}, ${hotspot.hotspot.y})
+                        ${hotspot.coordinates.width}×${hotspot.coordinates.height} @ (${hotspot.coordinates.x}, ${hotspot.coordinates.y})
                     </small>
                 </div>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
@@ -623,17 +619,17 @@ class ConfigurationBuilder {
         
         // Update form fields
         document.getElementById('hotspot-id').value = this.selectedHotspot.id;
-        document.getElementById('highlight-color').value = this.selectedHotspot.highlight.color;
-        document.getElementById('highlight-color-text').value = this.selectedHotspot.highlight.color;
-        document.getElementById('border-radius').value = this.selectedHotspot.highlight.borderRadius;
+        document.getElementById('highlight-color').value = this.selectedHotspot.style.color;
+        document.getElementById('highlight-color-text').value = this.selectedHotspot.style.color;
+        document.getElementById('border-radius').value = this.selectedHotspot.style.borderRadius;
         document.getElementById('line-direction').value = this.selectedHotspot.line.direction;
         document.getElementById('line-length').value = this.selectedHotspot.line.length;
         document.getElementById('line-thickness').value = this.selectedHotspot.line.thickness;
         document.getElementById('description-text').value = this.selectedHotspot.description.content;
 
         // Update coordinate display
-        const hs = this.selectedHotspot.hotspot;
-        display.textContent = `Hotspot: (${hs.x}, ${hs.y}) ${hs.width}×${hs.height}\nHighlight: (${this.selectedHotspot.highlight.x}, ${this.selectedHotspot.highlight.y}) ${this.selectedHotspot.highlight.width}×${this.selectedHotspot.highlight.height}`;
+        const coords = this.selectedHotspot.coordinates;
+        display.textContent = `Coordinates: (${coords.x}, ${coords.y}) ${coords.width}×${coords.height}`;
     }
 
     updateCurrentHotspot() {
@@ -641,12 +637,12 @@ class ConfigurationBuilder {
 
         // Update properties from form
         this.selectedHotspot.id = document.getElementById('hotspot-id').value;
-        this.selectedHotspot.highlight.color = document.getElementById('highlight-color').value;
-        this.selectedHotspot.highlight.borderRadius = parseInt(document.getElementById('border-radius').value);
+        this.selectedHotspot.style.color = document.getElementById('highlight-color').value;
+        this.selectedHotspot.style.borderRadius = parseInt(document.getElementById('border-radius').value);
         this.selectedHotspot.line.direction = document.getElementById('line-direction').value;
         this.selectedHotspot.line.length = parseInt(document.getElementById('line-length').value);
         this.selectedHotspot.line.thickness = parseInt(document.getElementById('line-thickness').value);
-        this.selectedHotspot.line.color = this.selectedHotspot.highlight.color;
+        this.selectedHotspot.line.color = this.selectedHotspot.style.color;
         this.selectedHotspot.description.content = document.getElementById('description-text').value;
 
         this.updateHotspotList();
@@ -685,10 +681,10 @@ class ConfigurationBuilder {
         const hotspotContainer = document.createElement('div');
         hotspotContainer.className = 'preview-element hotspot-preview';
         hotspotContainer.style.position = 'absolute';
-        hotspotContainer.style.left = `${hotspot.hotspot.x * scaleX}px`;
-        hotspotContainer.style.top = `${hotspot.hotspot.y * scaleY}px`;
-        hotspotContainer.style.width = `${hotspot.hotspot.width * scaleX}px`;
-        hotspotContainer.style.height = `${hotspot.hotspot.height * scaleY}px`;
+        hotspotContainer.style.left = `${hotspot.coordinates.x * scaleX}px`;
+        hotspotContainer.style.top = `${hotspot.coordinates.y * scaleY}px`;
+        hotspotContainer.style.width = `${hotspot.coordinates.width * scaleX}px`;
+        hotspotContainer.style.height = `${hotspot.coordinates.height * scaleY}px`;
         hotspotContainer.style.zIndex = '10';
         
         // Add selection border if this is the selected hotspot
@@ -698,17 +694,17 @@ class ConfigurationBuilder {
         }
 
         // Create highlight
-        if (hotspot.highlight) {
+        if (hotspot.style) {
             const highlight = document.createElement('div');
             highlight.className = 'preview-element highlight-preview';
             highlight.style.position = 'absolute';
-            highlight.style.left = `${hotspot.highlight.x * scaleX}px`;
-            highlight.style.top = `${hotspot.highlight.y * scaleY}px`;
-            highlight.style.width = `${hotspot.highlight.width * scaleX}px`;
-            highlight.style.height = `${hotspot.highlight.height * scaleY}px`;
-            highlight.style.border = `2px solid ${hotspot.highlight.color}`;
-            highlight.style.borderRadius = `${hotspot.highlight.borderRadius}px`;
-            highlight.style.backgroundColor = this.hexToRgba(hotspot.highlight.color, 0.1);
+            highlight.style.left = `${hotspot.coordinates.x * scaleX}px`;
+            highlight.style.top = `${hotspot.coordinates.y * scaleY}px`;
+            highlight.style.width = `${hotspot.coordinates.width * scaleX}px`;
+            highlight.style.height = `${hotspot.coordinates.height * scaleY}px`;
+            highlight.style.border = `2px solid ${hotspot.style.color}`;
+            highlight.style.borderRadius = `${hotspot.style.borderRadius}px`;
+            highlight.style.backgroundColor = this.hexToRgba(hotspot.style.color, 0.1);
             highlight.style.pointerEvents = 'none';
             highlight.style.zIndex = '5';
             canvas.appendChild(highlight);
@@ -841,8 +837,8 @@ class ConfigurationBuilder {
         `;
 
         // Use EXACT same calculation as real overlay engine
-        const hotspotCenterX = (hotspot.hotspot.x + hotspot.hotspot.width / 2) * scaleX;
-        const hotspotCenterY = (hotspot.hotspot.y + hotspot.hotspot.height / 2) * scaleY;
+        const hotspotCenterX = (hotspot.coordinates.x + hotspot.coordinates.width / 2) * scaleX;
+        const hotspotCenterY = (hotspot.coordinates.y + hotspot.coordinates.height / 2) * scaleY;
         const length = hotspot.line.length * Math.min(scaleX, scaleY); // Same scaling as real engine
         const offset = 15; // Same offset as real engine
 

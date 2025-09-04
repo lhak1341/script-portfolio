@@ -10,17 +10,13 @@
   "overlays": [
     {
       "id": "hotspot-1",
-      "hotspot": {
+      "coordinates": {
         "x": 24,
-        "y": 66,
-        "width": 227,
-        "height": 18
-      },
-      "highlight": {
-        "x": 24,
-        "y": 63,
+        "y": 64,
         "width": 228,
-        "height": 22,
+        "height": 22
+      },
+      "style": {
         "color": "#3498db",
         "borderRadius": 4
       },
@@ -36,17 +32,13 @@
     },
     {
       "id": "hotspot-2",
-      "hotspot": {
+      "coordinates": {
         "x": 24,
-        "y": 90,
-        "width": 279,
-        "height": 25
+        "y": 92,
+        "width": 280,
+        "height": 22
       },
-      "highlight": {
-        "x": 22,
-        "y": 88,
-        "width": 283,
-        "height": 29,
+      "style": {
         "color": "#3498db",
         "borderRadius": 4
       },
@@ -58,6 +50,28 @@
       },
       "description": {
         "content": "Allow user to choose between **predefined** template, and _custom_ ones"
+      }
+    },
+    {
+      "id": "hotspot-3",
+      "coordinates": {
+        "x": 42,
+        "y": 252,
+        "width": 98,
+        "height": 26
+      },
+      "style": {
+        "color": "#3498db",
+        "borderRadius": 4
+      },
+      "line": {
+        "direction": "left",
+        "length": 120,
+        "color": "#3498db",
+        "thickness": 2
+      },
+      "description": {
+        "content": "Set project color space to **linear**, **32bpc**"
       }
     }
   ]
