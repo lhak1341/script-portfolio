@@ -135,8 +135,9 @@ class ConfigurationBuilder {
 
     setupEventListeners() {
         // Mode toggle
-        document.getElementById('select-mode').addEventListener('click', () => this.setMode('select'));
-        document.getElementById('create-mode').addEventListener('click', () => this.setMode('create'));
+        document.getElementById('create-mode-toggle').addEventListener('change', (e) => {
+            this.setMode(e.target.checked ? 'create' : 'select');
+        });
 
         // Canvas interactions
         const canvas = document.getElementById('image-canvas');
@@ -177,13 +178,7 @@ class ConfigurationBuilder {
             this.currentImage = null;
             this.hotspots = [];
             this.selectedHotspot = null;
-            document.getElementById('image-canvas').innerHTML = `
-                <div id="script-display" class="upload-area" style="display: block;">
-                    <i data-lucide="image" style="width: 48px; height: 48px; color: var(--text-muted);"></i>
-                    <h3 style="color: var(--text-secondary); margin: 0;">Select a Script</h3>
-                    <p style="color: var(--text-muted); margin: 0; text-align: center; max-width: 280px;">Choose a script from the dropdown to configure its overlays</p>
-                </div>
-            `;
+            document.getElementById('image-canvas').innerHTML = '';
             this.updateHotspotList();
             this.updatePropertiesPanel();
             document.getElementById('script-status').style.display = 'none';
@@ -333,7 +328,8 @@ class ConfigurationBuilder {
 
     setupPropertyListeners() {
         const inputs = [
-            'hotspot-id', 'line-direction', 'line-length', 'description-text'
+            'hotspot-id', 'hotspot-x', 'hotspot-y', 'hotspot-width', 'hotspot-height', 
+            'line-direction', 'line-length', 'description-text'
         ];
 
         inputs.forEach(id => {
@@ -413,8 +409,7 @@ class ConfigurationBuilder {
     }
 
     updateModeButtons() {
-        document.getElementById('select-mode').classList.toggle('active', this.mode === 'select');
-        document.getElementById('create-mode').classList.toggle('active', this.mode === 'create');
+        document.getElementById('create-mode-toggle').checked = (this.mode === 'create');
     }
 
     handleMouseDown(e) {
@@ -607,14 +602,11 @@ class ConfigurationBuilder {
             
             item.innerHTML = `
                 <div style="flex: 1;">
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <strong style="color: var(--text-primary);">${hotspot.id}</strong>
                         <span style="font-size: 0.9rem;">${directionIcon}</span>
                         <div style="width: 12px; height: 12px; background: ${this.getCurrentColorValue(hotspot.style.color)}; border-radius: 2px; border: 1px solid var(--border-color);"></div>
                     </div>
-                    <small style="color: #666; font-family: monospace;">
-                        ${hotspot.coordinates.width}×${hotspot.coordinates.height} @ (${hotspot.coordinates.x}, ${hotspot.coordinates.y})
-                    </small>
                 </div>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
                     <button class="btn btn-danger btn-small" onclick="builder.deleteHotspot(${index})" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
@@ -637,11 +629,9 @@ class ConfigurationBuilder {
 
     updatePropertiesPanel() {
         const panel = document.getElementById('hotspot-properties');
-        const display = document.getElementById('coordinate-display');
 
         if (!this.selectedHotspot) {
             panel.style.display = 'none';
-            display.textContent = 'No hotspot selected';
             return;
         }
 
@@ -649,6 +639,10 @@ class ConfigurationBuilder {
         
         // Update form fields
         document.getElementById('hotspot-id').value = this.selectedHotspot.id;
+        document.getElementById('hotspot-x').value = this.selectedHotspot.coordinates.x;
+        document.getElementById('hotspot-y').value = this.selectedHotspot.coordinates.y;
+        document.getElementById('hotspot-width').value = this.selectedHotspot.coordinates.width;
+        document.getElementById('hotspot-height').value = this.selectedHotspot.coordinates.height;
         document.getElementById('line-direction').value = this.selectedHotspot.line.direction;
         document.getElementById('line-length').value = this.selectedHotspot.line.length;
         document.getElementById('description-text').value = this.selectedHotspot.description.content;
@@ -661,10 +655,6 @@ class ConfigurationBuilder {
             activeColor.classList.add('active');
             this.selectedColor = this.selectedHotspot.style.color;
         }
-
-        // Update coordinate display
-        const coords = this.selectedHotspot.coordinates;
-        display.textContent = `Coordinates: (${coords.x}, ${coords.y}) ${coords.width}×${coords.height}`;
     }
 
     updateCurrentHotspot() {
@@ -672,6 +662,10 @@ class ConfigurationBuilder {
 
         // Update properties from form
         this.selectedHotspot.id = document.getElementById('hotspot-id').value;
+        this.selectedHotspot.coordinates.x = parseInt(document.getElementById('hotspot-x').value) || 0;
+        this.selectedHotspot.coordinates.y = parseInt(document.getElementById('hotspot-y').value) || 0;
+        this.selectedHotspot.coordinates.width = parseInt(document.getElementById('hotspot-width').value) || 1;
+        this.selectedHotspot.coordinates.height = parseInt(document.getElementById('hotspot-height').value) || 1;
         this.selectedHotspot.style.color = this.selectedColor;
         this.selectedHotspot.line.direction = document.getElementById('line-direction').value;
         this.selectedHotspot.line.length = parseInt(document.getElementById('line-length').value);

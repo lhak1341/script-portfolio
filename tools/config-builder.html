@@ -10,16 +10,16 @@
         .builder-container {
             display: grid;
             grid-template-columns: 1fr 350px;
-            gap: 2rem;
+            gap: 1rem;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 1rem;
         }
 
         .image-workspace {
             background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 2rem;
+            border-radius: 8px;
+            padding: 1rem;
             box-shadow: var(--card-shadow);
             position: relative;
             text-align: center;
@@ -27,13 +27,13 @@
 
         .control-panel {
             background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 2rem;
+            border-radius: 8px;
+            padding: 1rem;
             box-shadow: var(--card-shadow);
-            max-height: calc(100vh - 200px);
+            max-height: calc(100vh - 120px);
             overflow-y: auto;
             position: sticky;
-            top: 2rem;
+            top: 1rem;
         }
 
         .image-canvas {
@@ -77,12 +77,12 @@
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
             font-weight: 600;
             color: var(--text-primary);
         }
@@ -91,10 +91,10 @@
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 0.75rem;
+            padding: 0.5rem;
             border: 2px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
             transition: border-color 0.3s;
             background: var(--bg-secondary);
             color: var(--text-primary);
@@ -231,56 +231,74 @@
 
         .instructions {
             background: var(--bg-tertiary);
-            padding: 1rem;
+            padding: 0.75rem;
             border-radius: 6px;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-            line-height: 1.5;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            line-height: 1.4;
             border: 1px solid var(--border-color);
         }
 
         .section-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
-            margin: 1.5rem 0 1rem 0;
+            margin: 1rem 0 0.5rem 0;
             color: var(--text-primary);
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.25rem;
         }
 
         .mode-toggle {
-            display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
-        .mode-btn {
-            flex: 1;
+        .toggle-switch {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.875rem 1rem;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            gap: 0.75rem;
             cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
+            user-select: none;
+        }
+
+        .toggle-switch input[type="checkbox"] {
+            display: none;
+        }
+
+        .toggle-slider {
+            position: relative;
+            width: 42px;
+            height: 24px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 2px;
+        }
+
+        .toggle-slider .toggle-icon {
+            width: 14px;
+            height: 14px;
+            color: var(--text-muted);
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            transform: translateX(0);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .toggle-switch input:checked + .toggle-slider .toggle-icon {
+            color: white;
+            transform: translateX(18px);
+        }
+
+        .toggle-label {
             font-size: 0.9rem;
             font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .mode-btn.active {
-            background: var(--accent-color);
-            color: white;
-            border-color: var(--accent-color);
-            font-weight: 600;
-        }
-
-        .mode-btn:hover:not(.active) {
-            border-color: var(--accent-color);
             color: var(--text-primary);
         }
 
@@ -294,12 +312,12 @@
 
         /* Enhanced section titles */
         .section-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
-            margin: 2rem 0 1rem 0;
+            margin: 1rem 0 0.5rem 0;
             color: var(--text-primary);
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.25rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -307,15 +325,15 @@
 
         /* Enhanced hotspot list */
         .hotspot-item {
-            padding: 0.875rem;
+            padding: 0.5rem;
             border-bottom: 1px solid var(--border-color);
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-radius: 6px;
-            margin: 0.25rem;
+            border-radius: 4px;
+            margin: 0.125rem;
         }
 
         .hotspot-item:hover {
@@ -377,65 +395,43 @@
 
         .coordinate-display {
             background: var(--bg-tertiary);
-            padding: 0.75rem;
-            border-radius: 6px;
+            padding: 0.5rem;
+            border-radius: 4px;
             font-family: monospace;
-            font-size: 0.85rem;
-            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            margin-bottom: 0.75rem;
             border: 1px solid var(--border-color);
             color: var(--text-primary);
         }
 
         /* Color Palette */
         .color-palette {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            display: flex;
             gap: 0.5rem;
-            padding: 0.5rem;
-            background: var(--bg-tertiary);
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
         }
 
         .color-option {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.5rem 0.25rem;
-            border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s ease;
+            border-radius: 50%;
             border: 2px solid transparent;
         }
 
         .color-option:hover {
-            background: var(--bg-secondary);
+            transform: scale(1.1);
         }
 
         .color-option.active {
-            background: var(--bg-secondary);
             border-color: var(--accent-color);
+            transform: scale(1.1);
         }
 
         .color-swatch {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             border: 2px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .color-option span {
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            text-align: center;
-        }
-
-        .color-option.active span {
-            color: var(--accent-color);
-            font-weight: 600;
         }
 
         /* Color swatches - theme adaptive */
@@ -490,31 +486,11 @@
     <div class="builder-container">
         <div class="image-workspace">
             <div id="image-canvas" class="image-canvas">
-                <div id="script-display" class="upload-area" style="display: block;">
-                    <i data-lucide="image" style="width: 48px; height: 48px; color: var(--text-muted);"></i>
-                    <h3 style="color: var(--text-secondary); margin: 0;">Select a Script</h3>
-                    <p style="color: var(--text-muted); margin: 0; text-align: center; max-width: 280px;">Choose a script from the dropdown to configure its overlays</p>
-                </div>
             </div>
         </div>
 
         <div class="control-panel">
-            <div class="instructions">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <i data-lucide="check-circle" style="width: 20px; height: 20px; color: var(--accent-color);"></i>
-                    <strong style="color: var(--accent-color);">Quick Start Guide</strong>
-                </div>
-                1. Select a script below to load its screenshot<br>
-                2. Switch to "Create Hotspot" mode<br>
-                3. Click and drag on the image to define areas<br>
-                4. Edit properties in the panel below<br>
-                5. Save automatically updates the script config
-            </div>
 
-            <div class="section-title">
-                <i data-lucide="clipboard-list" style="width: 18px; height: 18px;"></i>
-                Script Selection
-            </div>
             
             <div class="form-group">
                 <label>Choose Script to Configure</label>
@@ -538,14 +514,13 @@
             </div>
 
             <div class="mode-toggle">
-                <div id="select-mode" class="mode-btn active">
-                    <i data-lucide="hand" style="width: 16px; height: 16px; margin-right: 0.5rem;"></i>
-                    Select Mode
-                </div>
-                <div id="create-mode" class="mode-btn">
-                    <i data-lucide="plus" style="width: 16px; height: 16px; margin-right: 0.5rem;"></i>
-                    Create Hotspot
-                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="create-mode-toggle">
+                    <span class="toggle-slider">
+                        <i data-lucide="plus" class="toggle-icon"></i>
+                    </span>
+                    <span class="toggle-label">Create Hotspot Mode</span>
+                </label>
             </div>
 
             <div class="section-title">
@@ -593,40 +568,44 @@
                     <input type="text" id="hotspot-id" placeholder="e.g., import-section">
                 </div>
 
-                <div class="coordinate-display" id="coordinate-display">
-                    No hotspot selected
+                <div class="form-group">
+                    <label>Position</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                        <input type="number" id="hotspot-x" placeholder="X" min="0">
+                        <input type="number" id="hotspot-y" placeholder="Y" min="0">
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Highlight Color</label>
+                    <label>Size</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                        <input type="number" id="hotspot-width" placeholder="Width" min="1">
+                        <input type="number" id="hotspot-height" placeholder="Height" min="1">
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <div class="color-palette" id="color-palette">
                         <div class="color-option" data-color="red">
                             <div class="color-swatch red"></div>
-                            <span>Red</span>
                         </div>
                         <div class="color-option" data-color="orange">
                             <div class="color-swatch orange"></div>
-                            <span>Orange</span>
                         </div>
                         <div class="color-option" data-color="yellow">
                             <div class="color-swatch yellow"></div>
-                            <span>Yellow</span>
                         </div>
                         <div class="color-option active" data-color="green">
                             <div class="color-swatch green"></div>
-                            <span>Green</span>
                         </div>
                         <div class="color-option" data-color="cyan">
                             <div class="color-swatch cyan"></div>
-                            <span>Cyan</span>
                         </div>
                         <div class="color-option" data-color="purple">
                             <div class="color-swatch purple"></div>
-                            <span>Purple</span>
                         </div>
                         <div class="color-option" data-color="pink">
                             <div class="color-swatch pink"></div>
-                            <span>Pink</span>
                         </div>
                     </div>
                 </div>

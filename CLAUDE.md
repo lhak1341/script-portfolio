@@ -84,12 +84,13 @@ Each script overlay configuration follows this consolidated structure with theme
 - **Highlight rendering**: Positioned at `(0,0)` relative to hotspot container instead of separate absolute positioning
 - **Toggle mechanism**: Replaced button click events with checkbox change events, state synchronization through `updateOverlayVisibility()`
 
-**Configuration Builder Interface Overhaul**:
-- **Theme-aware UI**: All hardcoded colors replaced with CSS custom properties (`--bg-secondary`, `--text-primary`, `--border-color`)
-- **Color palette system**: Visual color picker with 7 predefined colors, automatic theme adaptation using CSS classes
-- **Lucide icons integration**: Replaced inline SVG with Lucide icon library for consistent iconography
-- **iPhone-style mode toggle**: Replaced basic buttons with iOS-style toggle switches using `cubic-bezier(0.4, 0.0, 0.2, 1)` animations
-- **Coordinate display consolidation**: Single coordinate set replaces duplicate hotspot/highlight pairs
+**Configuration Builder Interface Redesign**:
+- **Compact layout system**: Reduced padding throughout interface (container: `2rem→1rem`, panels: `2rem→1rem`, form groups: `1.5rem→1rem`)
+- **Simplified mode switching**: Single iOS-style toggle for "Create Hotspot Mode" replaces dual-button approach (select mode is default)
+- **Editable coordinate inputs**: Real-time X/Y/Width/Height number inputs replace read-only coordinate display for pixel-precise adjustments
+- **Clean color palette**: Borderless color dots in single horizontal row, removed text labels and background container
+- **Minimal hotspot list**: Shows only ID, direction arrow, and color indicator - removed coordinate/size details for cleaner selection interface
+- **Streamlined sections**: Removed redundant "Script Selection" header and placeholder messaging for focused workflow
 
 **Script Page Content Structure**:
 - **Semantic HTML sections**: Added `.script-content` CSS class for structured content areas below screenshots
@@ -108,10 +109,11 @@ Each script overlay configuration follows this consolidated structure with theme
 ### Visual Configuration Builder (✅ Complete)
 
 #### Hotspot Creation Workflow
-- **Click-drag selection**: Mouse events on screenshot create rectangular hotspot boundaries
-- **Live coordinate display**: Real-time x, y, width, height updates during selection
-- **Property panel**: Form inputs for ID, colors, line direction/length, markdown descriptions
-- **Preview synchronization**: Configuration changes instantly update visual preview with same positioning logic as production
+- **Toggle-based mode switching**: Single checkbox toggles between select mode (default) and create mode for clear workflow separation
+- **Click-drag selection**: Mouse events create rectangular hotspot boundaries when in create mode, automatic coordinate calculation
+- **Pixel-precise editing**: Dedicated number inputs for Position (X, Y) and Size (Width, Height) allow 1-pixel adjustments
+- **Visual property panel**: Hotspot ID input, single-row color palette (7 theme-aware colors), line direction/length controls, markdown description field
+- **Real-time preview**: All changes instantly update visual overlay preview using same positioning logic as production engine
 
 #### Configuration Management
 - **Script selection**: Dropdown loads existing `config.json` files from `scripts/{id}/` directories
@@ -145,6 +147,34 @@ Each script overlay configuration follows this consolidated structure with theme
 - **Unified layout**: Header with script name/version, centered screenshot with overlays, left-aligned description sections
 - **Clickable tags**: Navigate back to main page with automatic tag filtering
 - **Feature documentation**: Key features list and implementation details below interactive screenshot
+
+## Development Setup
+
+### Starting Local Server
+Run from project root directory:
+
+**Python (most common):**
+```bash
+python -m http.server 8000
+# or
+python3 -m http.server 8000
+```
+
+**Node.js:**
+```bash
+npx http-server -p 8000
+```
+
+**PHP:**
+```bash
+php -S localhost:8000
+```
+
+Then visit `http://localhost:8000` in your browser.
+
+### Accessing Configuration Builder
+Once server is running, access the visual overlay configuration tool at:
+`http://localhost:8000/tools/config-builder.html`
 
 ## Technical Dependencies & Constraints
 
