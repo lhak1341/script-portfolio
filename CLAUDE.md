@@ -338,10 +338,117 @@ window.matchMedia('(prefers-color-scheme: dark)').matches
 - **Configuration validation**: No schema validation prevents malformed config files from breaking pages
 - **Accessibility**: Overlay system lacks keyboard navigation and screen reader support
 
+## Dynamic Build System
+
+### System Architecture
+The portfolio operates with zero hardcoded script data. All script information originates from individual `config.json` files, eliminating maintenance overhead and ensuring single-source-of-truth for each script.
+
+**Build Process**: Node.js scripts scan config files → generate `scripts-list.json` → sync config builder data → validate file structure
+
+### Build Commands
+
+#### `node build-system.js` - Complete Build
+Executes full system generation:
+- Scans `SCRIPT_DATA` object for missing directories
+- Creates `config.json` with empty overlays array for new scripts
+- Generates `description.md` placeholder content
+- Creates `index.html` showcase pages with overlay integration
+- Updates `scripts-list.json` from all config files
+- Synchronizes config builder script metadata
+
+#### `node generate-system.js` - File Structure Generator  
+Creates missing script files:
+- Script directories under `scripts/`
+- Config files with category/tag metadata
+- Description markdown with structured content
+- HTML pages with theme detection and overlay engine
+
+#### `node update-config-builder.js` - Config Builder Sync
+Updates hardcoded script data in `tools/config-builder.js` to match current `scripts-list.json` content.
+
+### Script File Structure
+Each script requires three files for complete functionality:
+```
+scripts/
+├── script-id/
+│   ├── config.json      # Metadata + overlay configurations
+│   ├── description.md   # Content loaded via engine.loadDescription()
+│   └── index.html       # Showcase page with overlay system
+```
+
+**File Dependencies**:
+- `index.html` requires `config.json` for overlay engine initialization
+- `description.md` loaded dynamically, overrides hardcoded HTML content
+- Config builder requires `SCRIPT_DATA` synchronization for dropdown population
+
+### Adding New Scripts
+
+**Step 1**: Add script data to `generate-system.js`:
+```javascript
+SCRIPT_DATA = {
+  'script-id': {
+    name: 'Script Display Name',
+    version: '1.0.0', 
+    description: 'Specific functionality description',
+    category: 'utility|workflow|automation',
+    tags: ['specific', 'feature', 'keywords'],
+    image: 'ScreenshotFilename.png',
+    pinned: false
+  }
+}
+```
+
+**Step 2**: Execute build system:
+```bash
+node build-system.js
+```
+
+**Step 3**: Configure overlays using visual builder at `/tools/config-builder.html`
+
+### Data Flow Architecture
+
+**Main Page Load**:
+1. `overlay-engine.js` fetches `data/scripts-list.json`
+2. Renders script cards with category/tag filtering
+3. Tag navigation creates URL parameters for filtering
+
+**Individual Script Page Load**:
+1. `overlay-engine.js` loads `scripts/{id}/config.json`
+2. Initializes overlay system with coordinates/styling
+3. Loads `description.md` content, overrides HTML placeholders
+4. Renders dynamic tag links from config data
+
+**Config Builder Operation**:
+1. Dropdown populated from hardcoded `scriptData` object
+2. Script selection loads existing `config.json` via fetch with cache-busting
+3. Overlay creation updates in-memory configuration
+4. Save outputs `{"overlays": [...]}` for manual config file update
+
+### Breaking Changes and Dependencies
+
+**Critical Path Dependencies**:
+- Config builder requires `scriptData` object synchronization with `scripts-list.json`
+- Script pages depend on `config.json` existence for overlay engine initialization  
+- Main page filtering requires `scripts-list.json` generation from config files
+- Description loading depends on `description.md` file presence
+
+**File Structure Requirements**:
+- Script directories must match `id` field in `scripts-list.json`
+- Screenshot paths must resolve from `images/script-screenshots/` directory
+- Config files must contain `baseImage.src` with correct relative paths
+
+**Build System Constraints**:
+- New scripts require `SCRIPT_DATA` updates before build execution
+- Config builder hardcoded data becomes stale without sync step
+- Missing description files cause overlay engine content loading failures
+
 ## Project Structure
 ```
 project-root/
 ├── index.html                    # Main landing page with search/filter
+├── build-system.js              # Complete build process automation
+├── generate-system.js           # Core file structure generator  
+├── update-config-builder.js     # Config builder synchronization
 ├── css/
 │   ├── main.css                 # Global styles + theme system (15 CSS variables)
 │   └── overlay-system.css       # Hotspot, highlight, line, tooltip components
@@ -351,12 +458,14 @@ project-root/
 │   └── config-builder.js        # Visual configuration interface (ConfigurationBuilder class)
 ├── images/
 │   └── script-screenshots/      # PNG screenshots for overlay system
-├── scripts/
-│   └── sp-comp-setup/          # Example: working script with 2 configured overlays
-│       ├── index.html          # Script page with overlay integration
-│       └── config.json         # Overlay coordinates and styling
+├── scripts/                     # Auto-generated script directories
+│   ├── sp-comp-setup/          
+│   │   ├── index.html          # Script showcase page
+│   │   ├── config.json         # Metadata + overlay coordinates
+│   │   └── description.md      # Dynamic content (loaded by engine)
+│   ├── [9 other scripts]/      # Generated with same structure
 ├── tools/
 │   └── config-builder.html     # Visual overlay configuration interface
 └── data/
-    └── scripts-list.json       # Master script metadata (fallback data included)
+    └── scripts-list.json       # Generated from all config.json files
 ```

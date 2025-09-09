@@ -1,0 +1,19 @@
+{
+  "scriptName": "Khoa Sharing Toolbar",
+  "version": "1.0.2",
+  "description": "Collaborative toolbar for team sharing and project management features",
+  "category": "workflow",
+  "tags": [
+    "sharing",
+    "collaboration",
+    "toolbar",
+    "team"
+  ],
+  "pinned": false,
+  "baseImage": {
+    "src": "../../images/script-screenshots/KhoaSharingToolbar_1.0.2.png",
+    "width": 328,
+    "height": 612
+  },
+  "overlays": []
+}

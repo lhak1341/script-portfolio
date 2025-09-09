@@ -1,0 +1,19 @@
+{
+  "scriptName": "SP SRT Importer",
+  "version": "0.2.0",
+  "description": "Automated SRT subtitle file import with timing and formatting options",
+  "category": "automation",
+  "tags": [
+    "subtitle",
+    "import",
+    "srt",
+    "timing"
+  ],
+  "pinned": true,
+  "baseImage": {
+    "src": "../../images/script-screenshots/SPSRTImporter_0.2.0.png",
+    "width": 328,
+    "height": 612
+  },
+  "overlays": []
+}

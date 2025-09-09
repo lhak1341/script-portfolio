@@ -4,12 +4,16 @@
       "id": "sp-comp-setup",
       "name": "SP Comp Setup",
       "version": "0.8.2",
-      "category": "utility",
+      "category": "workflow",
       "description": "Streamlined composition setup with auto-interpretation and template management",
       "thumbnail": "images/script-screenshots/SPCompSetup_0.8.2.png",
       "screenshot": "images/script-screenshots/SPCompSetup_0.8.2.png",
       "pinned": true,
-      "tags": ["composition", "setup", "automation", "template"]
+      "tags": [
+        "compositing",
+        "setup",
+        "comp-settings"
+      ]
     },
     {
       "id": "sp-comp-edit",
@@ -20,7 +24,12 @@
       "thumbnail": "images/script-screenshots/SPCompEdit_0.1.6.png",
       "screenshot": "images/script-screenshots/SPCompEdit_0.1.6.png",
       "pinned": false,
-      "tags": ["editing", "batch", "properties", "workflow"]
+      "tags": [
+        "editing",
+        "batch",
+        "properties",
+        "workflow"
+      ]
     },
     {
       "id": "sp-versioning-setup-toolkit",
@@ -31,7 +40,12 @@
       "thumbnail": "images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
       "screenshot": "images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
       "pinned": false,
-      "tags": ["versioning", "backup", "project", "management"]
+      "tags": [
+        "versioning",
+        "backup",
+        "project",
+        "management"
+      ]
     },
     {
       "id": "sp-versioning-csv",
@@ -42,7 +56,12 @@
       "thumbnail": "images/script-screenshots/SPVersioningCSV_0.1.0.png",
       "screenshot": "images/script-screenshots/SPVersioningCSV_0.1.0.png",
       "pinned": false,
-      "tags": ["csv", "export", "tracking", "data"]
+      "tags": [
+        "csv",
+        "export",
+        "tracking",
+        "data"
+      ]
     },
     {
       "id": "sp-srt-importer",
@@ -53,7 +72,12 @@
       "thumbnail": "images/script-screenshots/SPSRTImporter_0.2.0.png",
       "screenshot": "images/script-screenshots/SPSRTImporter_0.2.0.png",
       "pinned": true,
-      "tags": ["subtitle", "import", "srt", "timing"]
+      "tags": [
+        "subtitle",
+        "import",
+        "srt",
+        "timing"
+      ]
     },
     {
       "id": "sp-deadline",
@@ -64,7 +88,12 @@
       "thumbnail": "images/script-screenshots/SPDeadline_1.0.1.png",
       "screenshot": "images/script-screenshots/SPDeadline_1.0.1.png",
       "pinned": false,
-      "tags": ["deadline", "render", "farm", "submission"]
+      "tags": [
+        "deadline",
+        "render",
+        "farm",
+        "submission"
+      ]
     },
     {
       "id": "effect-usage-analyzer",
@@ -75,7 +104,12 @@
       "thumbnail": "images/script-screenshots/EffectUsageAnalyzer_0.0.4.png",
       "screenshot": "images/script-screenshots/EffectUsageAnalyzer_0.0.4.png",
       "pinned": false,
-      "tags": ["analysis", "effects", "tracking", "optimization"]
+      "tags": [
+        "analysis",
+        "effects",
+        "tracking",
+        "optimization"
+      ]
     },
     {
       "id": "expression-usage-analyzer",
@@ -86,7 +120,12 @@
       "thumbnail": "images/script-screenshots/ExpressionUsageAnalyzer_0.0.1.png",
       "screenshot": "images/script-screenshots/ExpressionUsageAnalyzer_0.0.1.png",
       "pinned": false,
-      "tags": ["expressions", "analysis", "optimization", "debugging"]
+      "tags": [
+        "expressions",
+        "analysis",
+        "optimization",
+        "debugging"
+      ]
     },
     {
       "id": "find-replace-expression",
@@ -97,7 +136,12 @@
       "thumbnail": "images/script-screenshots/FindAndReplaceInExpression.png",
       "screenshot": "images/script-screenshots/FindAndReplaceInExpression.png",
       "pinned": true,
-      "tags": ["find", "replace", "expressions", "batch"]
+      "tags": [
+        "find",
+        "replace",
+        "expressions",
+        "batch"
+      ]
     },
     {
       "id": "khoa-sharing-toolbar",
@@ -108,10 +152,21 @@
       "thumbnail": "images/script-screenshots/KhoaSharingToolbar_1.0.2.png",
       "screenshot": "images/script-screenshots/KhoaSharingToolbar_1.0.2.png",
       "pinned": false,
-      "tags": ["sharing", "collaboration", "toolbar", "team"]
+      "tags": [
+        "sharing",
+        "collaboration",
+        "toolbar",
+        "team"
+      ]
     }
   ],
   "categories": [
+    {
+      "id": "workflow",
+      "name": "Workflow",
+      "color": "#FF9800",
+      "description": "Tools to enhance and streamline your creative workflow"
+    },
     {
       "id": "utility",
       "name": "Utility Tools",
@@ -123,12 +178,6 @@
       "name": "Automation",
       "color": "#2196F3",
       "description": "Scripts that automate repetitive tasks and workflows"
-    },
-    {
-      "id": "workflow",
-      "name": "Workflow",
-      "color": "#FF9800",
-      "description": "Tools to enhance and streamline your creative workflow"
     }
   ]
 }

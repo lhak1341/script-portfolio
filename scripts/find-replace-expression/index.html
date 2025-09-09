@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find and Replace in Expression - After Effects Scripts Portfolio</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/overlay-system.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div style="position: absolute; top: 1rem; right: 2rem; opacity: 0.7; font-size: 0.8rem; color: var(--header-subtitle); display: flex; align-items: center; gap: 0.3rem;" id="theme-indicator">
+                <i data-lucide="moon" style="width: 14px; height: 14px;"></i>
+                Dark Mode
+            </div>
+            <nav style="margin-bottom: 1rem;">
+                <a href="../../index.html" style="color: var(--header-subtitle); text-decoration: none; font-size: 0.9rem;">&larr; Back to Scripts</a>
+            </nav>
+            <h1 class="site-title">Find and Replace in Expression</h1>
+            <p class="site-subtitle">Powerful search and replace functionality for expressions across entire projects</p>
+            <div style="margin-top: 1rem;">
+                <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem;">v1.0.0</span>
+                <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; margin-left: 0.5rem;">Utility Tools</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="script-showcase">
+                <div style="text-align: center; margin-bottom: 1rem;">
+                    <div class="toggle-switch">
+                        <span class="toggle-switch-label">Show All Overlays</span>
+                        <label class="toggle-switch-container">
+                            <input type="checkbox" id="overlay-toggle" class="toggle-switch-input">
+                            <span class="toggle-switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div id="overlay-container" class="script-image-container">
+                    <!-- Overlay system will be initialized here -->
+                </div>
+                
+                <div class="script-content">
+                    <h2>About This Script</h2>
+                    <p>
+                        Powerful search and replace functionality for expressions across entire projects
+                    </p>
+                    <p>
+                        This script provides powerful functionality for After Effects users. Configure the overlay system using the configuration builder to highlight key features and interface elements.
+                    </p>
+                    
+                    <h3>Key Features</h3>
+                    <ul>
+                        <li>Professional After Effects integration</li>
+                        <li>Intuitive user interface design</li>
+                        <li>Advanced functionality and options</li>
+                        <li>Streamlined workflow optimization</li>
+                        <li>Comprehensive feature set</li>
+                    </ul>
+                    
+                    <h3>Tags</h3>
+                    <div class="script-tags">
+                        <a href="../../index.html?tag=find" class="tag">find</a>
+                        <a href="../../index.html?tag=replace" class="tag">replace</a>
+                        <a href="../../index.html?tag=expressions" class="tag">expressions</a>
+                        <a href="../../index.html?tag=batch" class="tag">batch</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 After Effects Scripts Portfolio</p>
+        </div>
+    </footer>
+
+    <script src="../../js/utils.js"></script>
+    <script src="../../js/overlay-engine.js"></script>
+    <script>
+        // Theme detection for script pages
+        function updateThemeForScriptPage() {
+            const indicator = document.getElementById('theme-indicator');
+            if (!indicator) return;
+            
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            indicator.innerHTML = isDark ? 
+                '<i data-lucide="moon" style="width: 14px; height: 14px;"></i> Dark Mode' : 
+                '<i data-lucide="sun" style="width: 14px; height: 14px;"></i> Light Mode';
+                
+            // Re-initialize Lucide icons for the new icon
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            // Setup theme detection
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            updateThemeForScriptPage();
+            mediaQuery.addEventListener('change', updateThemeForScriptPage);
+            
+            // Initialize overlay engine for this script
+            const engine = initializeOverlayEngine('overlay-container');
+            
+            // Load the configuration from config.json
+            const success = await engine.loadConfig('config.json');
+            
+            if (success && engine.config) {
+                // Update metadata from config
+                engine.updateScriptMetadata(engine.config);
+                
+                // Load and render description from description.md
+                const descriptionHtml = await engine.loadDescription('.');
+                if (descriptionHtml) {
+                    const contentContainer = document.querySelector('.script-content');
+                    if (contentContainer) {
+                        contentContainer.innerHTML = descriptionHtml;
+                        
+                        // Add tags section if we have tags
+                        if (engine.config.tags && engine.config.tags.length > 0) {
+                            const tagsHtml = `
+                                <h3>Tags</h3>
+                                <div class="script-tags">
+                                    ${engine.config.tags.map(tag => 
+                                        `<a href="../../index.html?tag=${encodeURIComponent(tag)}" class="tag">${tag}</a>`
+                                    ).join('')}
+                                </div>
+                            `;
+                            contentContainer.innerHTML += tagsHtml;
+                        }
+                    }
+                }
+            } else {
+                console.error('Failed to load config.json for Find and Replace in Expression');
+            }
+        });
+    </script>
+</body>
+</html>

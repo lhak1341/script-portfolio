@@ -33,66 +33,66 @@ class ConfigurationBuilder {
         
         // Script metadata mapping
         this.scriptData = {
-            'sp-comp-setup': {
-                name: 'SP Comp Setup',
-                version: '0.8.2',
-                description: 'Streamlined composition setup with auto-interpretation and template management',
-                image: 'SPCompSetup_0.8.2.png'
-            },
-            'sp-comp-edit': {
-                name: 'SP Comp Edit',
-                version: '0.1.6',
-                description: 'Advanced composition editing tools with batch operations and property management',
-                image: 'SPCompEdit_0.1.6.png'
-            },
-            'sp-versioning-setup-toolkit': {
-                name: 'SP Versioning Setup Toolkit',
-                version: '0.2.2',
-                description: 'Complete project versioning system with automated backup and restoration',
-                image: 'SPVersioningSetupToolkit_0.2.2.png'
-            },
-            'sp-versioning-csv': {
-                name: 'SP Versioning CSV',
-                version: '0.1.0',
-                description: 'CSV-based version tracking and export system for project management',
-                image: 'SPVersioningCSV_0.1.0.png'
-            },
-            'sp-srt-importer': {
-                name: 'SP SRT Importer',
-                version: '0.2.0',
-                description: 'Automated SRT subtitle file import with timing and formatting options',
-                image: 'SPSRTImporter_0.2.0.png'
-            },
-            'sp-deadline': {
-                name: 'SP Deadline',
-                version: '1.0.1',
-                description: 'Deadline render farm integration with job submission and monitoring',
-                image: 'SPDeadline_1.0.1.png'
-            },
-            'effect-usage-analyzer': {
-                name: 'Effect Usage Analyzer',
-                version: '0.0.4',
-                description: 'Comprehensive analysis tool for tracking effect usage across projects',
-                image: 'EffectUsageAnalyzer_0.0.4.png'
-            },
-            'expression-usage-analyzer': {
-                name: 'Expression Usage Analyzer',
-                version: '0.0.1',
-                description: 'Advanced expression analysis and optimization tool for After Effects projects',
-                image: 'ExpressionUsageAnalyzer_0.0.1.png'
-            },
-            'find-replace-expression': {
-                name: 'Find and Replace in Expression',
-                version: '1.0.0',
-                description: 'Powerful search and replace functionality for expressions across entire projects',
-                image: 'FindAndReplaceInExpression.png'
-            },
-            'khoa-sharing-toolbar': {
-                name: 'Khoa Sharing Toolbar',
-                version: '1.0.2',
-                description: 'Collaborative toolbar for team sharing and project management features',
-                image: 'KhoaSharingToolbar_1.0.2.png'
-            }
+    'sp-comp-setup': {
+        name: 'SP Comp Setup',
+        version: '0.8.2',
+        description: 'Streamlined composition setup with auto-interpretation and template management',
+        image: 'SPCompSetup_0.8.2.png'
+    },
+    'sp-comp-edit': {
+        name: 'SP Comp Edit',
+        version: '0.1.6',
+        description: 'Advanced composition editing tools with batch operations and property management',
+        image: 'SPCompEdit_0.1.6.png'
+    },
+    'sp-versioning-setup-toolkit': {
+        name: 'SP Versioning Setup Toolkit',
+        version: '0.2.2',
+        description: 'Complete project versioning system with automated backup and restoration',
+        image: 'SPVersioningSetupToolkit_0.2.2.png'
+    },
+    'sp-versioning-csv': {
+        name: 'SP Versioning CSV',
+        version: '0.1.0',
+        description: 'CSV-based version tracking and export system for project management',
+        image: 'SPVersioningCSV_0.1.0.png'
+    },
+    'sp-srt-importer': {
+        name: 'SP SRT Importer',
+        version: '0.2.0',
+        description: 'Automated SRT subtitle file import with timing and formatting options',
+        image: 'SPSRTImporter_0.2.0.png'
+    },
+    'sp-deadline': {
+        name: 'SP Deadline',
+        version: '1.0.1',
+        description: 'Deadline render farm integration with job submission and monitoring',
+        image: 'SPDeadline_1.0.1.png'
+    },
+    'effect-usage-analyzer': {
+        name: 'Effect Usage Analyzer',
+        version: '0.0.4',
+        description: 'Comprehensive analysis tool for tracking effect usage across projects',
+        image: 'EffectUsageAnalyzer_0.0.4.png'
+    },
+    'expression-usage-analyzer': {
+        name: 'Expression Usage Analyzer',
+        version: '0.0.1',
+        description: 'Advanced expression analysis and optimization tool for After Effects projects',
+        image: 'ExpressionUsageAnalyzer_0.0.1.png'
+    },
+    'find-replace-expression': {
+        name: 'Find and Replace in Expression',
+        version: '1.0.0',
+        description: 'Powerful search and replace functionality for expressions across entire projects',
+        image: 'FindAndReplaceInExpression.png'
+    },
+    'khoa-sharing-toolbar': {
+        name: 'Khoa Sharing Toolbar',
+        version: '1.0.2',
+        description: 'Collaborative toolbar for team sharing and project management features',
+        image: 'KhoaSharingToolbar_1.0.2.png'
+    }
         };
         
         this.init();
@@ -189,11 +189,6 @@ class ConfigurationBuilder {
 
         this.currentScript = scriptId;
         const scriptInfo = this.scriptData[scriptId];
-        
-        // Update script info fields
-        document.getElementById('script-name').value = scriptInfo.name;
-        document.getElementById('script-version').value = scriptInfo.version;
-        document.getElementById('script-description').value = scriptInfo.description;
 
         // Load the screenshot
         const imagePath = `../images/script-screenshots/${scriptInfo.image}`;
@@ -285,7 +280,7 @@ class ConfigurationBuilder {
             <strong><i data-lucide="clipboard-list" style="width: 16px; height: 16px; margin-right: 0.5rem;"></i>Next Steps:</strong><br>
             1. Click "Copy to Clipboard" below<br>
             2. Open: <code>scripts/${this.currentScript}/config.json</code><br>
-            3. Replace ALL content with the copied JSON<br>
+            3. Replace the <code>"overlays": [...]</code> section with the copied content<br>
             4. Save the file<br>
             5. Refresh your script page to see changes
         `;
@@ -308,21 +303,11 @@ class ConfigurationBuilder {
     }
 
     /**
-     * Generate configuration object
+     * Generate configuration object - now returns only overlays array
      */
-    generateConfiguration() {
-        const scriptInfo = this.scriptData[this.currentScript];
-        
+    generateConfiguration() {        
         return {
-            scriptName: document.getElementById('script-name').value || scriptInfo.name,
-            version: document.getElementById('script-version').value || scriptInfo.version,
-            description: document.getElementById('script-description').value || scriptInfo.description,
-            baseImage: {
-                src: `../../images/script-screenshots/${scriptInfo.image}`,
-                width: this.currentImage ? this.currentImage.width : 800,
-                height: this.currentImage ? this.currentImage.height : 600
-            },
-            overlays: this.hotspots
+            "overlays": this.hotspots
         };
     }
 
@@ -428,9 +413,8 @@ class ConfigurationBuilder {
 
         if (this.mode === 'create') {
             this.startSelection(x, y);
-        } else if (this.mode === 'select') {
-            this.selectHotspotAt(x, y);
         }
+        // Remove selectHotspotAt call - users now click directly on hotspots/tooltips to select
     }
 
     handleMouseMove(e) {
@@ -545,28 +529,6 @@ class ConfigurationBuilder {
         this.renderHotspots();
     }
 
-    selectHotspotAt(x, y) {
-        // Convert to image coordinates
-        const img = document.querySelector('.workspace-image');
-        const scaleX = this.currentImage.width / img.offsetWidth;
-        const scaleY = this.currentImage.height / img.offsetHeight;
-
-        const imageX = x * scaleX;
-        const imageY = y * scaleY;
-
-        // Find hotspot at this position
-        const hotspot = this.hotspots.find(h => {
-            const coords = h.coordinates;
-            return imageX >= coords.x && imageX <= coords.x + coords.width &&
-                   imageY >= coords.y && imageY <= coords.y + coords.height;
-        });
-
-        if (hotspot) {
-            this.selectedHotspot = hotspot;
-            this.updateHotspotList();
-            this.updatePropertiesPanel();
-        }
-    }
 
     updateHotspotList() {
         const list = document.getElementById('hotspot-list');
@@ -615,14 +577,7 @@ class ConfigurationBuilder {
                 </div>
             `;
             
-            item.addEventListener('click', (e) => {
-                // Don't select if clicking delete button
-                if (e.target.closest('button')) return;
-                
-                this.selectedHotspot = hotspot;
-                this.updateHotspotList();
-                this.updatePropertiesPanel();
-            });
+            // Remove click handler - users now click directly on hotspots/tooltips to select
             list.appendChild(item);
         });
     }
@@ -713,6 +668,16 @@ class ConfigurationBuilder {
         hotspotContainer.style.width = `${hotspot.coordinates.width * scaleX}px`;
         hotspotContainer.style.height = `${hotspot.coordinates.height * scaleY}px`;
         hotspotContainer.style.zIndex = '10';
+        hotspotContainer.style.cursor = 'pointer';
+        
+        // Add click handler to select this hotspot
+        hotspotContainer.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.selectedHotspot = hotspot;
+            this.updateHotspotList();
+            this.updatePropertiesPanel();
+            this.renderHotspots();
+        });
         
         // Add selection border if this is the selected hotspot
         if (hotspot === this.selectedHotspot) {
@@ -748,6 +713,16 @@ class ConfigurationBuilder {
         // Create tooltip
         if (hotspot.description) {
             const tooltip = this.createPreviewTooltip(hotspot, scaleX, scaleY);
+            // Add click handler to tooltip as well
+            tooltip.style.cursor = 'pointer';
+            tooltip.style.pointerEvents = 'auto';
+            tooltip.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.selectedHotspot = hotspot;
+                this.updateHotspotList();
+                this.updatePropertiesPanel();
+                this.renderHotspots();
+            });
             canvas.appendChild(tooltip);
         }
 
@@ -1027,11 +1002,6 @@ class ConfigurationBuilder {
     }
 
     loadConfiguration(config) {
-        // Load script info
-        document.getElementById('script-name').value = config.scriptName || '';
-        document.getElementById('script-version').value = config.version || '';
-        document.getElementById('script-description').value = config.description || '';
-
         // Load hotspots
         this.hotspots = config.overlays || [];
         this.selectedHotspot = null;

@@ -1,0 +1,19 @@
+{
+  "scriptName": "SP Versioning CSV",
+  "version": "0.1.0",
+  "description": "CSV-based version tracking and export system for project management",
+  "category": "utility",
+  "tags": [
+    "csv",
+    "export",
+    "tracking",
+    "data"
+  ],
+  "pinned": false,
+  "baseImage": {
+    "src": "../../images/script-screenshots/SPVersioningCSV_0.1.0.png",
+    "width": 328,
+    "height": 612
+  },
+  "overlays": []
+}

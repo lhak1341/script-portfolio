@@ -1,0 +1,19 @@
+{
+  "scriptName": "SP Deadline",
+  "version": "1.0.1",
+  "description": "Deadline render farm integration with job submission and monitoring",
+  "category": "automation",
+  "tags": [
+    "deadline",
+    "render",
+    "farm",
+    "submission"
+  ],
+  "pinned": false,
+  "baseImage": {
+    "src": "../../images/script-screenshots/SPDeadline_1.0.1.png",
+    "width": 328,
+    "height": 612
+  },
+  "overlays": []
+}

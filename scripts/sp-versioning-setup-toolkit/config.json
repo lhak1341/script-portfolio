@@ -1,0 +1,19 @@
+{
+  "scriptName": "SP Versioning Setup Toolkit",
+  "version": "0.2.2",
+  "description": "Complete project versioning system with automated backup and restoration",
+  "category": "workflow",
+  "tags": [
+    "versioning",
+    "backup",
+    "project",
+    "management"
+  ],
+  "pinned": false,
+  "baseImage": {
+    "src": "../../images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
+    "width": 328,
+    "height": 612
+  },
+  "overlays": []
+}

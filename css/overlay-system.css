@@ -303,17 +303,30 @@
     margin-top: 1.5rem;
 }
 
-.script-content p,
-.script-content li {
+.script-content h3:last-of-type {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.script-content p {
     line-height: 1.6;
     color: var(--text-secondary);
     margin-bottom: 1rem;
 }
 
-.script-content ul {
-    line-height: 1.8;
+.script-content ul,
+.script-content ol {
+    line-height: 1.6;
     color: var(--text-secondary);
     margin-left: 2rem;
+    margin-bottom: 1rem;
+}
+
+.script-content li {
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
 }
 
 .script-tags {

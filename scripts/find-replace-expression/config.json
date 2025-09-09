@@ -1,0 +1,19 @@
+{
+  "scriptName": "Find and Replace in Expression",
+  "version": "1.0.0",
+  "description": "Powerful search and replace functionality for expressions across entire projects",
+  "category": "utility",
+  "tags": [
+    "find",
+    "replace",
+    "expressions",
+    "batch"
+  ],
+  "pinned": true,
+  "baseImage": {
+    "src": "../../images/script-screenshots/FindAndReplaceInExpression.png",
+    "width": 328,
+    "height": 612
+  },
+  "overlays": []
+}

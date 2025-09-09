@@ -2,8 +2,8 @@
   "scriptName": "SP Comp Setup",
   "version": "0.8.2",
   "description": "Streamlined composition setup with auto-interpretation and template management",
-  "category": "Utility Tool",
-  "tags": ["composition", "automation", "template", "workflow"],
+  "category": "workflow",
+  "tags": ["compositing", "setup", "comp-settings"],
   "pinned": true,
   "baseImage": {
     "src": "../../images/script-screenshots/SPCompSetup_0.8.2.png",

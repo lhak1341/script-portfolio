@@ -1,0 +1,19 @@
+{
+  "scriptName": "Expression Usage Analyzer",
+  "version": "0.0.1",
+  "description": "Advanced expression analysis and optimization tool for After Effects projects",
+  "category": "utility",
+  "tags": [
+    "expressions",
+    "analysis",
+    "optimization",
+    "debugging"
+  ],
+  "pinned": false,
+  "baseImage": {
+    "src": "../../images/script-screenshots/ExpressionUsageAnalyzer_0.0.1.png",
+    "width": 328,
+    "height": 612
+  },
+  "overlays": []
+}

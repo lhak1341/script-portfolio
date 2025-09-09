@@ -1,0 +1,19 @@
+{
+  "scriptName": "SP Comp Edit",
+  "version": "0.1.6",
+  "description": "Advanced composition editing tools with batch operations and property management",
+  "category": "workflow",
+  "tags": [
+    "editing",
+    "batch",
+    "properties",
+    "workflow"
+  ],
+  "pinned": false,
+  "baseImage": {
+    "src": "../../images/script-screenshots/SPCompEdit_0.1.6.png",
+    "width": 328,
+    "height": 612
+  },
+  "overlays": []
+}

@@ -1,0 +1,19 @@
+{
+  "scriptName": "Effect Usage Analyzer",
+  "version": "0.0.4",
+  "description": "Comprehensive analysis tool for tracking effect usage across projects",
+  "category": "utility",
+  "tags": [
+    "analysis",
+    "effects",
+    "tracking",
+    "optimization"
+  ],
+  "pinned": false,
+  "baseImage": {
+    "src": "../../images/script-screenshots/EffectUsageAnalyzer_0.0.4.png",
+    "width": 328,
+    "height": 612
+  },
+  "overlays": []
+}
