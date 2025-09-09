@@ -213,7 +213,10 @@ class OverlayEngine {
                 tooltip.style.opacity = '1';
             });
             hotspot.addEventListener('mouseleave', () => {
-                tooltip.style.opacity = '0';
+                // Only hide tooltip if not in "show all" mode
+                if (!this.showAllMode) {
+                    tooltip.style.opacity = '0';
+                }
             });
         }
 
@@ -431,11 +434,129 @@ class OverlayEngine {
      * Process basic markdown formatting
      */
     processMarkdown(text) {
-        return text
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/__(.*?)__/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/_(.*?)_/g, '<em>$1</em>');
+        // Split into lines for processing
+        const lines = text.split('\n');
+        const processed = [];
+        let inList = false;
+        let listType = null;
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            
+            // Skip empty lines
+            if (!line) {
+                if (inList) {
+                    processed.push(`</${listType}>`);
+                    inList = false;
+                    listType = null;
+                }
+                processed.push('');
+                continue;
+            }
+            
+            // Headers
+            if (line.startsWith('### ')) {
+                if (inList) { processed.push(`</${listType}>`); inList = false; }
+                processed.push(`<h3>${line.substring(4)}</h3>`);
+            } else if (line.startsWith('## ')) {
+                if (inList) { processed.push(`</${listType}>`); inList = false; }
+                processed.push(`<h2>${line.substring(3)}</h2>`);
+            } else if (line.startsWith('# ')) {
+                if (inList) { processed.push(`</${listType}>`); inList = false; }
+                processed.push(`<h1>${line.substring(2)}</h1>`);
+            }
+            // Numbered lists
+            else if (/^\d+\.\s+/.test(line)) {
+                if (!inList || listType !== 'ol') {
+                    if (inList) processed.push(`</${listType}>`);
+                    processed.push('<ol>');
+                    inList = true;
+                    listType = 'ol';
+                }
+                processed.push(`<li>${line.replace(/^\d+\.\s+/, '')}</li>`);
+            }
+            // Bullet lists
+            else if (/^[-*]\s+/.test(line)) {
+                if (!inList || listType !== 'ul') {
+                    if (inList) processed.push(`</${listType}>`);
+                    processed.push('<ul>');
+                    inList = true;
+                    listType = 'ul';
+                }
+                processed.push(`<li>${line.replace(/^[-*]\s+/, '')}</li>`);
+            }
+            // Regular paragraphs
+            else {
+                if (inList) {
+                    processed.push(`</${listType}>`);
+                    inList = false;
+                    listType = null;
+                }
+                processed.push(`<p>${line}</p>`);
+            }
+        }
+        
+        // Close any open list
+        if (inList) {
+            processed.push(`</${listType}>`);
+        }
+        
+        // Join and process inline formatting
+        return processed.join('\n')
+            .replace(/`(.*?)`/g, '<code>$1</code>')           // Inline code
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+            .replace(/__(.*?)__/g, '<strong>$1</strong>')     // Bold alternative
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')             // Italic  
+            .replace(/_(.*?)_/g, '<em>$1</em>');              // Italic alternative
+    }
+
+    /**
+     * Load and render markdown content from description.md
+     */
+    async loadDescription(scriptPath) {
+        try {
+            const response = await fetch(`${scriptPath}/description.md?v=${Date.now()}`);
+            if (!response.ok) {
+                console.warn('No description.md found, using fallback content');
+                return null;
+            }
+            const markdown = await response.text();
+            return this.processMarkdown(markdown);
+        } catch (error) {
+            console.error('Error loading description.md:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Update script metadata from config
+     */
+    updateScriptMetadata(config) {
+        // Update title and subtitle
+        const title = document.querySelector('.site-title');
+        const subtitle = document.querySelector('.site-subtitle');
+        if (title) title.textContent = config.scriptName;
+        if (subtitle) subtitle.textContent = config.description;
+
+        // Update version and category badges
+        const header = document.querySelector('.header .container');
+        const badgeContainer = header.querySelector('[style*="margin-top"]');
+        if (badgeContainer) {
+            badgeContainer.innerHTML = `
+                <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem;">v${config.version}</span>
+                <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; margin-left: 0.5rem;">${config.category}</span>
+            `;
+        }
+
+        // Update tags
+        if (config.tags) {
+            const tagsContainer = document.querySelector('.script-tags');
+            if (tagsContainer) {
+                tagsContainer.innerHTML = config.tags.map(tag => 
+                    `<a href="../../index.html?tag=${encodeURIComponent(tag)}" class="tag">${tag}</a>`
+                ).join('');
+            }
+        }
     }
 
     /**
@@ -589,7 +710,13 @@ async function loadScriptsList() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        renderScriptCards(data.scripts);
+        // Sort scripts with pinned at top before rendering
+        const sortedScripts = [...data.scripts].sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            return a.name.localeCompare(b.name); // Default to name sort
+        });
+        renderScriptCards(sortedScripts);
         return data;
     } catch (error) {
         console.error('Failed to load scripts list:', error);
@@ -614,7 +741,7 @@ function getFallbackScriptsData() {
                 "description": "Streamlined composition setup with auto-interpretation and template management",
                 "thumbnail": "images/script-screenshots/SPCompSetup_0.8.2.png",
                 "screenshot": "images/script-screenshots/SPCompSetup_0.8.2.png",
-                "featured": true,
+                "pinned": true,
                 "tags": ["composition", "setup", "automation", "template"]
             },
             {
@@ -625,7 +752,7 @@ function getFallbackScriptsData() {
                 "description": "Advanced composition editing tools with batch operations and property management",
                 "thumbnail": "images/script-screenshots/SPCompEdit_0.1.6.png",
                 "screenshot": "images/script-screenshots/SPCompEdit_0.1.6.png",
-                "featured": false,
+                "pinned": false,
                 "tags": ["editing", "batch", "properties", "workflow"]
             },
             {
@@ -636,7 +763,7 @@ function getFallbackScriptsData() {
                 "description": "Automated SRT subtitle file import with timing and formatting options",
                 "thumbnail": "images/script-screenshots/SPSRTImporter_0.2.0.png",
                 "screenshot": "images/script-screenshots/SPSRTImporter_0.2.0.png",
-                "featured": true,
+                "pinned": true,
                 "tags": ["subtitle", "import", "srt", "timing"]
             },
             {
@@ -647,7 +774,7 @@ function getFallbackScriptsData() {
                 "description": "Powerful search and replace functionality for expressions across entire projects",
                 "thumbnail": "images/script-screenshots/FindAndReplaceInExpression.png",
                 "screenshot": "images/script-screenshots/FindAndReplaceInExpression.png",
-                "featured": true,
+                "pinned": true,
                 "tags": ["find", "replace", "expressions", "batch"]
             }
         ],
@@ -684,6 +811,11 @@ function renderScriptCards(scripts) {
         const card = createScriptCard(script);
         grid.appendChild(card);
     });
+    
+    // Initialize Lucide icons for the new script cards (especially pin icons)
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 }
 
 /**
@@ -691,7 +823,7 @@ function renderScriptCards(scripts) {
  */
 function createScriptCard(script) {
     const card = document.createElement('div');
-    card.className = `script-card ${script.featured ? 'featured' : ''}`;
+    card.className = `script-card ${script.pinned ? 'pinned' : ''}`;
     card.addEventListener('click', () => {
         window.location.href = `scripts/${script.id}/index.html`;
     });
@@ -699,6 +831,7 @@ function createScriptCard(script) {
     card.innerHTML = `
         <div class="script-thumbnail">
             <img src="${script.thumbnail || script.screenshot}" alt="${script.name}" loading="lazy">
+            ${script.pinned ? '<i data-lucide="pin" class="pin-icon"></i>' : ''}
         </div>
         <div class="script-info">
             <h3 class="script-title">${script.name}</h3>
@@ -712,6 +845,11 @@ function createScriptCard(script) {
             ` : ''}
         </div>
     `;
+
+    // Initialize Lucide icons for the new card
+    if (typeof lucide !== 'undefined') {
+        setTimeout(() => lucide.createIcons(), 0);
+    }
 
     return card;
 }
@@ -783,19 +921,25 @@ async function handleFiltering() {
         filteredScripts = filteredScripts.filter(script => script.category === categoryFilter);
     }
 
-    // Apply sorting
+    // Apply sorting with pinned scripts always at top
     const sortFilter = document.getElementById('sort-filter')?.value;
-    switch (sortFilter) {
-        case 'name':
-            filteredScripts.sort((a, b) => a.name.localeCompare(b.name));
-            break;
-        case 'newest':
-            filteredScripts.sort((a, b) => b.version.localeCompare(a.version));
-            break;
-        case 'category':
-            filteredScripts.sort((a, b) => a.category.localeCompare(b.category));
-            break;
-    }
+    filteredScripts.sort((a, b) => {
+        // First priority: pinned scripts come first
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        
+        // Second priority: chosen sort method
+        switch (sortFilter) {
+            case 'name':
+                return a.name.localeCompare(b.name);
+            case 'newest':
+                return b.version.localeCompare(a.version);
+            case 'category':
+                return a.category.localeCompare(b.category);
+            default:
+                return a.name.localeCompare(b.name);
+        }
+    });
 
     renderScriptCards(filteredScripts);
 }

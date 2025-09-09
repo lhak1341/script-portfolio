@@ -8,7 +8,7 @@
       "description": "Streamlined composition setup with auto-interpretation and template management",
       "thumbnail": "images/script-screenshots/SPCompSetup_0.8.2.png",
       "screenshot": "images/script-screenshots/SPCompSetup_0.8.2.png",
-      "featured": true,
+      "pinned": true,
       "tags": ["composition", "setup", "automation", "template"]
     },
     {
@@ -19,7 +19,7 @@
       "description": "Advanced composition editing tools with batch operations and property management",
       "thumbnail": "images/script-screenshots/SPCompEdit_0.1.6.png",
       "screenshot": "images/script-screenshots/SPCompEdit_0.1.6.png",
-      "featured": false,
+      "pinned": false,
       "tags": ["editing", "batch", "properties", "workflow"]
     },
     {
@@ -30,7 +30,7 @@
       "description": "Complete project versioning system with automated backup and restoration",
       "thumbnail": "images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
       "screenshot": "images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
-      "featured": false,
+      "pinned": false,
       "tags": ["versioning", "backup", "project", "management"]
     },
     {
@@ -41,7 +41,7 @@
       "description": "CSV-based version tracking and export system for project management",
       "thumbnail": "images/script-screenshots/SPVersioningCSV_0.1.0.png",
       "screenshot": "images/script-screenshots/SPVersioningCSV_0.1.0.png",
-      "featured": false,
+      "pinned": false,
       "tags": ["csv", "export", "tracking", "data"]
     },
     {
@@ -52,7 +52,7 @@
       "description": "Automated SRT subtitle file import with timing and formatting options",
       "thumbnail": "images/script-screenshots/SPSRTImporter_0.2.0.png",
       "screenshot": "images/script-screenshots/SPSRTImporter_0.2.0.png",
-      "featured": true,
+      "pinned": true,
       "tags": ["subtitle", "import", "srt", "timing"]
     },
     {
@@ -63,7 +63,7 @@
       "description": "Deadline render farm integration with job submission and monitoring",
       "thumbnail": "images/script-screenshots/SPDeadline_1.0.1.png",
       "screenshot": "images/script-screenshots/SPDeadline_1.0.1.png",
-      "featured": false,
+      "pinned": false,
       "tags": ["deadline", "render", "farm", "submission"]
     },
     {
@@ -74,7 +74,7 @@
       "description": "Comprehensive analysis tool for tracking effect usage across projects",
       "thumbnail": "images/script-screenshots/EffectUsageAnalyzer_0.0.4.png",
       "screenshot": "images/script-screenshots/EffectUsageAnalyzer_0.0.4.png",
-      "featured": false,
+      "pinned": false,
       "tags": ["analysis", "effects", "tracking", "optimization"]
     },
     {
@@ -85,7 +85,7 @@
       "description": "Advanced expression analysis and optimization tool for After Effects projects",
       "thumbnail": "images/script-screenshots/ExpressionUsageAnalyzer_0.0.1.png",
       "screenshot": "images/script-screenshots/ExpressionUsageAnalyzer_0.0.1.png",
-      "featured": false,
+      "pinned": false,
       "tags": ["expressions", "analysis", "optimization", "debugging"]
     },
     {
@@ -96,7 +96,7 @@
       "description": "Powerful search and replace functionality for expressions across entire projects",
       "thumbnail": "images/script-screenshots/FindAndReplaceInExpression.png",
       "screenshot": "images/script-screenshots/FindAndReplaceInExpression.png",
-      "featured": true,
+      "pinned": true,
       "tags": ["find", "replace", "expressions", "batch"]
     },
     {
@@ -107,7 +107,7 @@
       "description": "Collaborative toolbar for team sharing and project management features",
       "thumbnail": "images/script-screenshots/KhoaSharingToolbar_1.0.2.png",
       "screenshot": "images/script-screenshots/KhoaSharingToolbar_1.0.2.png",
-      "featured": false,
+      "pinned": false,
       "tags": ["sharing", "collaboration", "toolbar", "team"]
     }
   ],

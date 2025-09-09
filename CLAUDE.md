@@ -105,6 +105,8 @@ Each script overlay configuration follows this consolidated structure with theme
 - `tools/config-builder.js`: Color system integration, theme-aware preview updates (modification scope unknown)
 - `scripts/sp-comp-setup/config.json`: Migrated 3 overlays from hex colors to semantic names (`#3498db` → `cyan`, `orange`, `purple`)
 - `scripts/sp-comp-setup/index.html`: Replaced hardcoded styling with `.script-content` class structure
+- `data/scripts-list.json`: Standardized script properties from `"featured"` to `"pinned"` for consistency with codebase (3 scripts marked as pinned)
+- `js/overlay-engine.js`: Added `lucide.createIcons()` call in `renderScriptCards()` to initialize pin icons after DOM creation, implemented pinned-first sorting in `loadScriptsList()` to ensure pinned scripts appear at top on initial page load
 
 ### Visual Configuration Builder (✅ Complete)
 
@@ -128,6 +130,7 @@ Each script overlay configuration follows this consolidated structure with theme
 - **Multi-filter search**: Text search across names/descriptions + category dropdown + sorting options
 - **Tag-based navigation**: Clicking script tags filters main page to show only scripts with that exact tag
 - **URL parameter handling**: `?tag=composition` automatically filters and shows notification banner
+- **Pinned scripts system**: Scripts marked with `"pinned": true` automatically sort to top of list, display 24px accent-colored pin icon rotated 45° clockwise in top-right corner, feature blue border with gradient background overlay and shadow effects
 
 #### Navigation Architecture
 - **Sticky navigation**: Search bar and filters remain accessible while scrolling
