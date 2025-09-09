@@ -1,101 +1,6 @@
 {
   "scripts": [
     {
-      "id": "sp-comp-setup",
-      "name": "SP Comp Setup",
-      "version": "0.8.2",
-      "category": "workflow",
-      "description": "Streamlined composition setup with auto-interpretation and template management",
-      "thumbnail": "images/script-screenshots/SPCompSetup_0.8.2.png",
-      "screenshot": "images/script-screenshots/SPCompSetup_0.8.2.png",
-      "pinned": true,
-      "tags": [
-        "compositing",
-        "setup",
-        "comp-settings"
-      ]
-    },
-    {
-      "id": "sp-comp-edit",
-      "name": "SP Comp Edit",
-      "version": "0.1.6",
-      "category": "workflow",
-      "description": "Advanced composition editing tools with batch operations and property management",
-      "thumbnail": "images/script-screenshots/SPCompEdit_0.1.6.png",
-      "screenshot": "images/script-screenshots/SPCompEdit_0.1.6.png",
-      "pinned": false,
-      "tags": [
-        "editing",
-        "batch",
-        "properties",
-        "workflow"
-      ]
-    },
-    {
-      "id": "sp-versioning-setup-toolkit",
-      "name": "SP Versioning Setup Toolkit",
-      "version": "0.2.2",
-      "category": "workflow",
-      "description": "Complete project versioning system with automated backup and restoration",
-      "thumbnail": "images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
-      "screenshot": "images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
-      "pinned": false,
-      "tags": [
-        "versioning",
-        "backup",
-        "project",
-        "management"
-      ]
-    },
-    {
-      "id": "sp-versioning-csv",
-      "name": "SP Versioning CSV",
-      "version": "0.1.0",
-      "category": "utility",
-      "description": "CSV-based version tracking and export system for project management",
-      "thumbnail": "images/script-screenshots/SPVersioningCSV_0.1.0.png",
-      "screenshot": "images/script-screenshots/SPVersioningCSV_0.1.0.png",
-      "pinned": false,
-      "tags": [
-        "csv",
-        "export",
-        "tracking",
-        "data"
-      ]
-    },
-    {
-      "id": "sp-srt-importer",
-      "name": "SP SRT Importer",
-      "version": "0.2.0",
-      "category": "automation",
-      "description": "Automated SRT subtitle file import with timing and formatting options",
-      "thumbnail": "images/script-screenshots/SPSRTImporter_0.2.0.png",
-      "screenshot": "images/script-screenshots/SPSRTImporter_0.2.0.png",
-      "pinned": true,
-      "tags": [
-        "subtitle",
-        "import",
-        "srt",
-        "timing"
-      ]
-    },
-    {
-      "id": "sp-deadline",
-      "name": "SP Deadline",
-      "version": "1.0.1",
-      "category": "automation",
-      "description": "Deadline render farm integration with job submission and monitoring",
-      "thumbnail": "images/script-screenshots/SPDeadline_1.0.1.png",
-      "screenshot": "images/script-screenshots/SPDeadline_1.0.1.png",
-      "pinned": false,
-      "tags": [
-        "deadline",
-        "render",
-        "farm",
-        "submission"
-      ]
-    },
-    {
       "id": "effect-usage-analyzer",
       "name": "Effect Usage Analyzer",
       "version": "0.0.4",
@@ -135,7 +40,7 @@
       "description": "Powerful search and replace functionality for expressions across entire projects",
       "thumbnail": "images/script-screenshots/FindAndReplaceInExpression.png",
       "screenshot": "images/script-screenshots/FindAndReplaceInExpression.png",
-      "pinned": true,
+      "pinned": false,
       "tags": [
         "find",
         "replace",
@@ -158,20 +63,115 @@
         "toolbar",
         "team"
       ]
+    },
+    {
+      "id": "sp-comp-edit",
+      "name": "SP Comp Edit",
+      "version": "0.1.6",
+      "category": "workflow",
+      "description": "Advanced composition editing tools with batch operations and property management",
+      "thumbnail": "images/script-screenshots/SPCompEdit_0.1.6.png",
+      "screenshot": "images/script-screenshots/SPCompEdit_0.1.6.png",
+      "pinned": false,
+      "tags": [
+        "editing",
+        "batch",
+        "properties",
+        "workflow"
+      ]
+    },
+    {
+      "id": "sp-comp-setup",
+      "name": "SP Comp Setup",
+      "version": "0.8.2",
+      "category": "workflow",
+      "description": "Streamlined composition setup with auto-interpretation and template management",
+      "thumbnail": "images/script-screenshots/SPCompSetup_0.8.2.png",
+      "screenshot": "images/script-screenshots/SPCompSetup_0.8.2.png",
+      "pinned": true,
+      "tags": [
+        "compositing",
+        "setup",
+        "comp-settings"
+      ]
+    },
+    {
+      "id": "sp-deadline",
+      "name": "SP Deadline",
+      "version": "1.0.1",
+      "category": "automation",
+      "description": "Deadline render farm integration with job submission and monitoring",
+      "thumbnail": "images/script-screenshots/SPDeadline_1.0.1.png",
+      "screenshot": "images/script-screenshots/SPDeadline_1.0.1.png",
+      "pinned": false,
+      "tags": [
+        "deadline",
+        "render",
+        "farm",
+        "submission"
+      ]
+    },
+    {
+      "id": "sp-srt-importer",
+      "name": "SP SRT Importer",
+      "version": "0.2.0",
+      "category": "automation",
+      "description": "Automated SRT subtitle file import with timing and formatting options",
+      "thumbnail": "images/script-screenshots/SPSRTImporter_0.2.0.png",
+      "screenshot": "images/script-screenshots/SPSRTImporter_0.2.0.png",
+      "pinned": true,
+      "tags": [
+        "subtitle",
+        "import",
+        "srt",
+        "timing"
+      ]
+    },
+    {
+      "id": "sp-versioning-csv",
+      "name": "SP Versioning CSV",
+      "version": "0.1.0",
+      "category": "utility",
+      "description": "CSV-based version tracking and export system for project management",
+      "thumbnail": "images/script-screenshots/SPVersioningCSV_0.1.0.png",
+      "screenshot": "images/script-screenshots/SPVersioningCSV_0.1.0.png",
+      "pinned": false,
+      "tags": [
+        "csv",
+        "export",
+        "tracking",
+        "data"
+      ]
+    },
+    {
+      "id": "sp-versioning-setup-toolkit",
+      "name": "SP Versioning Setup Toolkit",
+      "version": "0.2.2",
+      "category": "workflow",
+      "description": "Complete project versioning system with automated backup and restoration",
+      "thumbnail": "images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
+      "screenshot": "images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
+      "pinned": false,
+      "tags": [
+        "versioning",
+        "backup",
+        "project",
+        "management"
+      ]
     }
   ],
   "categories": [
-    {
-      "id": "workflow",
-      "name": "Workflow",
-      "color": "#FF9800",
-      "description": "Tools to enhance and streamline your creative workflow"
-    },
     {
       "id": "utility",
       "name": "Utility Tools",
       "color": "#4CAF50",
       "description": "Essential tools for everyday After Effects work"
+    },
+    {
+      "id": "workflow",
+      "name": "Workflow",
+      "color": "#FF9800",
+      "description": "Tools to enhance and streamline your creative workflow"
     },
     {
       "id": "automation",

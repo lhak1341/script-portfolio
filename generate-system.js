@@ -361,6 +361,33 @@ function createIndexHtmlFile(scriptId, scriptData) {
     console.log(`Created index.html for ${scriptId}`);
 }
 
+function scanScriptDirectories() {
+    const scriptsDir = 'scripts';
+    const scriptDirectories = [];
+    
+    if (!fs.existsSync(scriptsDir)) {
+        console.warn('Scripts directory does not exist');
+        return [];
+    }
+    
+    const items = fs.readdirSync(scriptsDir);
+    for (const item of items) {
+        const itemPath = path.join(scriptsDir, item);
+        const stat = fs.statSync(itemPath);
+        
+        if (stat.isDirectory()) {
+            const configPath = path.join(itemPath, 'config.json');
+            if (fs.existsSync(configPath)) {
+                scriptDirectories.push(item);
+            } else {
+                console.warn(`Found script directory '${item}' without config.json`);
+            }
+        }
+    }
+    
+    return scriptDirectories;
+}
+
 function generateScriptsList() {
     const scriptsListPath = 'data/scripts-list.json';
     const scripts = [];
@@ -369,28 +396,29 @@ function generateScriptsList() {
     const categoriesSet = new Set();
     const allTags = new Set();
     
+    // Scan scripts directory for all script folders
+    const scriptDirectories = scanScriptDirectories();
+    console.log(`Found ${scriptDirectories.length} script directories:`, scriptDirectories.join(', '));
+    
     // Read all config files
-    for (const [scriptId, scriptData] of Object.entries(SCRIPT_DATA)) {
+    for (const scriptId of scriptDirectories) {
         const configPath = path.join('scripts', scriptId, 'config.json');
         
         let config = null;
-        if (fs.existsSync(configPath)) {
-            try {
-                config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-            } catch (error) {
-                console.warn(`Failed to read config for ${scriptId}:`, error.message);
-                continue;
-            }
-        } else {
-            console.warn(`Config not found for ${scriptId}, using hardcoded data`);
-            config = {
-                scriptName: scriptData.name,
-                version: scriptData.version,
-                description: scriptData.description,
-                category: scriptData.category,
-                tags: scriptData.tags,
-                pinned: scriptData.pinned
-            };
+        try {
+            config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        } catch (error) {
+            console.warn(`Failed to read config for ${scriptId}:`, error.message);
+            continue;
+        }
+        
+        // Determine screenshot filename - try to get from hardcoded data or use fallback
+        let screenshotFilename = `${scriptId}.png`; // fallback
+        if (SCRIPT_DATA[scriptId] && SCRIPT_DATA[scriptId].image) {
+            screenshotFilename = SCRIPT_DATA[scriptId].image;
+        } else if (config.baseImage && config.baseImage.src) {
+            // Extract filename from baseImage src path
+            screenshotFilename = path.basename(config.baseImage.src);
         }
         
         // Add to scripts array
@@ -400,8 +428,8 @@ function generateScriptsList() {
             version: config.version,
             category: config.category,
             description: config.description,
-            thumbnail: `images/script-screenshots/${scriptData.image}`,
-            screenshot: `images/script-screenshots/${scriptData.image}`,
+            thumbnail: `images/script-screenshots/${screenshotFilename}`,
+            screenshot: `images/script-screenshots/${screenshotFilename}`,
             pinned: config.pinned || false,
             tags: config.tags || []
         });

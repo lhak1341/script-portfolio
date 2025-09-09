@@ -3,13 +3,8 @@
   "version": "1.0.0",
   "description": "Powerful search and replace functionality for expressions across entire projects",
   "category": "utility",
-  "tags": [
-    "find",
-    "replace",
-    "expressions",
-    "batch"
-  ],
-  "pinned": true,
+  "tags": ["find", "replace", "expressions", "batch"],
+  "pinned": false,
   "baseImage": {
     "src": "../../images/script-screenshots/FindAndReplaceInExpression.png",
     "width": 328,

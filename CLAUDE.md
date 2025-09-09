@@ -341,69 +341,82 @@ window.matchMedia('(prefers-color-scheme: dark)').matches
 ## Dynamic Build System
 
 ### System Architecture
-The portfolio operates with zero hardcoded script data. All script information originates from individual `config.json` files, eliminating maintenance overhead and ensuring single-source-of-truth for each script.
+The portfolio scans the `scripts/` directory at build time to generate `scripts-list.json`. No hardcoded script data exists - all information comes from individual `config.json` files found in script directories.
 
-**Build Process**: Node.js scripts scan config files → generate `scripts-list.json` → sync config builder data → validate file structure
+**Build Process**: File system scan of `scripts/` → read each `config.json` → generate `scripts-list.json` → sync config builder dropdown options
 
 ### Build Commands
 
 #### `node build-system.js` - Complete Build
 Executes full system generation:
-- Scans `SCRIPT_DATA` object for missing directories
-- Creates `config.json` with empty overlays array for new scripts
-- Generates `description.md` placeholder content
-- Creates `index.html` showcase pages with overlay integration
-- Updates `scripts-list.json` from all config files
-- Synchronizes config builder script metadata
+- Scans `scripts/` directory for folders containing `config.json` files
+- Creates missing `description.md` and `index.html` files for discovered scripts
+- Generates `scripts-list.json` from all found config files
+- Updates config builder dropdown with current script list
 
 #### `node generate-system.js` - File Structure Generator  
-Creates missing script files:
-- Script directories under `scripts/`
-- Config files with category/tag metadata
-- Description markdown with structured content
-- HTML pages with theme detection and overlay engine
+Creates missing script files for directories that have `config.json` but lack other files:
+- Description markdown with structured content template
+- HTML showcase pages with overlay engine integration
+- Screenshots extracted from `baseImage.src` paths in config files
 
 #### `node update-config-builder.js` - Config Builder Sync
-Updates hardcoded script data in `tools/config-builder.js` to match current `scripts-list.json` content.
+Updates hardcoded script metadata in `tools/config-builder.js` dropdown from `scripts-list.json`.
+
+#### `node add-script.js` - New Script Creator
+Creates complete script structure with single command:
+```bash
+node add-script.js script-id "Script Name" "1.0.0" "Description" "category" "tag1,tag2"
+```
 
 ### Script File Structure
-Each script requires three files for complete functionality:
+Each script requires three files for system recognition:
 ```
 scripts/
 ├── script-id/
-│   ├── config.json      # Metadata + overlay configurations
-│   ├── description.md   # Content loaded via engine.loadDescription()
-│   └── index.html       # Showcase page with overlay system
+│   ├── config.json      # Required: Script metadata + overlay configurations
+│   ├── description.md   # Auto-created: Content loaded via engine.loadDescription()
+│   └── index.html       # Auto-created: Showcase page with overlay system
 ```
 
-**File Dependencies**:
-- `index.html` requires `config.json` for overlay engine initialization
-- `description.md` loaded dynamically, overrides hardcoded HTML content
-- Config builder requires `SCRIPT_DATA` synchronization for dropdown population
+**Directory Scanning Logic**:
+- Only directories containing `config.json` are included in scripts list
+- Screenshot filenames extracted from `config.json` `baseImage.src` property
+- Categories and tags collected from all config files to build filter dropdown
+- Missing `description.md` or `index.html` files auto-generated during build
 
 ### Adding New Scripts
 
-**Step 1**: Add script data to `generate-system.js`:
-```javascript
-SCRIPT_DATA = {
-  'script-id': {
-    name: 'Script Display Name',
-    version: '1.0.0', 
-    description: 'Specific functionality description',
-    category: 'utility|workflow|automation',
-    tags: ['specific', 'feature', 'keywords'],
-    image: 'ScreenshotFilename.png',
-    pinned: false
-  }
-}
-```
-
-**Step 2**: Execute build system:
+**Manual Process**:
 ```bash
+# Create directory and config
+mkdir scripts/my-new-script
+# Edit scripts/my-new-script/config.json with required fields
 node build-system.js
 ```
 
-**Step 3**: Configure overlays using visual builder at `/tools/config-builder.html`
+**Helper Script Process**:  
+```bash
+node add-script.js my-script "My Script" "1.0.0" "Description" "utility" "tag1,tag2"
+node build-system.js
+```
+
+**Required Config Fields**:
+```json
+{
+  "scriptName": "Display Name",
+  "version": "1.0.0",
+  "description": "Functional description", 
+  "category": "utility|workflow|automation",
+  "tags": ["keyword", "feature"],
+  "pinned": false,
+  "baseImage": {
+    "src": "../../images/script-screenshots/filename.png",
+    "width": 328, "height": 612
+  },
+  "overlays": []
+}
+```
 
 ### Data Flow Architecture
 
@@ -438,17 +451,19 @@ node build-system.js
 - Config files must contain `baseImage.src` with correct relative paths
 
 **Build System Constraints**:
-- New scripts require `SCRIPT_DATA` updates before build execution
-- Config builder hardcoded data becomes stale without sync step
-- Missing description files cause overlay engine content loading failures
+- Script directories without `config.json` files are ignored during build
+- Missing `description.md` or `index.html` files cause auto-generation during build
+- Config builder dropdown becomes stale without running sync step after config changes
+- Screenshot paths in `config.json` must resolve to actual files in `images/script-screenshots/`
 
 ## Project Structure
 ```
 project-root/
 ├── index.html                    # Main landing page with search/filter
-├── build-system.js              # Complete build process automation
+├── build-system.js              # Complete build: scan + generate + sync
 ├── generate-system.js           # Core file structure generator  
-├── update-config-builder.js     # Config builder synchronization
+├── update-config-builder.js     # Config builder dropdown synchronization
+├── add-script.js                # New script creation utility
 ├── css/
 │   ├── main.css                 # Global styles + theme system (15 CSS variables)
 │   └── overlay-system.css       # Hotspot, highlight, line, tooltip components
@@ -458,14 +473,14 @@ project-root/
 │   └── config-builder.js        # Visual configuration interface (ConfigurationBuilder class)
 ├── images/
 │   └── script-screenshots/      # PNG screenshots for overlay system
-├── scripts/                     # Auto-generated script directories
+├── scripts/                     # Script directories (scanned at build time)
 │   ├── sp-comp-setup/          
-│   │   ├── index.html          # Script showcase page
-│   │   ├── config.json         # Metadata + overlay coordinates
-│   │   └── description.md      # Dynamic content (loaded by engine)
-│   ├── [9 other scripts]/      # Generated with same structure
+│   │   ├── config.json         # Required: Script metadata + overlay coordinates
+│   │   ├── description.md      # Auto-created: Dynamic content loaded by engine
+│   │   └── index.html          # Auto-created: Script showcase page
+│   ├── [9 other scripts]/      # Same structure, discovered automatically
 ├── tools/
 │   └── config-builder.html     # Visual overlay configuration interface
 └── data/
-    └── scripts-list.json       # Generated from all config.json files
+    └── scripts-list.json       # Generated from scripts/ directory scan
 ```
