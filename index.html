@@ -6,12 +6,14 @@
     <title>After Effects Scripts Portfolio</title>
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/overlay-system.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body>
     <header class="header">
         <div class="container">
-            <div style="position: absolute; top: 1rem; right: 2rem; opacity: 0.7; font-size: 0.8rem;" id="theme-indicator">
-                🌙 Dark Mode
+            <div style="position: absolute; top: 1rem; right: 2rem; opacity: 0.7; font-size: 0.8rem; color: var(--header-subtitle); display: flex; align-items: center; gap: 0.3rem;" id="theme-indicator">
+                <i data-lucide="moon" style="width: 14px; height: 14px;"></i>
+                Dark Mode
             </div>
             <h1 class="site-title">After Effects Scripts Portfolio</h1>
             <p class="site-subtitle">Interactive showcase of custom After Effects scripts</p>
@@ -62,7 +64,14 @@
             if (!indicator) return;
             
             const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            indicator.innerHTML = isDark ? '🌙 Dark Mode' : '☀️ Light Mode';
+            indicator.innerHTML = isDark ? 
+                '<i data-lucide="moon" style="width: 14px; height: 14px;"></i> Dark Mode' : 
+                '<i data-lucide="sun" style="width: 14px; height: 14px;"></i> Light Mode';
+                
+            // Re-initialize Lucide icons for the new icon
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
         
         // Listen for theme changes
@@ -76,6 +85,11 @@
         
         // Initialize the main page
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
             setupThemeDetection();
             loadScriptsList();
             setupFilters();
@@ -116,20 +130,31 @@
             const message = document.createElement('div');
             message.id = 'tag-filter-message';
             message.style.cssText = `
-                background: linear-gradient(135deg, #e3f2fd, #f0f4ff);
-                border: 1px solid #667eea;
-                border-radius: 8px;
-                padding: 1rem;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                padding: 0.75rem 1rem;
                 margin: 1rem auto;
                 text-align: center;
-                max-width: 600px;
-                color: #2d3748;
-                font-size: 0.9rem;
+                max-width: 500px;
+                color: var(--text-secondary);
+                font-size: 0.875rem;
+                font-weight: 400;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
             `;
             message.innerHTML = `
-                🏷️ Showing scripts tagged with <strong>"${tag}"</strong> 
-                <button onclick="clearTagFilter()" style="margin-left: 0.5rem; padding: 0.25rem 0.5rem; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Clear Filter</button>
+                <i data-lucide="tag" style="width: 16px; height: 16px; color: var(--accent-color);"></i>
+                <span>Showing scripts tagged with <strong style="color: var(--text-primary);">"${tag}"</strong></span>
+                <button onclick="clearTagFilter()" style="margin-left: 0.5rem; padding: 0.25rem 0.75rem; background: var(--accent-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: background 0.2s ease;" onmouseover="this.style.background='var(--accent-hover)'" onmouseout="this.style.background='var(--accent-color)'">Clear</button>
             `;
+            
+            // Re-initialize Lucide icons for the new icon
+            if (typeof lucide !== 'undefined') {
+                setTimeout(() => lucide.createIcons(), 0);
+            }
             
             // Insert after navigation
             const nav = document.querySelector('.navigation');

@@ -849,22 +849,26 @@ class ConfigurationBuilder {
         tooltip.className = 'preview-element tooltip-preview';
         tooltip.innerHTML = this.processMarkdown(hotspot.description.content);
         
-        // Apply tooltip styling
+        // Apply tooltip styling to match script page
         tooltip.style.cssText = `
             position: absolute;
-            background: rgba(44, 62, 80, 0.95);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-size: 14px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 400;
             line-height: 1.4;
+            letter-spacing: -0.0125em;
             max-width: 280px;
             min-width: 180px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--card-shadow);
             z-index: 25;
             pointer-events: none;
             word-wrap: break-word;
+            white-space: normal;
         `;
 
         // Use EXACT same calculation as real overlay engine
@@ -924,11 +928,23 @@ class ConfigurationBuilder {
      * Process markdown for tooltip preview
      */
     processMarkdown(text) {
+        // Check if dark mode
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const boldColor = isDark ? '#fb923c' : 'var(--text-primary)';
+        const italicColor = isDark ? '#22d3ee' : 'var(--text-secondary)';
+        const italicOpacity = isDark ? '1' : '0.9';
+        
+        // Code styling
+        const codeBackground = isDark ? '#2d2d2d' : 'var(--bg-tertiary)';
+        const codeColor = isDark ? '#e5e5e5' : 'var(--text-primary)';
+        const codeBorder = isDark ? '#404040' : 'var(--border-color)';
+        
         return text
-            .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #f39c12;">$1</strong>')
-            .replace(/__(.*?)__/g, '<strong style="color: #f39c12;">$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em style="color: #3498db;">$1</em>')
-            .replace(/_(.*?)_/g, '<em style="color: #3498db;">$1</em>');
+            .replace(/`(.*?)`/g, `<code style="font-family: var(--font-mono); font-size: 0.9em; padding: 0.15em 0.4em; border-radius: 3px; background: ${codeBackground}; color: ${codeColor}; border: 1px solid ${codeBorder};">$1</code>`)
+            .replace(/\*\*(.*?)\*\*/g, `<strong style="font-weight: 700; color: ${boldColor};">$1</strong>`)
+            .replace(/__(.*?)__/g, `<strong style="font-weight: 700; color: ${boldColor};">$1</strong>`)
+            .replace(/\*(.*?)\*/g, `<em style="font-style: italic; color: ${italicColor}; opacity: ${italicOpacity};">$1</em>`)
+            .replace(/_(.*?)_/g, `<em style="font-style: italic; color: ${italicColor}; opacity: ${italicOpacity};">$1</em>`);
     }
 
     deleteHotspot(index) {

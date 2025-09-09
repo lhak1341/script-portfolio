@@ -107,6 +107,12 @@ Each script overlay configuration follows this consolidated structure with theme
 - `scripts/sp-comp-setup/index.html`: Replaced hardcoded styling with `.script-content` class structure
 - `data/scripts-list.json`: Standardized script properties from `"featured"` to `"pinned"` for consistency with codebase (3 scripts marked as pinned)
 - `js/overlay-engine.js`: Added `lucide.createIcons()` call in `renderScriptCards()` to initialize pin icons after DOM creation, implemented pinned-first sorting in `loadScriptsList()` to ensure pinned scripts appear at top on initial page load
+- `index.html`: Theme detection system with automatic light/dark mode switching, Lucide icon integration for theme indicators and UI elements
+- `css/overlay-system.css`: Theme-aware `.script-content` typography styling with 40 new lines using CSS variables for light/dark mode compatibility
+- `tools/config-builder.html`: Complete visual overhaul with compact layout, iOS-style toggles, borderless color palette, real-time coordinate editing (120+ line UI restructure)
+- `tools/config-builder.js`: Theme-aware preview updates, color system integration for semantic color mapping (40+ line functionality expansion)
+- `scripts/sp-comp-setup/config.json`: Configuration migration from hex colors to semantic names for theme compatibility (`#3498db` → `cyan`, etc.)
+- `scripts/sp-comp-setup/index.html`: Structured content sections using `.script-content` class for consistent theme-aware styling
 
 ### Visual Configuration Builder (✅ Complete)
 

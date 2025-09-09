@@ -2,6 +2,9 @@
   "scriptName": "SP Comp Setup",
   "version": "0.8.2",
   "description": "Streamlined composition setup with auto-interpretation and template management",
+  "category": "Utility Tool",
+  "tags": ["composition", "automation", "template", "workflow"],
+  "pinned": true,
   "baseImage": {
     "src": "../../images/script-screenshots/SPCompSetup_0.8.2.png",
     "width": 328,
@@ -9,12 +12,12 @@
   },
   "overlays": [
     {
-      "id": "hotspot-1",
+      "id": "project-path-check",
       "coordinates": {
         "x": 24,
-        "y": 64,
+        "y": 62,
         "width": 228,
-        "height": 22
+        "height": 24
       },
       "style": {
         "color": "cyan"
@@ -29,12 +32,12 @@
       }
     },
     {
-      "id": "hotspot-2",
+      "id": "ae-template-selection",
       "coordinates": {
         "x": 24,
-        "y": 92,
+        "y": 90,
         "width": 280,
-        "height": 22
+        "height": 24
       },
       "style": {
         "color": "orange"
@@ -49,7 +52,7 @@
       }
     },
     {
-      "id": "hotspot-3",
+      "id": "color-settings",
       "coordinates": {
         "x": 42,
         "y": 252,

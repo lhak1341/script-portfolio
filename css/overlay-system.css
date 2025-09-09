@@ -1,15 +1,15 @@
 /* Import CSS Variables from main.css for theme support */
 /* Note: Variables are inherited from main.css */
 
-/* Overlay System Styles */
+/* Minimal Overlay System Styles */
 .script-showcase {
     position: relative;
     max-width: 100%;
     margin: 0 auto;
-    background: var(--bg-primary);
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: var(--card-shadow);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
     text-align: center;
 }
 
@@ -23,8 +23,8 @@
 .script-image {
     max-width: 100%;
     height: auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
     display: block;
 }
 
@@ -40,20 +40,21 @@
     z-index: 20;
 }
 
-/* Highlight Boxes */
+/* Minimal Highlight Boxes */
 .highlight {
     position: absolute;
     pointer-events: none;
     border: 2px solid transparent;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(var(--accent-color-rgb), 0.1);
     opacity: 0;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     z-index: 5;
+    border-radius: 4px;
 }
 
 .hotspot:hover .highlight {
     opacity: 1;
-    transform: scale(1.02);
+    border-color: var(--accent-color);
 }
 
 /* Lines */
@@ -117,21 +118,20 @@
     transition: all 0.3s ease;
     z-index: 25;
     
-    /* Unified Typography */
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 14px;
+    /* Minimal Typography */
+    font-family: var(--font-sans);
+    font-size: 13px;
     font-weight: 400;
     line-height: 1.4;
-    letter-spacing: 0.01em;
+    letter-spacing: -0.0125em;
     
-    /* Unified Visual Styling - Theme Aware */
+    /* Minimal Visual Styling - Theme Aware */
     background: var(--bg-secondary);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
-    padding: 12px 16px;
-    border-radius: 8px;
-    box-shadow: var(--card-shadow-hover);
-    backdrop-filter: blur(10px);
+    padding: 10px 14px;
+    border-radius: 6px;
+    box-shadow: var(--card-shadow);
     
     /* Size and positioning */
     max-width: 280px;
@@ -140,29 +140,55 @@
     word-wrap: break-word;
 }
 
-/* Dark theme specific tooltip adjustments */
-@media (prefers-color-scheme: dark) {
-    .description-tooltip {
-        background: rgba(45, 45, 45, 0.95);
-        border-color: rgba(255, 255, 255, 0.1);
-    }
-}
+/* Removed - using CSS variables for theme consistency */
 
 .hotspot:hover .description-tooltip {
     opacity: 1;
 }
 
-/* Markdown Support in Descriptions */
+/* Theme-Specific Markdown Support in Descriptions */
 .description-tooltip strong,
 .description-tooltip b {
-    font-weight: 600;
-    color: #f39c12;
+    font-weight: 700;
+    color: var(--text-primary); /* Normal color in light mode */
 }
 
 .description-tooltip em,
 .description-tooltip i {
     font-style: italic;
-    color: #3498db;
+    color: var(--text-secondary); /* Normal color in light mode */
+    opacity: 0.9;
+}
+
+/* Inline code styling */
+.description-tooltip code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+/* Dark mode colors for markdown elements */
+@media (prefers-color-scheme: dark) {
+    .description-tooltip strong,
+    .description-tooltip b {
+        color: #fb923c; /* Orange in dark mode */
+    }
+    
+    .description-tooltip em,
+    .description-tooltip i {
+        color: #22d3ee; /* Cyan in dark mode */
+        opacity: 1;
+    }
+    
+    .description-tooltip code {
+        background: #2d2d2d;
+        color: #e5e5e5;
+        border-color: #404040;
+    }
 }
 
 /* Animation Enhancements */
@@ -259,12 +285,12 @@
 
 /* Script Content Section */
 .script-content {
-    margin-top: 2rem;
-    padding: 2rem;
+    margin-top: 1.5rem;
+    padding: 1.5rem;
     background: var(--bg-secondary);
-    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
     text-align: left;
-    box-shadow: var(--card-shadow);
 }
 
 .script-content h2,

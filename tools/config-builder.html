@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="../css/main.css">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
+        /* Ensure body uses the minimal font system */
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
         .builder-container {
             display: grid;
             grid-template-columns: 1fr 350px;
@@ -18,18 +25,18 @@
 
         .image-workspace {
             background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 1rem;
-            box-shadow: var(--card-shadow);
             position: relative;
             text-align: center;
         }
 
         .control-panel {
             background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 1rem;
-            box-shadow: var(--card-shadow);
             max-height: calc(100vh - 120px);
             overflow-y: auto;
             position: sticky;
@@ -40,8 +47,8 @@
             position: relative;
             display: inline-block;
             max-width: 100%;
-            border: 2px dashed var(--border-color);
-            border-radius: 8px;
+            border: 1px dashed var(--border-color);
+            border-radius: 6px;
             background: var(--bg-tertiary);
             text-align: left;
         }
@@ -73,7 +80,6 @@
         .upload-area.dragover {
             border-color: var(--accent-color);
             background: var(--bg-tertiary);
-            transform: scale(1.02);
         }
 
         .form-group {
@@ -83,8 +89,12 @@
         .form-group label {
             display: block;
             margin-bottom: 0.25rem;
-            font-weight: 600;
-            color: var(--text-primary);
+            font-weight: 500;
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .form-group input,
@@ -92,11 +102,12 @@
         .form-group textarea {
             width: 100%;
             padding: 0.5rem;
-            border: 2px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 0.9rem;
-            transition: border-color 0.3s;
-            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-family: var(--font-sans);
+            transition: border-color 0.2s;
+            background: var(--bg-primary);
             color: var(--text-primary);
         }
 
@@ -105,6 +116,7 @@
         .form-group textarea:focus {
             outline: none;
             border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb), 0.1);
         }
 
         .color-input-group {
@@ -124,21 +136,22 @@
 
         .btn {
             display: inline-block;
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 1rem;
             background: var(--accent-color);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-family: var(--font-sans);
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background 0.2s ease;
             text-decoration: none;
             text-align: center;
         }
 
         .btn:hover {
             background: var(--accent-hover);
-            transform: translateY(-1px);
         }
 
         .btn-secondary {
@@ -188,7 +201,8 @@
             max-height: 200px;
             overflow-y: auto;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
+            border-radius: 4px;
+            background: var(--bg-primary);
             margin-bottom: 1rem;
         }
 
@@ -208,7 +222,7 @@
 
         .hotspot-item.active {
             background: var(--bg-tertiary);
-            border-left: 4px solid var(--accent-color);
+            border-left: 3px solid var(--accent-color);
         }
 
         .hotspot-item:last-child {
@@ -218,10 +232,10 @@
         .json-output {
             background: var(--bg-tertiary);
             color: var(--text-primary);
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 0.85rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
             padding: 1rem;
-            border-radius: 6px;
+            border-radius: 4px;
             max-height: 300px;
             overflow: auto;
             white-space: pre;
@@ -231,9 +245,11 @@
 
         .instructions {
             background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
             padding: 0.75rem;
-            border-radius: 6px;
+            border-radius: 4px;
             margin-bottom: 1rem;
+            font-size: 0.875rem;
             font-size: 0.85rem;
             line-height: 1.4;
             border: 1px solid var(--border-color);
@@ -376,21 +392,40 @@
 
         /* Status messages */
         .status-success {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            border: 1px solid #b8daab;
-            color: #155724;
+            background: var(--bg-secondary);
+            border: 1px solid #22c55e;
+            color: #15803d;
+            font-family: var(--font-sans);
         }
 
         .status-error {
-            background: linear-gradient(135deg, #f8d7da, #f5c2c7);
-            border: 1px solid #f1aeb5;
-            color: #721c24;
+            background: var(--bg-secondary);
+            border: 1px solid #ef4444;
+            color: #dc2626;
+            font-family: var(--font-sans);
         }
 
         .status-info {
-            background: linear-gradient(135deg, #d1ecf1, #b8daff);
-            border: 1px solid #a6d8ff;
-            color: #0c5460;
+            background: var(--bg-secondary);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            font-family: var(--font-sans);
+        }
+        
+        /* Dark theme status adjustments */
+        @media (prefers-color-scheme: dark) {
+            .status-success {
+                color: #4ade80;
+                border-color: rgba(34, 197, 94, 0.5);
+            }
+            .status-error {
+                color: #f87171;
+                border-color: rgba(239, 68, 68, 0.5);
+            }
+            .status-info {
+                color: #60a5fa;
+                border-color: rgba(59, 130, 246, 0.5);
+            }
         }
 
         .coordinate-display {
@@ -408,6 +443,10 @@
         .color-palette {
             display: flex;
             gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
         }
 
         .color-option {
@@ -415,23 +454,22 @@
             transition: all 0.2s ease;
             border-radius: 50%;
             border: 2px solid transparent;
+            padding: 2px;
         }
 
         .color-option:hover {
-            transform: scale(1.1);
+            border-color: var(--border-color);
         }
 
         .color-option.active {
             border-color: var(--accent-color);
-            transform: scale(1.1);
         }
 
         .color-swatch {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
         }
 
         /* Color swatches - theme adaptive */
@@ -509,7 +547,7 @@
                 </select>
             </div>
 
-            <div id="script-status" style="display: none; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem;">
+            <div id="script-status" style="display: none; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.875rem; font-weight: 400;">
                 <div class="status-content"></div>
             </div>
 
@@ -626,8 +664,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Description (supports **bold** and _italic_)</label>
-                    <textarea id="description-text" rows="3" placeholder="Brief tooltip description with **bold** and _italic_ markdown support"></textarea>
+                    <label>Description (supports **bold**, _italic_, and `code`)</label>
+                    <textarea id="description-text" rows="3" placeholder="Brief tooltip description with **bold**, _italic_, and `code` markdown support"></textarea>
                 </div>
 
                 <button class="btn btn-danger btn-small btn-full" onclick="deleteCurrentHotspot()">Delete Hotspot</button>
