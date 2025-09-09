@@ -21,12 +21,15 @@ Interactive showcase website for After Effects scripts with hover-based UI overl
 - **Z-index layering**: Highlights (z-5), hotspots (z-10), lines (z-30), tooltips (z-25) prevent visual conflicts
 
 #### Configuration Schema
-Each script overlay configuration follows this consolidated structure (50% less coordinate data):
+Each script overlay configuration follows this consolidated structure with theme-aware color system:
 ```json
 {
   "scriptName": "Script Name",
   "version": "1.0.0", 
   "description": "Brief script description",
+  "category": "Utility Tool",
+  "tags": ["tag1", "tag2", "tag3"],
+  "pinned": true,
   "baseImage": {
     "src": "../../images/script-screenshots/filename.png",
     "width": 328,
@@ -39,11 +42,11 @@ Each script overlay configuration follows this consolidated structure (50% less 
         "x": 24, "y": 66, "width": 227, "height": 18
       },
       "style": {
-        "color": "#3498db", "borderRadius": 4
+        "color": "cyan", "borderRadius": 4
       },
       "line": {
         "direction": "left", "length": 150,
-        "color": "#3498db", "thickness": 2
+        "color": "cyan", "thickness": 2
       },
       "description": {
         "content": "**Bold** and _italic_ markdown support in tooltips"
@@ -53,50 +56,131 @@ Each script overlay configuration follows this consolidated structure (50% less 
 }
 ```
 
-**Coordinate Consolidation**: Eliminated duplicate `hotspot`/`highlight` coordinate sets that were always identical. Single `coordinates` object now defines both interactive area and visual highlight, preventing sync issues and reducing configuration file size by ~50%.
+**Schema Breaking Changes**:
+- **Coordinate consolidation**: Eliminated duplicate `hotspot`/`highlight` coordinate sets. Single `coordinates` object defines both interactive area and visual highlight, reducing file size by 50% and preventing synchronization issues
+- **Theme-aware color system**: Colors now use semantic names instead of hex values. Engine automatically selects light/dark variants based on system theme
+- **Default value handling**: `borderRadius` and `thickness` properties now optional with system defaults (4px and 2px respectively)
+
+**Available Semantic Colors**:
+| Color Name | Light Mode | Dark Mode | Usage |
+|------------|------------|-----------|-------|
+| `red` | `#ef4444` | `#f87171` | Error states, critical highlights |
+| `orange` | `#f97316` | `#fb923c` | Warning states, attention items |
+| `yellow` | `#eab308` | `#facc15` | Caution indicators, highlights |
+| `green` | `#22c55e` | `#4ade80` | Success states, positive actions |
+| `cyan` | `#06b6d4` | `#22d3ee` | Information, primary highlights |
+| `purple` | `#a855f7` | `#c084fc` | Special features, secondary actions |
+| `pink` | `#ec4899` | `#f472b6` | Creative elements, decorative highlights |
+
+#### Main Scripts Data Schema
+The `data/scripts-list.json` file contains all script metadata with the following structure:
+
+```json
+{
+  "scripts": [
+    {
+      "id": "script-folder-name",
+      "name": "Display Name",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Brief description of functionality",
+      "thumbnail": "images/script-screenshots/filename.png", 
+      "screenshot": "images/script-screenshots/filename.png",
+      "pinned": true,
+      "tags": ["tag1", "tag2", "tag3"]
+    }
+  ],
+  "categories": [
+    {
+      "id": "utility",
+      "name": "Utility Tools",
+      "color": "#4CAF50",
+      "description": "Category description"
+    }
+  ]
+}
+```
+
+**Script Properties**:
+- `id`: Must match folder name in `scripts/` directory (required)
+- `name`: Display name shown in UI (required)  
+- `version`: Semantic version string (required)
+- `category`: Must match category ID from categories array (required)
+- `description`: Brief functional description (required)
+- `thumbnail`/`screenshot`: Path to screenshot image (required)
+- `pinned`: Boolean - when true, script appears at top with pin icon (optional, default: false)
+- `tags`: Array of strings for filtering and navigation (optional)
+
+**Category Properties**:
+- `id`: Unique identifier matching script.category values (required)
+- `name`: Display name for category filter dropdown (required)
+- `color`: Hex color for category pills (required)
+- `description`: Category description text (required)
 
 #### Theme System Implementation
-- **CSS custom properties**: 15 variables for colors, backgrounds, shadows automatically switch based on system preference
+- **CSS custom properties**: 16 variables for colors, backgrounds, shadows automatically switch based on system preference
 - **Real-time detection**: JavaScript `matchMedia('prefers-color-scheme: dark')` with event listeners for instant theme changes
 - **Complete dark mode coverage**: All interface elements adapt to theme changes, including:
   - Script screenshot backgrounds (`--bg-tertiary` replaces hardcoded `#f8f9fa`)
   - Version badges (`--bg-tertiary` replaces hardcoded `#e9ecef`)
   - Category pills (dark-specific color variants: green `#2d5a3d→#90ee90`, blue `#1e3a5f→#87ceeb`, brown `#5d4e37→#ffd700`)
   - Tag elements (`--bg-tertiary` and `--border-color` replace hardcoded grays)
+  - Script content sections (new `.script-content` CSS class with theme-aware typography)
+- **RGBA color calculations**: Added `--accent-color-rgb: 102, 126, 234` for transparency calculations (e.g., `rgba(var(--accent-color-rgb), 0.1)`)
 - **Theme indicator**: Header displays current theme with sun/moon icons
 
 #### Architecture Changes & Implementation Updates
 
 **Configuration Schema Breaking Changes**:
 - **Coordinate consolidation**: `overlay.hotspot` and `overlay.highlight` merged into single `overlay.coordinates` object
-- **Style separation**: Visual properties moved to `overlay.style` object containing `color` and `borderRadius`
-- **File size reduction**: Configuration files ~50% smaller, eliminates coordinate synchronization issues
+- **Theme-aware color system**: Colors changed from hex values to semantic names (`#3498db` → `cyan`), automatically resolve to light/dark variants
+- **Default value centralization**: `OVERLAY_DEFAULTS` constant in engine provides system-wide defaults (borderRadius: 4px, thickness: 2px)
 - **Breaking change impact**: All existing `config.json` files require migration to new schema
 
 **Engine Implementation Updates**:
-- **Overlay positioning logic**: `getOverlayCoordinates()` method provides single coordinate source across engine
+- **Color resolution system**: `getCurrentColorValue()` method maps semantic colors to theme-appropriate hex values using `matchMedia()` detection
+- **Centralized defaults**: `OVERLAY_DEFAULTS` object contains predefined color palette with light/dark variants for 7 colors
 - **Highlight rendering**: Positioned at `(0,0)` relative to hotspot container instead of separate absolute positioning
 - **Toggle mechanism**: Replaced button click events with checkbox change events, state synchronization through `updateOverlayVisibility()`
 
-**Interface Component Changes**:
-- **Toggle switch**: Replaced `<button>` with `<input type="checkbox">` wrapped in iPhone-style CSS slider (42×24px with 18px slide distance)
-- **Theme coverage**: Added dark mode variants for 4 previously hardcoded UI elements (backgrounds, badges, category pills, tags)
-- **Configuration builder**: Updated coordinate display to show single set instead of duplicated hotspot/highlight pairs
+**Configuration Builder Interface Redesign**:
+- **Compact layout system**: Reduced padding throughout interface (container: `2rem→1rem`, panels: `2rem→1rem`, form groups: `1.5rem→1rem`)
+- **Simplified mode switching**: Single iOS-style toggle for "Create Hotspot Mode" replaces dual-button approach (select mode is default)
+- **Editable coordinate inputs**: Real-time X/Y/Width/Height number inputs replace read-only coordinate display for pixel-precise adjustments
+- **Clean color palette**: Borderless color dots in single horizontal row, removed text labels and background container
+- **Minimal hotspot list**: Shows only ID, direction arrow, and color indicator - removed coordinate/size details for cleaner selection interface
+- **Streamlined sections**: Removed redundant "Script Selection" header and placeholder messaging for focused workflow
+
+**Script Page Content Structure**:
+- **Semantic HTML sections**: Added `.script-content` CSS class for structured content areas below screenshots
+- **Theme-aware typography**: All text colors use CSS variables (`--text-primary`, `--text-secondary`) instead of hardcoded values
+- **Consistent tag styling**: `.script-tags` flex layout with theme-appropriate colors
 
 **File Modification Summary**:
-- `js/overlay-engine.js`: Coordinate consolidation logic, checkbox toggle handling
-- `css/main.css`: iPhone toggle CSS, dark theme UI element coverage
-- `tools/config-builder.js`: Single coordinate generation, new schema output
-- `scripts/sp-comp-setup/config.json`: Migrated to consolidated schema
-- `scripts/sp-comp-setup/index.html`: Button replaced with toggle switch HTML
+- `js/overlay-engine.js`: Color resolution system, defaults constants, theme detection integration (23 new lines)
+- `css/main.css`: Added `--accent-color-rgb` variable for RGBA calculations (2 new variables)
+- `css/overlay-system.css`: Added `.script-content` styling with 40 new lines of theme-aware typography
+- `tools/config-builder.html`: Complete UI overhaul with Lucide icons, color palette, theme integration (200+ line changes)
+- `tools/config-builder.js`: Color system integration, theme-aware preview updates (modification scope unknown)
+- `scripts/sp-comp-setup/config.json`: Migrated 3 overlays from hex colors to semantic names (`#3498db` → `cyan`, `orange`, `purple`)
+- `scripts/sp-comp-setup/index.html`: Replaced hardcoded styling with `.script-content` class structure
+- `data/scripts-list.json`: Standardized script properties from `"featured"` to `"pinned"` for consistency with codebase (3 scripts marked as pinned)
+- `js/overlay-engine.js`: Added `lucide.createIcons()` call in `renderScriptCards()` to initialize pin icons after DOM creation, implemented pinned-first sorting in `loadScriptsList()` to ensure pinned scripts appear at top on initial page load
+- `index.html`: Theme detection system with automatic light/dark mode switching, Lucide icon integration for theme indicators and UI elements
+- `css/overlay-system.css`: Theme-aware `.script-content` typography styling with 40 new lines using CSS variables for light/dark mode compatibility
+- `tools/config-builder.html`: Complete visual overhaul with compact layout, iOS-style toggles, borderless color palette, real-time coordinate editing (120+ line UI restructure)
+- `tools/config-builder.js`: Theme-aware preview updates, color system integration for semantic color mapping (40+ line functionality expansion)
+- `scripts/sp-comp-setup/config.json`: Configuration migration from hex colors to semantic names for theme compatibility (`#3498db` → `cyan`, etc.)
+- `scripts/sp-comp-setup/index.html`: Structured content sections using `.script-content` class for consistent theme-aware styling
 
 ### Visual Configuration Builder (✅ Complete)
 
 #### Hotspot Creation Workflow
-- **Click-drag selection**: Mouse events on screenshot create rectangular hotspot boundaries
-- **Live coordinate display**: Real-time x, y, width, height updates during selection
-- **Property panel**: Form inputs for ID, colors, line direction/length, markdown descriptions
-- **Preview synchronization**: Configuration changes instantly update visual preview with same positioning logic as production
+- **Toggle-based mode switching**: Single checkbox toggles between select mode (default) and create mode for clear workflow separation
+- **Click-drag selection**: Mouse events create rectangular hotspot boundaries when in create mode, automatic coordinate calculation
+- **Pixel-precise editing**: Dedicated number inputs for Position (X, Y) and Size (Width, Height) allow 1-pixel adjustments
+- **Visual property panel**: Hotspot ID input, single-row color palette (7 theme-aware colors), line direction/length controls, markdown description field
+- **Real-time preview**: All changes instantly update visual overlay preview using same positioning logic as production engine
 
 #### Configuration Management
 - **Script selection**: Dropdown loads existing `config.json` files from `scripts/{id}/` directories
@@ -111,6 +195,7 @@ Each script overlay configuration follows this consolidated structure (50% less 
 - **Multi-filter search**: Text search across names/descriptions + category dropdown + sorting options
 - **Tag-based navigation**: Clicking script tags filters main page to show only scripts with that exact tag
 - **URL parameter handling**: `?tag=composition` automatically filters and shows notification banner
+- **Pinned scripts system**: Scripts marked with `"pinned": true` automatically sort to top of list, display 24px accent-colored pin icon rotated 45° clockwise in top-right corner, feature blue border with gradient background overlay and shadow effects
 
 #### Navigation Architecture
 - **Sticky navigation**: Search bar and filters remain accessible while scrolling
@@ -131,12 +216,41 @@ Each script overlay configuration follows this consolidated structure (50% less 
 - **Clickable tags**: Navigate back to main page with automatic tag filtering
 - **Feature documentation**: Key features list and implementation details below interactive screenshot
 
+## Development Setup
+
+### Starting Local Server
+Run from project root directory:
+
+**Python (most common):**
+```bash
+python -m http.server 8000
+# or
+python3 -m http.server 8000
+```
+
+**Node.js:**
+```bash
+npx http-server -p 8000
+```
+
+**PHP:**
+```bash
+php -S localhost:8000
+```
+
+Then visit `http://localhost:8000` in your browser.
+
+### Accessing Configuration Builder
+Once server is running, access the visual overlay configuration tool at:
+`http://localhost:8000/tools/config-builder.html`
+
 ## Technical Dependencies & Constraints
 
 ### Browser Requirements
-- **Modern browsers only**: Chrome/Firefox/Safari/Edge current versions for CSS custom properties and fetch API
+- **Modern browsers only**: Chrome/Firefox/Safari/Edge current versions for CSS custom properties, fetch API, and `matchMedia()` theme detection
 - **Local HTTP server required**: JSON file loading blocked by CORS policy in file:// protocol
 - **JavaScript enabled**: Overlay engine, theme detection, and configuration builder require JavaScript
+- **External CDN dependency**: Lucide icons loaded from `https://unpkg.com/lucide@latest/dist/umd/lucide.js` for UI icons and pin indicators
 
 ### File System Architecture
 - **Fixed directory structure**: Scripts must follow `scripts/{id}/index.html` and `scripts/{id}/config.json` pattern
