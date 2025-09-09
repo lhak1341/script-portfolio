@@ -27,6 +27,9 @@ Each script overlay configuration follows this consolidated structure with theme
   "scriptName": "Script Name",
   "version": "1.0.0", 
   "description": "Brief script description",
+  "category": "Utility Tool",
+  "tags": ["tag1", "tag2", "tag3"],
+  "pinned": true,
   "baseImage": {
     "src": "../../images/script-screenshots/filename.png",
     "width": 328,
@@ -55,8 +58,64 @@ Each script overlay configuration follows this consolidated structure with theme
 
 **Schema Breaking Changes**:
 - **Coordinate consolidation**: Eliminated duplicate `hotspot`/`highlight` coordinate sets. Single `coordinates` object defines both interactive area and visual highlight, reducing file size by 50% and preventing synchronization issues
-- **Theme-aware color system**: Colors now use semantic names (`red`, `orange`, `yellow`, `green`, `cyan`, `purple`, `pink`) instead of hex values. Engine automatically selects light/dark variants based on system theme (e.g., `cyan`: light `#06b6d4` → dark `#22d3ee`)
+- **Theme-aware color system**: Colors now use semantic names instead of hex values. Engine automatically selects light/dark variants based on system theme
 - **Default value handling**: `borderRadius` and `thickness` properties now optional with system defaults (4px and 2px respectively)
+
+**Available Semantic Colors**:
+| Color Name | Light Mode | Dark Mode | Usage |
+|------------|------------|-----------|-------|
+| `red` | `#ef4444` | `#f87171` | Error states, critical highlights |
+| `orange` | `#f97316` | `#fb923c` | Warning states, attention items |
+| `yellow` | `#eab308` | `#facc15` | Caution indicators, highlights |
+| `green` | `#22c55e` | `#4ade80` | Success states, positive actions |
+| `cyan` | `#06b6d4` | `#22d3ee` | Information, primary highlights |
+| `purple` | `#a855f7` | `#c084fc` | Special features, secondary actions |
+| `pink` | `#ec4899` | `#f472b6` | Creative elements, decorative highlights |
+
+#### Main Scripts Data Schema
+The `data/scripts-list.json` file contains all script metadata with the following structure:
+
+```json
+{
+  "scripts": [
+    {
+      "id": "script-folder-name",
+      "name": "Display Name",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Brief description of functionality",
+      "thumbnail": "images/script-screenshots/filename.png", 
+      "screenshot": "images/script-screenshots/filename.png",
+      "pinned": true,
+      "tags": ["tag1", "tag2", "tag3"]
+    }
+  ],
+  "categories": [
+    {
+      "id": "utility",
+      "name": "Utility Tools",
+      "color": "#4CAF50",
+      "description": "Category description"
+    }
+  ]
+}
+```
+
+**Script Properties**:
+- `id`: Must match folder name in `scripts/` directory (required)
+- `name`: Display name shown in UI (required)  
+- `version`: Semantic version string (required)
+- `category`: Must match category ID from categories array (required)
+- `description`: Brief functional description (required)
+- `thumbnail`/`screenshot`: Path to screenshot image (required)
+- `pinned`: Boolean - when true, script appears at top with pin icon (optional, default: false)
+- `tags`: Array of strings for filtering and navigation (optional)
+
+**Category Properties**:
+- `id`: Unique identifier matching script.category values (required)
+- `name`: Display name for category filter dropdown (required)
+- `color`: Hex color for category pills (required)
+- `description`: Category description text (required)
 
 #### Theme System Implementation
 - **CSS custom properties**: 16 variables for colors, backgrounds, shadows automatically switch based on system preference
@@ -188,9 +247,10 @@ Once server is running, access the visual overlay configuration tool at:
 ## Technical Dependencies & Constraints
 
 ### Browser Requirements
-- **Modern browsers only**: Chrome/Firefox/Safari/Edge current versions for CSS custom properties and fetch API
+- **Modern browsers only**: Chrome/Firefox/Safari/Edge current versions for CSS custom properties, fetch API, and `matchMedia()` theme detection
 - **Local HTTP server required**: JSON file loading blocked by CORS policy in file:// protocol
 - **JavaScript enabled**: Overlay engine, theme detection, and configuration builder require JavaScript
+- **External CDN dependency**: Lucide icons loaded from `https://unpkg.com/lucide@latest/dist/umd/lucide.js` for UI icons and pin indicators
 
 ### File System Architecture
 - **Fixed directory structure**: Scripts must follow `scripts/{id}/index.html` and `scripts/{id}/config.json` pattern
