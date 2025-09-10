@@ -33,65 +33,65 @@ class ConfigurationBuilder {
         
         // Script metadata mapping
         this.scriptData = {
-    'sp-comp-setup': {
-        name: 'SP Comp Setup',
-        version: '0.8.2',
-        description: 'Streamlined composition setup with auto-interpretation and template management',
-        image: 'SPCompSetup_0.8.2.png'
-    },
-    'sp-comp-edit': {
-        name: 'SP Comp Edit',
-        version: '0.1.6',
-        description: 'Advanced composition editing tools with batch operations and property management',
-        image: 'SPCompEdit_0.1.6.png'
-    },
-    'sp-versioning-setup-toolkit': {
-        name: 'SP Versioning Setup Toolkit',
-        version: '0.2.2',
-        description: 'Complete project versioning system with automated backup and restoration',
-        image: 'SPVersioningSetupToolkit_0.2.2.png'
-    },
-    'sp-versioning-csv': {
-        name: 'SP Versioning CSV',
-        version: '0.1.0',
-        description: 'CSV-based version tracking and export system for project management',
-        image: 'SPVersioningCSV_0.1.0.png'
-    },
-    'sp-srt-importer': {
-        name: 'SP SRT Importer',
-        version: '0.2.0',
-        description: 'Automated SRT subtitle file import with timing and formatting options',
-        image: 'SPSRTImporter_0.2.0.png'
-    },
-    'sp-deadline': {
-        name: 'SP Deadline',
-        version: '1.0.1',
-        description: 'Deadline render farm integration with job submission and monitoring',
-        image: 'SPDeadline_1.0.1.png'
-    },
     'effect-usage-analyzer': {
         name: 'Effect Usage Analyzer',
         version: '0.0.4',
-        description: 'Comprehensive analysis tool for tracking effect usage across projects',
+        description: 'What effects are being used and where to find them in active project',
         image: 'EffectUsageAnalyzer_0.0.4.png'
     },
     'expression-usage-analyzer': {
         name: 'Expression Usage Analyzer',
         version: '0.0.1',
-        description: 'Advanced expression analysis and optimization tool for After Effects projects',
+        description: 'What expressions are being used and where to find them in active project',
         image: 'ExpressionUsageAnalyzer_0.0.1.png'
     },
     'find-replace-expression': {
         name: 'Find and Replace in Expression',
         version: '1.0.0',
-        description: 'Powerful search and replace functionality for expressions across entire projects',
+        description: 'Find and replace expressions across entire projects',
         image: 'FindAndReplaceInExpression.png'
     },
     'khoa-sharing-toolbar': {
-        name: 'Khoa Sharing Toolbar',
+        name: 'Khoa’s Sharing Toolbar',
         version: '1.0.2',
-        description: 'Collaborative toolbar for team sharing and project management features',
+        description: 'Curated collection of Khoa’s useful script snippets',
         image: 'KhoaSharingToolbar_1.0.2.png'
+    },
+    'sp-comp-edit': {
+        name: 'SP Comp Edit',
+        version: '0.1.6',
+        description: 'Quick add 3D pass into AE comp, and update footage version',
+        image: 'SPCompEdit_0.1.6.png'
+    },
+    'sp-comp-setup': {
+        name: 'SP Comp Setup',
+        version: '0.8.2',
+        description: 'Automate multipass comp setup, with auto-interpretation and custom template supported',
+        image: 'SPCompSetup_0.8.2.png'
+    },
+    'sp-deadline': {
+        name: 'SP Deadline',
+        version: '1.0.1',
+        description: 'Submit AE 2024 job to Deadline render farm',
+        image: 'SPDeadline_1.0.1.png'
+    },
+    'sp-srt-importer': {
+        name: 'SP SRT Importer',
+        version: '0.2.0',
+        description: 'Import and export SRT subtitle to/from markered text layer',
+        image: 'SPSRTImporter_0.2.0.png'
+    },
+    'sp-versioning-csv': {
+        name: 'SP Versioning CSV',
+        version: '0.1.0',
+        description: 'Automate versioning from one master to multiple language versions',
+        image: 'SPVersioningCSV_0.1.0.png'
+    },
+    'sp-versioning-setup-toolkit': {
+        name: 'SP Versioning Setup Toolkit',
+        version: '0.2.2',
+        description: 'Setup master project for CSV versioning workflow',
+        image: 'SPVersioningSetupToolkit_0.2.2.png'
     }
         };
         
