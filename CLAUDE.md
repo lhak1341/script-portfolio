@@ -1,7 +1,11 @@
 # After Effects Scripts Showcase Website
 
+**🌐 Live Site**: https://lhak1341.github.io/script-portfolio
+
 ## Project Overview
 Interactive showcase website for After Effects scripts with hover-based UI overlays. Each script displays screenshot annotations explaining features through clickable hotspots with connecting lines and tooltips.
+
+The website is automatically deployed via GitHub Pages whenever changes are pushed to the main branch. The site serves as a comprehensive wiki and reference guide for After Effects scripts used in production workflows.
 
 ## Current Implementation Status
 

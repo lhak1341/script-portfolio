@@ -222,6 +222,13 @@ body {
     margin-bottom: 0.5rem;
 }
 
+.script-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
 .script-version {
     font-size: 0.8rem;
     color: var(--text-muted);
@@ -229,7 +236,6 @@ body {
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     display: inline-block;
-    margin-bottom: 0.75rem;
     font-weight: 500;
 }
 

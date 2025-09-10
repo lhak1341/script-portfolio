@@ -865,9 +865,11 @@ function createScriptCard(script) {
         </div>
         <div class="script-info">
             <h3 class="script-title">${script.name}</h3>
-            <span class="script-version">v${script.version}</span>
+            <div class="script-meta">
+                <span class="script-version">v${script.version}</span>
+                <span class="script-category category-${script.category}">${getCategoryName(script.category)}</span>
+            </div>
             <p class="script-description">${script.description}</p>
-            <span class="script-category category-${script.category}">${getCategoryName(script.category)}</span>
             ${script.tags ? `
                 <div class="script-tags">
                     ${[...script.tags].sort().map(tag => `<span class="tag" data-tag="${tag}">${tag}</span>`).join('')}
