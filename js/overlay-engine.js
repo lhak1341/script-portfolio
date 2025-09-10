@@ -804,7 +804,7 @@ function getFallbackScriptsData() {
         "categories": [
             {
                 "id": "utility",
-                "name": "Utility Tools",
+                "name": "Utility",
                 "color": "#4CAF50"
             },
             {
@@ -920,7 +920,7 @@ function createScriptCard(script) {
  */
 function getCategoryName(categoryId) {
     const categories = {
-        'utility': 'Utility Tools',
+        'utility': 'Utility',
         'automation': 'Automation',
         'workflow': 'Workflow'
     };

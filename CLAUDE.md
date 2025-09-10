@@ -122,16 +122,18 @@ The `data/scripts-list.json` file contains all script metadata with the followin
 - `description`: Category description text (required)
 
 #### Theme System Implementation
-- **CSS custom properties**: 16 variables for colors, backgrounds, shadows automatically switch based on system preference
-- **Real-time detection**: JavaScript `matchMedia('prefers-color-scheme: dark')` with event listeners for instant theme changes
-- **Complete dark mode coverage**: All interface elements adapt to theme changes, including:
-  - Script screenshot backgrounds (`--bg-tertiary` replaces hardcoded `#f8f9fa`)
-  - Version badges (`--bg-tertiary` replaces hardcoded `#e9ecef`)
-  - Category pills (dark-specific color variants: green `#2d5a3d→#90ee90`, blue `#1e3a5f→#87ceeb`, brown `#5d4e37→#ffd700`)
-  - Tag elements (`--bg-tertiary` and `--border-color` replace hardcoded grays)
-  - Script content sections (new `.script-content` CSS class with theme-aware typography)
-- **RGBA color calculations**: Added `--accent-color-rgb: 102, 126, 234` for transparency calculations (e.g., `rgba(var(--accent-color-rgb), 0.1)`)
-- **Theme indicator**: Header displays current theme with sun/moon icons
+- **Three-state theme management**: System defaults to `auto` (follows OS preference), users can override to `light` or `dark` modes
+- **Manual theme override architecture**: 
+  - CSS classes `body.theme-light` and `body.theme-dark` override `@media (prefers-color-scheme)` rules
+  - JavaScript `localStorage.setItem('theme-preference', currentTheme)` persists user choice across sessions
+  - Click handler on theme indicator cycles through: `auto` → `light` → `dark` → `auto`
+- **Cross-page theme consistency**: All script pages use identical theme management code, share localStorage state
+- **Real-time system theme detection**: `matchMedia('prefers-color-scheme: dark')` with change listeners, only active when `currentTheme === 'auto'`
+- **CSS variable cascade**: 82 theme-specific CSS rules with manual override classes taking precedence over system media queries
+- **Theme indicator states**: 
+  - `Auto (Light)` / `Auto (Dark)`: Follows system preference, shows current effective theme
+  - `Light Mode` / `Dark Mode`: User-forced theme, ignores system changes
+- **Manual override scope**: Covers 16 CSS custom properties, category color variants, toggle switch styling across all pages
 
 #### Architecture Changes & Implementation Updates
 
@@ -218,6 +220,8 @@ The `data/scripts-list.json` file contains all script metadata with the followin
 - **Markdown rendering**: Tooltip content supports `**bold**` and `_italic_` formatting with custom colored styling
 
 #### Content Structure
+- **Script card metadata layout**: Version badge and category pill display on same horizontal line using `.script-meta` flexbox container (gap: 0.75rem), replacing vertical stacking
+- **Category name consolidation**: "Utility Tools" shortened to "Utility" across data files, template generators, and hardcoded references for consistent naming
 - **Unified layout**: Header with script name/version, centered screenshot with overlays, left-aligned description sections
 - **Tag section styling**: Tags display in single-line layout with visual separation (2rem margin-top, 1.5rem padding-top, 1px border-top using `--border-color`)
 - **Inline SVG tag icons**: 22px tag icons rendered as inline SVG (`stroke="currentColor"`, `--text-secondary` color) to avoid Lucide timing issues, eliminates need for dynamic icon replacement

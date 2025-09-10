@@ -109,7 +109,7 @@ const SCRIPT_DATA = {
 
 // Category definitions
 const CATEGORIES = {
-    utility: { name: 'Utility Tools', color: '#4CAF50', description: 'Essential tools for everyday After Effects work' },
+    utility: { name: 'Utility', color: '#4CAF50', description: 'Essential tools for everyday After Effects work' },
     automation: { name: 'Automation', color: '#2196F3', description: 'Scripts that automate repetitive tasks and workflows' },
     workflow: { name: 'Workflow', color: '#FF9800', description: 'Tools to enhance and streamline your creative workflow' }
 };
@@ -222,7 +222,7 @@ function createIndexHtmlFile(scriptId, scriptData) {
 <body>
     <header class="header">
         <div class="container">
-            <div style="position: absolute; top: 1rem; right: 2rem; opacity: 0.7; font-size: 0.8rem; color: var(--header-subtitle); display: flex; align-items: center; gap: 0.3rem;" id="theme-indicator">
+            <div style="position: absolute; top: 1rem; right: 2rem; opacity: 0.7; font-size: 0.8rem; color: var(--header-subtitle); display: flex; align-items: center; gap: 0.3rem; cursor: pointer; transition: opacity 0.2s ease;" id="theme-indicator" title="Click to toggle theme">
                 <i data-lucide="moon" style="width: 14px; height: 14px;"></i>
                 Dark Mode
             </div>
@@ -292,19 +292,97 @@ function createIndexHtmlFile(scriptId, scriptData) {
     <script src="../../js/utils.js"></script>
     <script src="../../js/overlay-engine.js"></script>
     <script>
-        // Theme detection for script pages
-        function updateThemeForScriptPage() {
+        // Theme management with manual override (shared with main page)
+        let currentTheme = 'auto'; // 'auto', 'light', 'dark'
+        
+        function getEffectiveTheme() {
+            if (currentTheme === 'auto') {
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            return currentTheme;
+        }
+        
+        function applyTheme() {
+            const effectiveTheme = getEffectiveTheme();
+            const body = document.body;
+            
+            // Remove existing theme classes
+            body.classList.remove('theme-light', 'theme-dark');
+            
+            // Apply theme class (CSS will override system detection)
+            if (currentTheme !== 'auto') {
+                body.classList.add(\`theme-\${effectiveTheme}\`);
+            }
+            
+            updateThemeIndicator(effectiveTheme);
+        }
+        
+        function updateThemeIndicator(effectiveTheme = null) {
             const indicator = document.getElementById('theme-indicator');
             if (!indicator) return;
             
-            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            indicator.innerHTML = isDark ? 
-                '<i data-lucide="moon" style="width: 14px; height: 14px;"></i> Dark Mode' : 
-                '<i data-lucide="sun" style="width: 14px; height: 14px;"></i> Light Mode';
-                
-            // Re-initialize Lucide icons for the new icon
+            if (!effectiveTheme) effectiveTheme = getEffectiveTheme();
+            
+            let icon, text;
+            if (currentTheme === 'auto') {
+                icon = effectiveTheme === 'dark' ? 'moon' : 'sun';
+                text = effectiveTheme === 'dark' ? 'Auto (Dark)' : 'Auto (Light)';
+            } else {
+                icon = effectiveTheme === 'dark' ? 'moon' : 'sun';
+                text = effectiveTheme === 'dark' ? 'Dark Mode' : 'Light Mode';
+            }
+            
+            indicator.innerHTML = \`<i data-lucide="\${icon}" style="width: 14px; height: 14px;"></i> \${text}\`;
+            
+            // Re-initialize Lucide icons
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
+            }
+        }
+        
+        function toggleTheme() {
+            // Cycle through: auto -> light -> dark -> auto
+            if (currentTheme === 'auto') {
+                currentTheme = 'light';
+            } else if (currentTheme === 'light') {
+                currentTheme = 'dark';
+            } else {
+                currentTheme = 'auto';
+            }
+            
+            // Save preference
+            localStorage.setItem('theme-preference', currentTheme);
+            applyTheme();
+        }
+        
+        function setupThemeDetection() {
+            // Load saved preference
+            const savedTheme = localStorage.getItem('theme-preference');
+            if (savedTheme && ['auto', 'light', 'dark'].includes(savedTheme)) {
+                currentTheme = savedTheme;
+            }
+            
+            // Apply initial theme
+            applyTheme();
+            
+            // Listen for system theme changes (only when in auto mode)
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            mediaQuery.addEventListener('change', () => {
+                if (currentTheme === 'auto') {
+                    applyTheme();
+                }
+            });
+            
+            // Add click handler for theme toggle
+            const indicator = document.getElementById('theme-indicator');
+            if (indicator) {
+                indicator.addEventListener('click', toggleTheme);
+                indicator.addEventListener('mouseenter', () => {
+                    indicator.style.opacity = '1';
+                });
+                indicator.addEventListener('mouseleave', () => {
+                    indicator.style.opacity = '0.7';
+                });
             }
         }
         
@@ -314,10 +392,8 @@ function createIndexHtmlFile(scriptId, scriptData) {
                 lucide.createIcons();
             }
             
-            // Setup theme detection
-            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            updateThemeForScriptPage();
-            mediaQuery.addEventListener('change', updateThemeForScriptPage);
+            // Setup enhanced theme detection
+            setupThemeDetection();
             
             // Initialize overlay engine for this script
             const engine = initializeOverlayEngine('overlay-container');
