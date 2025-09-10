@@ -867,7 +867,7 @@ function createScriptCard(script) {
             <h3 class="script-title">${script.name}</h3>
             <div class="script-meta">
                 <span class="script-version">v${script.version}</span>
-                <span class="script-category category-${script.category}">${getCategoryName(script.category)}</span>
+                <span class="script-category category-${script.category}" data-category="${script.category}">${getCategoryName(script.category)}</span>
             </div>
             <p class="script-description">${script.description}</p>
             ${script.tags ? `
@@ -907,6 +907,48 @@ function createScriptCard(script) {
         });
     });
 
+    // Add click handlers for categories
+    const categoryElements = card.querySelectorAll('.script-category[data-category]');
+    categoryElements.forEach(categoryElement => {
+        categoryElement.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent card click
+            e.preventDefault();
+            
+            const category = categoryElement.dataset.category;
+            // Set category filter dropdown and trigger filtering
+            const categoryFilter = document.getElementById('category-filter');
+            if (categoryFilter) {
+                categoryFilter.value = category;
+            }
+            
+            // Clear search input
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            
+            // Clear any tag filters
+            const url = new URL(window.location);
+            url.searchParams.delete('tag');
+            window.history.pushState({}, '', url);
+            
+            // Trigger filtering
+            handleFiltering();
+            
+            // Hide tag filter message if it exists
+            const tagFilterMessage = document.querySelector('.tag-filter-message');
+            if (tagFilterMessage) {
+                tagFilterMessage.remove();
+            }
+            
+            // Show category filter message
+            if (typeof showCategoryFilterMessage === 'function') {
+                const categoryName = getCategoryName(category);
+                showCategoryFilterMessage(category, categoryName);
+            }
+        });
+    });
+
     // Initialize Lucide icons for the new card
     if (typeof lucide !== 'undefined') {
         setTimeout(() => lucide.createIcons(), 0);
@@ -939,7 +981,35 @@ function setupFilters() {
         searchInput.addEventListener('input', handleFiltering);
     }
     if (categoryFilter) {
-        categoryFilter.addEventListener('change', handleFiltering);
+        categoryFilter.addEventListener('change', function() {
+            const selectedCategory = categoryFilter.value;
+            
+            // Clear any tag filters
+            const url = new URL(window.location);
+            url.searchParams.delete('tag');
+            window.history.pushState({}, '', url);
+            
+            // Hide tag filter message if it exists
+            const tagFilterMessage = document.querySelector('.tag-filter-message');
+            if (tagFilterMessage) {
+                tagFilterMessage.remove();
+            }
+            
+            // Trigger filtering
+            handleFiltering();
+            
+            // Show category filter message if a category is selected
+            if (selectedCategory && typeof showCategoryFilterMessage === 'function') {
+                const categoryName = getCategoryName(selectedCategory);
+                showCategoryFilterMessage(selectedCategory, categoryName);
+            } else {
+                // Remove category filter message if "All Categories" is selected
+                const categoryMessage = document.getElementById('category-filter-message');
+                if (categoryMessage) {
+                    categoryMessage.remove();
+                }
+            }
+        });
     }
     if (sortFilter) {
         sortFilter.addEventListener('change', handleFiltering);

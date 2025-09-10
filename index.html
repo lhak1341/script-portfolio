@@ -1,204 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>After Effects Scripts Portfolio</title>
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/overlay-system.css">
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/overlay-system.css" />
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <header class="header">
-        <div class="container">
-            <div style="position: absolute; top: 1rem; right: 2rem; opacity: 0.7; font-size: 0.8rem; color: var(--header-subtitle); display: flex; align-items: center; gap: 0.3rem; cursor: pointer; transition: opacity 0.2s ease;" id="theme-indicator" title="Click to toggle theme">
-                <i data-lucide="moon" style="width: 14px; height: 14px;"></i>
-                Dark Mode
-            </div>
-            <h1 class="site-title">After Effects Scripts Portfolio</h1>
-            <p class="site-subtitle">Interactive showcase of custom After Effects scripts</p>
+      <div class="container">
+        <div
+          style="
+            position: absolute;
+            top: 1rem;
+            right: 2rem;
+            opacity: 0.7;
+            font-size: 0.8rem;
+            color: var(--header-subtitle);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+          "
+          id="theme-indicator"
+          title="Click to toggle theme"
+        >
+          <i data-lucide="moon" style="width: 14px; height: 14px"></i>
+          Dark Mode
         </div>
+        <h1 class="site-title">After Effects Scripts Portfolio</h1>
+        <p class="site-subtitle">
+          Interactive showcase of custom After Effects scripts
+        </p>
+      </div>
     </header>
 
     <nav class="navigation">
-        <div class="container">
-            <div class="search-bar">
-                <input type="text" id="search-input" placeholder="Search scripts..." />
-            </div>
-            <div class="filters">
-                <select id="category-filter">
-                    <option value="">All Categories</option>
-                    <option value="utility">Utility</option>
-                    <option value="automation">Automation</option>
-                    <option value="workflow">Workflow</option>
-                </select>
-                <select id="sort-filter">
-                    <option value="name">Sort by Name</option>
-                    <option value="newest">Newest First</option>
-                    <option value="category">By Category</option>
-                </select>
-            </div>
+      <div class="container">
+        <div class="search-bar">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search scripts..."
+          />
         </div>
+        <div class="filters">
+          <select id="category-filter">
+            <option value="">All Categories</option>
+            <option value="utility">Utility</option>
+            <option value="automation">Automation</option>
+            <option value="workflow">Workflow</option>
+          </select>
+          <select id="sort-filter">
+            <option value="name">Sort by Name</option>
+            <option value="newest">Newest First</option>
+            <option value="category">By Category</option>
+          </select>
+        </div>
+      </div>
     </nav>
 
     <main class="main-content">
-        <div class="container">
-            <div id="scripts-grid" class="scripts-grid">
-                <!-- Script cards will be dynamically populated here -->
-            </div>
+      <div class="container">
+        <div id="scripts-grid" class="scripts-grid">
+          <!-- Script cards will be dynamically populated here -->
         </div>
+      </div>
     </main>
 
     <footer class="footer">
-        <div class="container">
-            <p>&copy; 2024 After Effects Scripts Portfolio</p>
-        </div>
+      <div class="container">
+        <p>&copy; 2025 After Effects Scripts Portfolio</p>
+      </div>
     </footer>
 
     <script src="js/utils.js"></script>
     <script src="js/overlay-engine.js"></script>
     <script>
-        // Theme management with manual override
-        let currentTheme = 'auto'; // 'auto', 'light', 'dark'
-        
-        function getEffectiveTheme() {
-            if (currentTheme === 'auto') {
-                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            }
-            return currentTheme;
+      // Theme management with manual override
+      let currentTheme = 'auto'; // 'auto', 'light', 'dark'
+
+      function getEffectiveTheme() {
+        if (currentTheme === 'auto') {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
         }
-        
-        function applyTheme() {
-            const effectiveTheme = getEffectiveTheme();
-            const body = document.body;
-            
-            // Remove existing theme classes
-            body.classList.remove('theme-light', 'theme-dark');
-            
-            // Apply theme class (CSS will override system detection)
-            if (currentTheme !== 'auto') {
-                body.classList.add(`theme-${effectiveTheme}`);
-            }
-            
-            updateThemeIndicator(effectiveTheme);
+        return currentTheme;
+      }
+
+      function applyTheme() {
+        const effectiveTheme = getEffectiveTheme();
+        const body = document.body;
+
+        // Remove existing theme classes
+        body.classList.remove('theme-light', 'theme-dark');
+
+        // Apply theme class (CSS will override system detection)
+        if (currentTheme !== 'auto') {
+          body.classList.add(`theme-${effectiveTheme}`);
         }
-        
-        function updateThemeIndicator(effectiveTheme = null) {
-            const indicator = document.getElementById('theme-indicator');
-            if (!indicator) return;
-            
-            if (!effectiveTheme) effectiveTheme = getEffectiveTheme();
-            
-            let icon, text;
-            if (currentTheme === 'auto') {
-                icon = effectiveTheme === 'dark' ? 'moon' : 'sun';
-                text = effectiveTheme === 'dark' ? 'Auto (Dark)' : 'Auto (Light)';
-            } else {
-                icon = effectiveTheme === 'dark' ? 'moon' : 'sun';
-                text = effectiveTheme === 'dark' ? 'Dark Mode' : 'Light Mode';
-            }
-            
-            indicator.innerHTML = `<i data-lucide="${icon}" style="width: 14px; height: 14px;"></i> ${text}`;
-            
-            // Re-initialize Lucide icons
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
+
+        updateThemeIndicator(effectiveTheme);
+      }
+
+      function updateThemeIndicator(effectiveTheme = null) {
+        const indicator = document.getElementById('theme-indicator');
+        if (!indicator) return;
+
+        if (!effectiveTheme) effectiveTheme = getEffectiveTheme();
+
+        let icon, text;
+        if (currentTheme === 'auto') {
+          icon = effectiveTheme === 'dark' ? 'moon' : 'sun';
+          text = effectiveTheme === 'dark' ? 'Auto (Dark)' : 'Auto (Light)';
+        } else {
+          icon = effectiveTheme === 'dark' ? 'moon' : 'sun';
+          text = effectiveTheme === 'dark' ? 'Dark Mode' : 'Light Mode';
         }
-        
-        function toggleTheme() {
-            // Cycle through: auto -> light -> dark -> auto
-            if (currentTheme === 'auto') {
-                currentTheme = 'light';
-            } else if (currentTheme === 'light') {
-                currentTheme = 'dark';
-            } else {
-                currentTheme = 'auto';
-            }
-            
-            // Save preference
-            localStorage.setItem('theme-preference', currentTheme);
+
+        indicator.innerHTML = `<i data-lucide="${icon}" style="width: 14px; height: 14px;"></i> ${text}`;
+
+        // Re-initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      }
+
+      function toggleTheme() {
+        // Cycle through: auto -> light -> dark -> auto
+        if (currentTheme === 'auto') {
+          currentTheme = 'light';
+        } else if (currentTheme === 'light') {
+          currentTheme = 'dark';
+        } else {
+          currentTheme = 'auto';
+        }
+
+        // Save preference
+        localStorage.setItem('theme-preference', currentTheme);
+        applyTheme();
+      }
+
+      function setupThemeDetection() {
+        // Load saved preference
+        const savedTheme = localStorage.getItem('theme-preference');
+        if (savedTheme && ['auto', 'light', 'dark'].includes(savedTheme)) {
+          currentTheme = savedTheme;
+        }
+
+        // Apply initial theme
+        applyTheme();
+
+        // Listen for system theme changes (only when in auto mode)
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        mediaQuery.addEventListener('change', () => {
+          if (currentTheme === 'auto') {
             applyTheme();
-        }
-        
-        function setupThemeDetection() {
-            // Load saved preference
-            const savedTheme = localStorage.getItem('theme-preference');
-            if (savedTheme && ['auto', 'light', 'dark'].includes(savedTheme)) {
-                currentTheme = savedTheme;
-            }
-            
-            // Apply initial theme
-            applyTheme();
-            
-            // Listen for system theme changes (only when in auto mode)
-            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            mediaQuery.addEventListener('change', () => {
-                if (currentTheme === 'auto') {
-                    applyTheme();
-                }
-            });
-            
-            // Add click handler for theme toggle
-            const indicator = document.getElementById('theme-indicator');
-            if (indicator) {
-                indicator.addEventListener('click', toggleTheme);
-                indicator.addEventListener('mouseenter', () => {
-                    indicator.style.opacity = '1';
-                });
-                indicator.addEventListener('mouseleave', () => {
-                    indicator.style.opacity = '0.7';
-                });
-            }
-        }
-        
-        // Initialize the main page
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Lucide icons
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-            
-            setupThemeDetection();
-            loadScriptsList();
-            setupFilters();
-            
-            // Handle tag filtering from URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            const tagFilter = urlParams.get('tag');
-            if (tagFilter) {
-                // Clear the search input since we're filtering by exact tag, not searching
-                const searchInput = document.getElementById('search-input');
-                if (searchInput) {
-                    searchInput.value = '';
-                }
-                
-                // Show a message that we filtered by tag
-                showTagFilterMessage(tagFilter);
-                
-                // Trigger the filtering
-                setTimeout(() => {
-                    handleFiltering();
-                }, 100);
-            }
+          }
         });
-        
-        /**
-         * Show message when filtering by tag
-         */
-        function showTagFilterMessage(tag) {
-            const container = document.querySelector('.container');
-            const existingMessage = document.getElementById('tag-filter-message');
-            
-            // Remove existing message if any
-            if (existingMessage) {
-                existingMessage.remove();
-            }
-            
-            // Create new message
-            const message = document.createElement('div');
-            message.id = 'tag-filter-message';
-            message.style.cssText = `
+
+        // Add click handler for theme toggle
+        const indicator = document.getElementById('theme-indicator');
+        if (indicator) {
+          indicator.addEventListener('click', toggleTheme);
+          indicator.addEventListener('mouseenter', () => {
+            indicator.style.opacity = '1';
+          });
+          indicator.addEventListener('mouseleave', () => {
+            indicator.style.opacity = '0.7';
+          });
+        }
+      }
+
+      // Initialize the main page
+      document.addEventListener('DOMContentLoaded', function () {
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+
+        setupThemeDetection();
+        loadScriptsList();
+        setupFilters();
+
+        // Handle tag filtering from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const tagFilter = urlParams.get('tag');
+        if (tagFilter) {
+          // Clear the search input since we're filtering by exact tag, not searching
+          const searchInput = document.getElementById('search-input');
+          if (searchInput) {
+            searchInput.value = '';
+          }
+
+          // Show a message that we filtered by tag
+          showTagFilterMessage(tagFilter);
+
+          // Trigger the filtering
+          setTimeout(() => {
+            handleFiltering();
+          }, 100);
+        }
+      });
+
+      /**
+       * Show message when filtering by tag
+       */
+      function showTagFilterMessage(tag) {
+        const container = document.querySelector('.container');
+        const existingMessage = document.getElementById('tag-filter-message');
+
+        // Remove existing message if any
+        if (existingMessage) {
+          existingMessage.remove();
+        }
+
+        // Create new message
+        const message = document.createElement('div');
+        message.id = 'tag-filter-message';
+        message.style.cssText = `
                 background: var(--bg-secondary);
                 border: 1px solid var(--border-color);
                 border-radius: 6px;
@@ -214,28 +238,97 @@
                 justify-content: center;
                 gap: 0.5rem;
             `;
-            message.innerHTML = `
+        message.innerHTML = `
                 <i data-lucide="tag" style="width: 16px; height: 16px; color: var(--text-secondary);"></i>
                 <span>Showing scripts tagged with <strong style="color: var(--text-primary);">"${tag}"</strong></span>
                 <button onclick="clearTagFilter()" style="margin-left: 0.5rem; padding: 0.25rem 0.75rem; background: var(--accent-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: background 0.2s ease;" onmouseover="this.style.background='var(--accent-hover)'" onmouseout="this.style.background='var(--accent-color)'">Clear</button>
             `;
-            
-            // Re-initialize Lucide icons for the new icon
-            if (typeof lucide !== 'undefined') {
-                setTimeout(() => lucide.createIcons(), 0);
-            }
-            
-            // Insert after navigation
-            const nav = document.querySelector('.navigation');
-            nav.parentNode.insertBefore(message, nav.nextSibling);
+
+        // Re-initialize Lucide icons for the new icon
+        if (typeof lucide !== 'undefined') {
+          setTimeout(() => lucide.createIcons(), 0);
         }
-        
-        /**
-         * Clear tag filter and reload page
-         */
-        function clearTagFilter() {
-            window.location.href = window.location.pathname;
+
+        // Insert after navigation
+        const nav = document.querySelector('.navigation');
+        nav.parentNode.insertBefore(message, nav.nextSibling);
+      }
+
+      function showCategoryFilterMessage(categoryId, categoryName) {
+        const container = document.querySelector('.container');
+        const existingMessage = document.getElementById(
+          'category-filter-message'
+        );
+
+        // Remove existing message if any
+        if (existingMessage) {
+          existingMessage.remove();
         }
+
+        // Create new message
+        const message = document.createElement('div');
+        message.id = 'category-filter-message';
+        message.className = 'category-filter-message';
+        message.style.cssText = `
+                background: var(--bg-secondary);
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                padding: 0.75rem 1rem;
+                margin: 1rem auto;
+                text-align: center;
+                max-width: 500px;
+                color: var(--text-secondary);
+                font-size: 0.875rem;
+                font-weight: 400;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+            `;
+        message.innerHTML = `
+                <i data-lucide="layers" style="width: 16px; height: 16px; color: var(--text-secondary);"></i>
+                <span>Showing scripts with the category of <strong style="color: var(--text-primary);">"${categoryName}"</strong></span>
+                <button onclick="clearCategoryFilter()" style="margin-left: 0.5rem; padding: 0.25rem 0.75rem; background: var(--accent-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: background 0.2s ease;" onmouseover="this.style.background='var(--accent-hover)'" onmouseout="this.style.background='var(--accent-color)'">Clear</button>
+            `;
+
+        // Re-initialize Lucide icons for the new icon
+        if (typeof lucide !== 'undefined') {
+          setTimeout(() => lucide.createIcons(), 0);
+        }
+
+        // Insert after navigation
+        const nav = document.querySelector('.navigation');
+        nav.parentNode.insertBefore(message, nav.nextSibling);
+      }
+
+      /**
+       * Clear tag filter and reload page
+       */
+      function clearTagFilter() {
+        window.location.href = window.location.pathname;
+      }
+
+      /**
+       * Clear category filter
+       */
+      function clearCategoryFilter() {
+        // Reset category dropdown
+        const categoryFilter = document.getElementById('category-filter');
+        if (categoryFilter) {
+          categoryFilter.value = '';
+        }
+
+        // Remove category filter message
+        const categoryMessage = document.getElementById(
+          'category-filter-message'
+        );
+        if (categoryMessage) {
+          categoryMessage.remove();
+        }
+
+        // Trigger filtering to update results
+        handleFiltering();
+      }
     </script>
-</body>
+  </body>
 </html>

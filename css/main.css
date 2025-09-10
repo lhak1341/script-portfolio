@@ -292,6 +292,8 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     border: 1px solid;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .category-utility {
@@ -310,6 +312,25 @@ body {
     background: #fffbeb;
     color: #d97706;
     border-color: #fed7aa;
+}
+
+/* Category hover effects */
+.category-utility:hover {
+    background: #0369a1;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.category-automation:hover {
+    background: #15803d;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.category-workflow:hover {
+    background: #d97706;
+    color: white;
+    transform: translateY(-1px);
 }
 
 /* Dark theme category styles - Auto (System) */
@@ -368,6 +389,63 @@ body.theme-light .category-workflow {
     background: #fffbeb;
     color: #d97706;
     border-color: #fed7aa;
+}
+
+/* Dark theme category hover effects */
+@media (prefers-color-scheme: dark) {
+    .category-utility:hover {
+        background: rgba(59, 130, 246, 0.3);
+        color: #93c5fd;
+        transform: translateY(-1px);
+    }
+    
+    .category-automation:hover {
+        background: rgba(34, 197, 94, 0.3);
+        color: #86efac;
+        transform: translateY(-1px);
+    }
+    
+    .category-workflow:hover {
+        background: rgba(245, 158, 11, 0.3);
+        color: #fcd34d;
+        transform: translateY(-1px);
+    }
+}
+
+body.theme-dark .category-utility:hover {
+    background: rgba(59, 130, 246, 0.3);
+    color: #93c5fd;
+    transform: translateY(-1px);
+}
+
+body.theme-dark .category-automation:hover {
+    background: rgba(34, 197, 94, 0.3);
+    color: #86efac;
+    transform: translateY(-1px);
+}
+
+body.theme-dark .category-workflow:hover {
+    background: rgba(245, 158, 11, 0.3);
+    color: #fcd34d;
+    transform: translateY(-1px);
+}
+
+body.theme-light .category-utility:hover {
+    background: #0369a1;
+    color: white;
+    transform: translateY(-1px);
+}
+
+body.theme-light .category-automation:hover {
+    background: #15803d;
+    color: white;
+    transform: translateY(-1px);
+}
+
+body.theme-light .category-workflow:hover {
+    background: #d97706;
+    color: white;
+    transform: translateY(-1px);
 }
 
 .script-tags {
