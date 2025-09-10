@@ -191,9 +191,11 @@ The `data/scripts-list.json` file contains all script metadata with the followin
 ### Main Landing Page (✅ Complete)
 
 #### Script Discovery System
-- **Grid layout**: Script cards with screenshots, descriptions, version badges, tag lists
+- **Responsive grid layout**: CSS Grid with `repeat(auto-fit, minmax(350px, 1fr))` adapts to screen width, displays 3+ scripts per row on desktop
+- **Two-card layout optimization**: JavaScript adds `two-cards` class when exactly 2 scripts display, constrains cards to 400px width with `repeat(2, 400px)` grid template to maintain proportions instead of stretching
 - **Multi-filter search**: Text search across names/descriptions + category dropdown + sorting options
-- **Tag-based navigation**: Clicking script tags filters main page to show only scripts with that exact tag
+- **Interactive tag filtering**: Script card tags use click handlers with `stopPropagation()` to prevent card navigation, update URL parameters with `pushState()`, clear search input, trigger `handleFiltering()` for instant results
+- **Filter notification system**: Displays "Showing scripts tagged with 'tagname'" banner with inline SVG tag icon (22px, `--text-secondary` color) and Clear button for easy filter removal
 - **URL parameter handling**: `?tag=composition` automatically filters and shows notification banner
 - **Pinned scripts system**: Scripts marked with `"pinned": true` automatically sort to top of list, display 24px accent-colored pin icon rotated 45° clockwise in top-right corner, feature blue border with gradient background overlay and shadow effects
 
@@ -213,7 +215,10 @@ The `data/scripts-list.json` file contains all script metadata with the followin
 
 #### Content Structure
 - **Unified layout**: Header with script name/version, centered screenshot with overlays, left-aligned description sections
-- **Clickable tags**: Navigate back to main page with automatic tag filtering
+- **Tag section styling**: Tags display in single-line layout with visual separation (2rem margin-top, 1.5rem padding-top, 1px border-top using `--border-color`)
+- **Inline SVG tag icons**: 22px tag icons rendered as inline SVG (`stroke="currentColor"`, `--text-secondary` color) to avoid Lucide timing issues, eliminates need for dynamic icon replacement
+- **Alphabetical tag sorting**: Tags sorted using `[...config.tags].sort()` across all generation files (generate-system.js, add-script.js, overlay-engine.js) and display with 0.9rem font-size for subtle hierarchy
+- **Clickable tags**: Navigate back to main page with automatic tag filtering via `encodeURIComponent(tag)` URL parameters
 - **Feature documentation**: Key features list and implementation details below interactive screenshot
 
 ## Development Setup
@@ -317,6 +322,41 @@ window.matchMedia('(prefers-color-scheme: dark)').matches
 - **Tooltip styling**: Description tooltips should match theme of surrounding interface
 - **Border colors**: Input fields, cards, and navigation elements should all use same border variable
 - **Transition smoothness**: Theme changes should animate over 0.3s without flickering
+
+### Icon Rendering and Timing Issues
+
+**Symptoms**: Icons disappear on page load, only visible after theme switching; inconsistent icon visibility across different loading states.
+
+**Root Cause**: Dynamic icon library replacement creates timing dependency between CSS rule application and DOM element replacement. Lucide.js replaces `<i data-lucide="tag">` elements with `<svg>` elements asynchronously, invalidating CSS selectors targeting the original elements.
+
+**Diagnostic Steps**:
+1. **Verify CSS selector targets**: Check if selectors target pre-replacement (`i[data-lucide]`) or post-replacement (`svg[data-lucide]`) elements
+2. **Test timing dependency**: Does manual `lucide.createIcons()` call fix visibility?
+3. **Inspect DOM state**: Are elements `<i>` or `<svg>` when CSS rules should apply?
+
+**Architectural Solution**: Replace dynamic icon loading with inline SVG elements to eliminate timing dependencies. Use `stroke="currentColor"` with theme-aware CSS custom properties for color inheritance.
+
+**Prevention Strategy**: Avoid CSS styling of dynamically replaced elements. Use inline SVG with CSS custom properties or CSS classes targeting stable selectors.
+
+### Grid Layout Proportional Scaling Issues
+
+**Symptoms**: Card layouts stretch unexpectedly when displaying specific quantities; 2-card layouts expand to full width while 3+ cards maintain appropriate proportions.
+
+**Root Cause**: CSS Grid `1fr` units distribute available space equally among grid items, causing cards to stretch beyond intended proportions when fewer items are present than the design assumes.
+
+**Common Patterns**:
+- **Auto-fit scaling assumptions**: `repeat(auto-fit, minmax(min, 1fr))` assumes minimum card count for proportion calculations
+- **Missing quantity-specific constraints**: No layout adaptation based on actual item count
+- **Transform scaling issues**: Container-level transforms affect child layout calculations and border rendering
+
+**Diagnostic Questions**:
+1. **Does layout break at specific quantities?** Isolates quantity-dependent vs general layout issues
+2. **Do containers overflow or underflow?** Identifies whether items expand or contract unexpectedly
+3. **Are proportions maintained at different screen sizes?** Tests responsive behavior vs fixed-quantity issues
+
+**Architectural Solution**: Dynamic CSS class application based on item count (`two-cards`, `three-cards`) with quantity-specific grid templates (`repeat(2, 400px)` vs `repeat(auto-fit, minmax(350px, 1fr))`).
+
+**Prevention Strategy**: Define explicit grid templates for each expected quantity range rather than relying on flexible units for all scenarios.
 
 ## Browser Compatibility & Deployment
 

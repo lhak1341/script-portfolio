@@ -550,11 +550,34 @@ class OverlayEngine {
 
         // Update tags
         if (config.tags) {
-            const tagsContainer = document.querySelector('.script-tags');
+            // Look for either old structure (.script-tags) or new structure (.script-tags-section .script-tags)
+            let tagsContainer = document.querySelector('.script-tags-section .script-tags');
+            if (!tagsContainer) {
+                tagsContainer = document.querySelector('.script-tags');
+                // If we found old structure, upgrade it
+                if (tagsContainer && tagsContainer.previousElementSibling?.tagName === 'H3') {
+                    const h3 = tagsContainer.previousElementSibling;
+                    const newSection = document.createElement('div');
+                    newSection.className = 'script-tags-section';
+                    newSection.innerHTML = `
+                        <svg class="tag-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                        <div class="script-tags"></div>
+                    `;
+                    h3.parentNode.replaceChild(newSection, h3);
+                    tagsContainer.remove();
+                    tagsContainer = newSection.querySelector('.script-tags');
+                    
+                    // Re-initialize Lucide icons
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                }
+            }
+            
             if (tagsContainer) {
-                tagsContainer.innerHTML = config.tags.map(tag => 
+                tagsContainer.innerHTML = [...config.tags].sort().map(tag => 
                     `<a href="../../index.html?tag=${encodeURIComponent(tag)}" class="tag">${tag}</a>`
-                ).join('');
+                ).join(' ');
             }
         }
     }
@@ -812,6 +835,13 @@ function renderScriptCards(scripts) {
         grid.appendChild(card);
     });
     
+    // Add class for two-card layout to constrain width
+    if (scripts.length === 2) {
+        grid.classList.add('two-cards');
+    } else {
+        grid.classList.remove('two-cards');
+    }
+    
     // Initialize Lucide icons for the new script cards (especially pin icons)
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
@@ -840,11 +870,40 @@ function createScriptCard(script) {
             <span class="script-category category-${script.category}">${getCategoryName(script.category)}</span>
             ${script.tags ? `
                 <div class="script-tags">
-                    ${script.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    ${[...script.tags].sort().map(tag => `<span class="tag" data-tag="${tag}">${tag}</span>`).join('')}
                 </div>
             ` : ''}
         </div>
     `;
+
+    // Add click handlers for tags
+    const tagElements = card.querySelectorAll('.tag[data-tag]');
+    tagElements.forEach(tagElement => {
+        tagElement.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent card click
+            e.preventDefault();
+            
+            const tag = tagElement.dataset.tag;
+            // Update URL and trigger filtering
+            const url = new URL(window.location);
+            url.searchParams.set('tag', tag);
+            window.history.pushState({}, '', url);
+            
+            // Clear search input
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            
+            // Trigger filtering
+            handleFiltering();
+            
+            // Show tag filter message
+            if (typeof showTagFilterMessage === 'function') {
+                showTagFilterMessage(tag);
+            }
+        });
+    });
 
     // Initialize Lucide icons for the new card
     if (typeof lucide !== 'undefined') {

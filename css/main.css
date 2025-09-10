@@ -169,6 +169,17 @@ body {
     justify-self: center;
 }
 
+/* Prevent two cards from stretching too wide - keep them square-ish */
+.scripts-grid.two-cards {
+    grid-template-columns: repeat(2, 400px);
+    justify-content: center;
+}
+
+.scripts-grid.two-cards .script-card {
+    max-width: 400px;
+}
+
+
 /* Minimal Script Cards */
 .script-card {
     background: var(--bg-secondary);

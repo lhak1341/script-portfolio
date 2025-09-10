@@ -329,9 +329,37 @@
     margin-bottom: 0.5rem;
 }
 
+.script-tags-section {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
 .script-tags {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
     margin-top: 1rem;
+}
+
+/* Tags within script-tags-section should not have margin-top */
+.script-tags-section .script-tags {
+    margin-top: 0;
+    font-size: 0.9rem;
+}
+
+.script-tags-section .script-tags .tag {
+    font-size: 0.9rem;
+}
+
+/* Tag icon styling - inline SVG approach with moderate size */
+.script-tags-section .tag-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    color: var(--text-secondary);
+    stroke: currentColor;
 }
