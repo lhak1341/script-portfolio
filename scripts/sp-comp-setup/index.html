@@ -22,7 +22,7 @@
             <p class="site-subtitle">Streamlined composition setup with auto-interpretation and template management</p>
             <div style="margin-top: 1rem;">
                 <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem;">v0.8.2</span>
-                <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; margin-left: 0.5rem;">Utility Tool</span>
+                <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; margin-left: 0.5rem;">Utility Tools</span>
             </div>
         </div>
     </header>
@@ -46,28 +46,26 @@
                 <div class="script-content">
                     <h2>About This Script</h2>
                     <p>
-                        SP Comp Setup is a comprehensive composition setup tool that streamlines the process of creating new compositions in After Effects. It provides intelligent template selection, automatic footage interpretation, and advanced settings management.
+                        Streamlined composition setup with auto-interpretation and template management
                     </p>
                     <p>
-                        The script features an intuitive interface that guides you through the composition setup process, from importing footage to applying proper settings and organizing your project structure.
+                        This script provides powerful functionality for After Effects users. Configure the overlay system using the configuration builder to highlight key features and interface elements.
                     </p>
                     
                     <h3>Key Features</h3>
                     <ul>
-                        <li>Automatic footage interpretation and import</li>
-                        <li>Template-based composition creation</li>
-                        <li>Batch composition setup from multiple sources</li>
-                        <li>Advanced color settings and frame rate management</li>
-                        <li>Project organization and naming conventions</li>
-                        <li>Integration with existing After Effects workflows</li>
+                        <li>Professional After Effects integration</li>
+                        <li>Intuitive user interface design</li>
+                        <li>Advanced functionality and options</li>
+                        <li>Streamlined workflow optimization</li>
+                        <li>Comprehensive feature set</li>
                     </ul>
                     
-                    <h3>Tags</h3>
-                    <div class="script-tags">
-                        <a href="../../index.html?tag=composition" class="tag">composition</a>
-                        <a href="../../index.html?tag=setup" class="tag">setup</a>
-                        <a href="../../index.html?tag=automation" class="tag">automation</a>
-                        <a href="../../index.html?tag=template" class="tag">template</a>
+                    <div class="script-tags-section">
+                        <svg class="tag-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                        <div class="script-tags">
+                            <a href="../../index.html?tag=automation" class="tag">automation</a> <a href="../../index.html?tag=composition" class="tag">composition</a> <a href="../../index.html?tag=setup" class="tag">setup</a> <a href="../../index.html?tag=template" class="tag">template</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -130,11 +128,13 @@
                         // Add tags section if we have tags
                         if (engine.config.tags && engine.config.tags.length > 0) {
                             const tagsHtml = `
-                                <h3>Tags</h3>
-                                <div class="script-tags">
-                                    ${engine.config.tags.map(tag => 
-                                        `<a href="../../index.html?tag=${encodeURIComponent(tag)}" class="tag">${tag}</a>`
-                                    ).join('')}
+                                <div class="script-tags-section">
+                                    <svg class="tag-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                                    <div class="script-tags">
+                                        ${[...engine.config.tags].sort().map(tag => 
+                                            `<a href="../../index.html?tag=${encodeURIComponent(tag)}" class="tag">${tag}</a>`
+                                        ).join(' ')}
+                                    </div>
                                 </div>
                             `;
                             contentContainer.innerHTML += tagsHtml;

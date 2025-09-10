@@ -1,14 +1,9 @@
 {
-  "scriptName": "Khoa Sharing Toolbar",
+  "scriptName": "Khoa’s Sharing Toolbar",
   "version": "1.0.2",
-  "description": "Collaborative toolbar for team sharing and project management features",
-  "category": "workflow",
-  "tags": [
-    "sharing",
-    "collaboration",
-    "toolbar",
-    "team"
-  ],
+  "description": "Curated collection of Khoa’s useful script snippets",
+  "category": "utility",
+  "tags": ["expressions", "typography", "3d", "effects"],
   "pinned": false,
   "baseImage": {
     "src": "../../images/script-screenshots/KhoaSharingToolbar_1.0.2.png",

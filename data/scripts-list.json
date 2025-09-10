@@ -5,15 +5,12 @@
       "name": "Effect Usage Analyzer",
       "version": "0.0.4",
       "category": "utility",
-      "description": "Comprehensive analysis tool for tracking effect usage across projects",
+      "description": "What effects are being used and where to find them in active project",
       "thumbnail": "images/script-screenshots/EffectUsageAnalyzer_0.0.4.png",
       "screenshot": "images/script-screenshots/EffectUsageAnalyzer_0.0.4.png",
       "pinned": false,
       "tags": [
-        "analysis",
-        "effects",
-        "tracking",
-        "optimization"
+        "effects"
       ]
     },
     {
@@ -21,15 +18,12 @@
       "name": "Expression Usage Analyzer",
       "version": "0.0.1",
       "category": "utility",
-      "description": "Advanced expression analysis and optimization tool for After Effects projects",
+      "description": "What expressions are being used and where to find them in active project",
       "thumbnail": "images/script-screenshots/ExpressionUsageAnalyzer_0.0.1.png",
       "screenshot": "images/script-screenshots/ExpressionUsageAnalyzer_0.0.1.png",
       "pinned": false,
       "tags": [
-        "expressions",
-        "analysis",
-        "optimization",
-        "debugging"
+        "expressions"
       ]
     },
     {
@@ -37,31 +31,28 @@
       "name": "Find and Replace in Expression",
       "version": "1.0.0",
       "category": "utility",
-      "description": "Powerful search and replace functionality for expressions across entire projects",
+      "description": "Find and replace expressions across entire projects",
       "thumbnail": "images/script-screenshots/FindAndReplaceInExpression.png",
       "screenshot": "images/script-screenshots/FindAndReplaceInExpression.png",
       "pinned": false,
       "tags": [
-        "find",
-        "replace",
-        "expressions",
-        "batch"
+        "expressions"
       ]
     },
     {
       "id": "khoa-sharing-toolbar",
-      "name": "Khoa Sharing Toolbar",
+      "name": "Khoa’s Sharing Toolbar",
       "version": "1.0.2",
-      "category": "workflow",
-      "description": "Collaborative toolbar for team sharing and project management features",
+      "category": "utility",
+      "description": "Curated collection of Khoa’s useful script snippets",
       "thumbnail": "images/script-screenshots/KhoaSharingToolbar_1.0.2.png",
       "screenshot": "images/script-screenshots/KhoaSharingToolbar_1.0.2.png",
       "pinned": false,
       "tags": [
-        "sharing",
-        "collaboration",
-        "toolbar",
-        "team"
+        "expressions",
+        "typography",
+        "3d",
+        "effects"
       ]
     },
     {
@@ -69,15 +60,13 @@
       "name": "SP Comp Edit",
       "version": "0.1.6",
       "category": "workflow",
-      "description": "Advanced composition editing tools with batch operations and property management",
+      "description": "Quick add 3D pass into AE comp, and update footage version",
       "thumbnail": "images/script-screenshots/SPCompEdit_0.1.6.png",
       "screenshot": "images/script-screenshots/SPCompEdit_0.1.6.png",
-      "pinned": false,
+      "pinned": true,
       "tags": [
-        "editing",
-        "batch",
-        "properties",
-        "workflow"
+        "compositing",
+        "import"
       ]
     },
     {
@@ -85,13 +74,13 @@
       "name": "SP Comp Setup",
       "version": "0.8.2",
       "category": "workflow",
-      "description": "Streamlined composition setup with auto-interpretation and template management",
+      "description": "Automate multipass comp setup, with auto-interpretation and custom template supported",
       "thumbnail": "images/script-screenshots/SPCompSetup_0.8.2.png",
       "screenshot": "images/script-screenshots/SPCompSetup_0.8.2.png",
       "pinned": true,
       "tags": [
         "compositing",
-        "setup",
+        "import",
         "comp-settings"
       ]
     },
@@ -100,15 +89,13 @@
       "name": "SP Deadline",
       "version": "1.0.1",
       "category": "automation",
-      "description": "Deadline render farm integration with job submission and monitoring",
+      "description": "Submit AE 2024 job to Deadline render farm",
       "thumbnail": "images/script-screenshots/SPDeadline_1.0.1.png",
       "screenshot": "images/script-screenshots/SPDeadline_1.0.1.png",
-      "pinned": false,
+      "pinned": true,
       "tags": [
         "deadline",
-        "render",
-        "farm",
-        "submission"
+        "render"
       ]
     },
     {
@@ -116,31 +103,29 @@
       "name": "SP SRT Importer",
       "version": "0.2.0",
       "category": "automation",
-      "description": "Automated SRT subtitle file import with timing and formatting options",
+      "description": "Import and export SRT subtitle to/from markered text layer",
       "thumbnail": "images/script-screenshots/SPSRTImporter_0.2.0.png",
       "screenshot": "images/script-screenshots/SPSRTImporter_0.2.0.png",
-      "pinned": true,
+      "pinned": false,
       "tags": [
         "subtitle",
-        "import",
-        "srt",
-        "timing"
+        "typography"
       ]
     },
     {
       "id": "sp-versioning-csv",
       "name": "SP Versioning CSV",
       "version": "0.1.0",
-      "category": "utility",
-      "description": "CSV-based version tracking and export system for project management",
+      "category": "automation",
+      "description": "Automate versioning from one master to multiple language versions",
       "thumbnail": "images/script-screenshots/SPVersioningCSV_0.1.0.png",
       "screenshot": "images/script-screenshots/SPVersioningCSV_0.1.0.png",
       "pinned": false,
       "tags": [
         "csv",
-        "export",
-        "tracking",
-        "data"
+        "versioning",
+        "deadline",
+        "render"
       ]
     },
     {
@@ -148,15 +133,13 @@
       "name": "SP Versioning Setup Toolkit",
       "version": "0.2.2",
       "category": "workflow",
-      "description": "Complete project versioning system with automated backup and restoration",
+      "description": "Setup master project for CSV versioning workflow",
       "thumbnail": "images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
       "screenshot": "images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
       "pinned": false,
       "tags": [
         "versioning",
-        "backup",
-        "project",
-        "management"
+        "csv"
       ]
     }
   ],

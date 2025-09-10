@@ -1,14 +1,9 @@
 {
   "scriptName": "Expression Usage Analyzer",
   "version": "0.0.1",
-  "description": "Advanced expression analysis and optimization tool for After Effects projects",
+  "description": "What expressions are being used and where to find them in active project",
   "category": "utility",
-  "tags": [
-    "expressions",
-    "analysis",
-    "optimization",
-    "debugging"
-  ],
+  "tags": ["expressions"],
   "pinned": false,
   "baseImage": {
     "src": "../../images/script-screenshots/ExpressionUsageAnalyzer_0.0.1.png",

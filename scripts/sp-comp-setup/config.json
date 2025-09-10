@@ -1,9 +1,9 @@
 {
   "scriptName": "SP Comp Setup",
   "version": "0.8.2",
-  "description": "Streamlined composition setup with auto-interpretation and template management",
+  "description": "Automate multipass comp setup, with auto-interpretation and custom template supported",
   "category": "workflow",
-  "tags": ["compositing", "setup", "comp-settings"],
+  "tags": ["compositing", "import", "comp-settings"],
   "pinned": true,
   "baseImage": {
     "src": "../../images/script-screenshots/SPCompSetup_0.8.2.png",
@@ -24,7 +24,7 @@
       },
       "line": {
         "direction": "left",
-        "length": 150,
+        "length": 137,
         "color": "cyan"
       },
       "description": {
@@ -44,7 +44,7 @@
       },
       "line": {
         "direction": "right",
-        "length": 170,
+        "length": 163,
         "color": "orange"
       },
       "description": {
@@ -64,7 +64,7 @@
       },
       "line": {
         "direction": "left",
-        "length": 120,
+        "length": 90,
         "color": "purple"
       },
       "description": {

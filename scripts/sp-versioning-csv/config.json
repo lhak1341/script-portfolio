@@ -1,14 +1,9 @@
 {
   "scriptName": "SP Versioning CSV",
   "version": "0.1.0",
-  "description": "CSV-based version tracking and export system for project management",
-  "category": "utility",
-  "tags": [
-    "csv",
-    "export",
-    "tracking",
-    "data"
-  ],
+  "description": "Automate versioning from one master to multiple language versions",
+  "category": "automation",
+  "tags": ["csv", "versioning", "deadline", "render"],
   "pinned": false,
   "baseImage": {
     "src": "../../images/script-screenshots/SPVersioningCSV_0.1.0.png",

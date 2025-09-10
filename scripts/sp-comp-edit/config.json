@@ -1,15 +1,10 @@
 {
   "scriptName": "SP Comp Edit",
   "version": "0.1.6",
-  "description": "Advanced composition editing tools with batch operations and property management",
+  "description": "Quick add 3D pass into AE comp, and update footage version",
   "category": "workflow",
-  "tags": [
-    "editing",
-    "batch",
-    "properties",
-    "workflow"
-  ],
-  "pinned": false,
+  "tags": ["compositing", "import"],
+  "pinned": true,
   "baseImage": {
     "src": "../../images/script-screenshots/SPCompEdit_0.1.6.png",
     "width": 328,

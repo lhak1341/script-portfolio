@@ -61,12 +61,11 @@
                         <li>Comprehensive feature set</li>
                     </ul>
                     
-                    <h3>Tags</h3>
-                    <div class="script-tags">
-                        <a href="../../index.html?tag=sharing" class="tag">sharing</a>
-                        <a href="../../index.html?tag=collaboration" class="tag">collaboration</a>
-                        <a href="../../index.html?tag=toolbar" class="tag">toolbar</a>
-                        <a href="../../index.html?tag=team" class="tag">team</a>
+                    <div class="script-tags-section">
+                        <svg class="tag-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                        <div class="script-tags">
+                            <a href="../../index.html?tag=collaboration" class="tag">collaboration</a> <a href="../../index.html?tag=sharing" class="tag">sharing</a> <a href="../../index.html?tag=team" class="tag">team</a> <a href="../../index.html?tag=toolbar" class="tag">toolbar</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -129,11 +128,13 @@
                         // Add tags section if we have tags
                         if (engine.config.tags && engine.config.tags.length > 0) {
                             const tagsHtml = `
-                                <h3>Tags</h3>
-                                <div class="script-tags">
-                                    ${engine.config.tags.map(tag => 
-                                        `<a href="../../index.html?tag=${encodeURIComponent(tag)}" class="tag">${tag}</a>`
-                                    ).join('')}
+                                <div class="script-tags-section">
+                                    <svg class="tag-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                                    <div class="script-tags">
+                                        ${[...engine.config.tags].sort().map(tag => 
+                                            `<a href="../../index.html?tag=${encodeURIComponent(tag)}" class="tag">${tag}</a>`
+                                        ).join(' ')}
+                                    </div>
                                 </div>
                             `;
                             contentContainer.innerHTML += tagsHtml;

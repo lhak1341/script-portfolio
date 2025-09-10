@@ -1,14 +1,9 @@
 {
   "scriptName": "Effect Usage Analyzer",
   "version": "0.0.4",
-  "description": "Comprehensive analysis tool for tracking effect usage across projects",
+  "description": "What effects are being used and where to find them in active project",
   "category": "utility",
-  "tags": [
-    "analysis",
-    "effects",
-    "tracking",
-    "optimization"
-  ],
+  "tags": ["effects"],
   "pinned": false,
   "baseImage": {
     "src": "../../images/script-screenshots/EffectUsageAnalyzer_0.0.4.png",

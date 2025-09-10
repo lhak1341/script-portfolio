@@ -1,14 +1,9 @@
 {
   "scriptName": "SP Versioning Setup Toolkit",
   "version": "0.2.2",
-  "description": "Complete project versioning system with automated backup and restoration",
+  "description": "Setup master project for CSV versioning workflow",
   "category": "workflow",
-  "tags": [
-    "versioning",
-    "backup",
-    "project",
-    "management"
-  ],
+  "tags": ["versioning", "csv"],
   "pinned": false,
   "baseImage": {
     "src": "../../images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
