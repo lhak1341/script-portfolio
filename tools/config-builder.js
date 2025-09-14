@@ -509,13 +509,10 @@ class ConfigurationBuilder {
                 width: Math.round(width * scaleX),
                 height: Math.round(height * scaleY)
             },
-            style: {
-                color: this.selectedColor
-            },
+            color: this.selectedColor,
             line: {
                 direction: 'left',
-                length: 120,
-                color: this.selectedColor
+                length: 120
             },
             description: {
                 content: 'Add description here with **bold** and _italic_ formatting'
@@ -567,7 +564,7 @@ class ConfigurationBuilder {
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <strong style="color: var(--text-primary);">${hotspot.id}</strong>
                         <span style="font-size: 0.9rem;">${directionIcon}</span>
-                        <div style="width: 12px; height: 12px; background: ${this.getCurrentColorValue(hotspot.style.color)}; border-radius: 2px; border: 1px solid var(--border-color);"></div>
+                        <div style="width: 12px; height: 12px; background: ${this.getCurrentColorValue(hotspot.color)}; border-radius: 2px; border: 1px solid var(--border-color);"></div>
                     </div>
                 </div>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
@@ -605,10 +602,10 @@ class ConfigurationBuilder {
         // Update color palette selection
         const colorOptions = document.querySelectorAll('.color-option');
         colorOptions.forEach(opt => opt.classList.remove('active'));
-        const activeColor = document.querySelector(`[data-color="${this.selectedHotspot.style.color}"]`);
+        const activeColor = document.querySelector(`[data-color="${this.selectedHotspot.color}"]`);
         if (activeColor) {
             activeColor.classList.add('active');
-            this.selectedColor = this.selectedHotspot.style.color;
+            this.selectedColor = this.selectedHotspot.color;
         }
     }
 
@@ -621,10 +618,9 @@ class ConfigurationBuilder {
         this.selectedHotspot.coordinates.y = parseInt(document.getElementById('hotspot-y').value) || 0;
         this.selectedHotspot.coordinates.width = parseInt(document.getElementById('hotspot-width').value) || 1;
         this.selectedHotspot.coordinates.height = parseInt(document.getElementById('hotspot-height').value) || 1;
-        this.selectedHotspot.style.color = this.selectedColor;
+        this.selectedHotspot.color = this.selectedColor;
         this.selectedHotspot.line.direction = document.getElementById('line-direction').value;
         this.selectedHotspot.line.length = parseInt(document.getElementById('line-length').value);
-        this.selectedHotspot.line.color = this.selectedColor;
         this.selectedHotspot.description.content = document.getElementById('description-text').value;
 
         this.updateHotspotList();
@@ -686,7 +682,7 @@ class ConfigurationBuilder {
         }
 
         // Create highlight
-        if (hotspot.style) {
+        if (hotspot.color) {
             const highlight = document.createElement('div');
             highlight.className = 'preview-element highlight-preview';
             highlight.style.position = 'absolute';
@@ -695,7 +691,7 @@ class ConfigurationBuilder {
             highlight.style.width = `${hotspot.coordinates.width * scaleX}px`;
             highlight.style.height = `${hotspot.coordinates.height * scaleY}px`;
             
-            const colorValue = this.getCurrentColorValue(hotspot.style.color);
+            const colorValue = this.getCurrentColorValue(hotspot.color);
             highlight.style.border = `2px solid ${colorValue}`;
             highlight.style.borderRadius = `${OVERLAY_DEFAULTS.BORDER_RADIUS}px`;
             highlight.style.backgroundColor = this.hexToRgba(colorValue, 0.1);
@@ -748,7 +744,7 @@ class ConfigurationBuilder {
         line.style.setProperty('--line-length', `${scaledLength}px`);
         line.style.setProperty('--line-thickness', `${thickness}px`);
         
-        const lineColor = this.getCurrentColorValue(hotspot.line.color);
+        const lineColor = this.getCurrentColorValue(hotspot.color);
         line.style.setProperty('--line-color', lineColor);
 
         // Position line at hotspot edge like real engine (relative positioning)
@@ -821,7 +817,7 @@ class ConfigurationBuilder {
      */
     createPreviewTooltip(hotspot, scaleX, scaleY) {
         const tooltip = document.createElement('div');
-        tooltip.className = 'preview-element tooltip-preview';
+        tooltip.className = 'preview-element tooltip-preview description-tooltip';
         tooltip.innerHTML = this.processMarkdown(hotspot.description.content);
         
         // Apply tooltip styling to match script page
@@ -900,26 +896,23 @@ class ConfigurationBuilder {
     }
 
     /**
-     * Process markdown for tooltip preview
+     * Process markdown for tooltip preview using Marked.js
      */
     processMarkdown(text) {
-        // Check if dark mode
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const boldColor = isDark ? '#fb923c' : 'var(--text-primary)';
-        const italicColor = isDark ? '#22d3ee' : 'var(--text-secondary)';
-        const italicOpacity = isDark ? '1' : '0.9';
+        if (typeof marked === 'undefined') {
+            console.warn('Marked.js not loaded, falling back to plain text');
+            return `<p>${text}</p>`;
+        }
         
-        // Code styling
-        const codeBackground = isDark ? '#2d2d2d' : 'var(--bg-tertiary)';
-        const codeColor = isDark ? '#e5e5e5' : 'var(--text-primary)';
-        const codeBorder = isDark ? '#404040' : 'var(--border-color)';
+        // Configure marked for consistent rendering
+        marked.setOptions({
+            gfm: true,          // GitHub Flavored Markdown
+            breaks: false,      // Don't convert \n to <br>
+            sanitize: false,    // We trust our content
+            smartypants: false  // Don't convert quotes to smart quotes
+        });
         
-        return text
-            .replace(/`(.*?)`/g, `<code style="font-family: var(--font-mono); font-size: 0.9em; padding: 0.15em 0.4em; border-radius: 3px; background: ${codeBackground}; color: ${codeColor}; border: 1px solid ${codeBorder};">$1</code>`)
-            .replace(/\*\*(.*?)\*\*/g, `<strong style="font-weight: 700; color: ${boldColor};">$1</strong>`)
-            .replace(/__(.*?)__/g, `<strong style="font-weight: 700; color: ${boldColor};">$1</strong>`)
-            .replace(/\*(.*?)\*/g, `<em style="font-style: italic; color: ${italicColor}; opacity: ${italicOpacity};">$1</em>`)
-            .replace(/_(.*?)_/g, `<em style="font-style: italic; color: ${italicColor}; opacity: ${italicOpacity};">$1</em>`);
+        return marked.parse(text);
     }
 
     deleteHotspot(index) {

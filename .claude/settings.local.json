@@ -5,7 +5,10 @@
       "Bash(mkdir:*)",
       "Bash(cd:*)",
       "Bash(python3:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(node build-system.js)",
+      "Bash(node generate-system.js)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

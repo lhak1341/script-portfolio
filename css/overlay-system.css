@@ -3,363 +3,353 @@
 
 /* Minimal Overlay System Styles */
 .script-showcase {
-    position: relative;
-    max-width: 100%;
-    margin: 0 auto;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 1.5rem;
-    text-align: center;
+  position: relative;
+  max-width: 100%;
+  margin: 0 auto;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
 }
 
 .script-image-container {
-    position: relative;
-    display: inline-block;
-    max-width: 100%;
-    text-align: left;
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  text-align: left;
 }
 
 .script-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  display: block;
 }
 
 /* Hotspot Areas */
 .hotspot {
-    position: absolute;
-    cursor: pointer;
-    z-index: 10;
-    transition: all 0.3s ease;
+  position: absolute;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.3s ease;
 }
 
 .hotspot:hover {
-    z-index: 20;
+  z-index: 20;
 }
 
 /* Minimal Highlight Boxes */
 .highlight {
-    position: absolute;
-    pointer-events: none;
-    border: 2px solid transparent;
-    background: rgba(var(--accent-color-rgb), 0.1);
-    opacity: 0;
-    transition: all 0.2s ease;
-    z-index: 5;
-    border-radius: 4px;
+  position: absolute;
+  pointer-events: none;
+  border: 2px solid transparent;
+  background: rgba(var(--accent-color-rgb), 0.1);
+  opacity: 0;
+  transition: all 0.2s ease;
+  z-index: 5;
+  border-radius: 4px;
 }
 
 .hotspot:hover .highlight {
-    opacity: 1;
-    border-color: var(--accent-color);
+  opacity: 1;
+  border-color: var(--accent-color);
 }
 
 /* Lines */
 .overlay-line {
-    position: absolute;
-    pointer-events: none;
-    opacity: 0;
-    transition: all 0.3s ease;
-    z-index: 30;
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 30;
 }
 
 .hotspot:hover .overlay-line {
-    opacity: 1;
+  opacity: 1;
 }
 
 .overlay-line::before {
-    content: '';
-    position: absolute;
-    background-color: var(--line-color, #3498db);
-    transition: all 0.3s ease;
+  content: '';
+  position: absolute;
+  background-color: var(--line-color, #3498db);
+  transition: all 0.3s ease;
 }
 
 /* Line Directions */
 .line-left::before {
-    width: var(--line-length);
-    height: var(--line-thickness);
-    top: 50%;
-    right: 100%;
-    transform: translateY(-50%);
+  width: var(--line-length);
+  height: var(--line-thickness);
+  top: 50%;
+  right: 100%;
+  transform: translateY(-50%);
 }
 
 .line-right::before {
-    width: var(--line-length);
-    height: var(--line-thickness);
-    top: 50%;
-    left: 100%;
-    transform: translateY(-50%);
+  width: var(--line-length);
+  height: var(--line-thickness);
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
 }
 
 .line-top::before {
-    width: var(--line-thickness);
-    height: var(--line-length);
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
+  width: var(--line-thickness);
+  height: var(--line-length);
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .line-bottom::before {
-    width: var(--line-thickness);
-    height: var(--line-length);
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
+  width: var(--line-thickness);
+  height: var(--line-length);
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 /* Description Tooltips - Unified Styling */
 .description-tooltip {
-    position: absolute;
-    pointer-events: none;
-    opacity: 0;
-    transition: all 0.3s ease;
-    z-index: 25;
-    
-    /* Minimal Typography */
-    font-family: var(--font-sans);
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 1.4;
-    letter-spacing: -0.0125em;
-    
-    /* Minimal Visual Styling - Theme Aware */
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    padding: 10px 14px;
-    border-radius: 6px;
-    box-shadow: var(--card-shadow);
-    
-    /* Size and positioning */
-    max-width: 280px;
-    min-width: 180px;
-    white-space: normal;
-    word-wrap: break-word;
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 25;
+
+  /* Minimal Typography */
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: -0.0125em;
+
+  /* Minimal Visual Styling - Theme Aware */
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 10px 14px;
+  border-radius: 6px;
+  box-shadow: var(--card-shadow);
+
+  /* Size and positioning */
+  max-width: 280px;
+  min-width: 180px;
+  white-space: normal;
+  word-wrap: break-word;
 }
 
 /* Removed - using CSS variables for theme consistency */
 
 .hotspot:hover .description-tooltip {
-    opacity: 1;
+  opacity: 1;
 }
 
 /* Theme-Specific Markdown Support in Descriptions */
 .description-tooltip strong,
 .description-tooltip b {
-    font-weight: 700;
-    color: var(--text-primary); /* Normal color in light mode */
+  font-weight: 700;
+  color: var(--text-primary); /* Normal color in light mode */
 }
 
 .description-tooltip em,
 .description-tooltip i {
-    font-style: italic;
-    color: var(--text-secondary); /* Normal color in light mode */
-    opacity: 0.9;
+  font-style: italic;
+  color: var(--text-secondary); /* Normal color in light mode */
+  opacity: 0.9;
 }
 
-/* Inline code styling */
-.description-tooltip code {
-    font-family: var(--font-mono);
-    font-size: 0.9em;
-    padding: 0.15em 0.4em;
-    border-radius: 3px;
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
+/* Inline code styling for tooltips and script content */
+.description-tooltip code,
+.script-content code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+/* Blockquote styling for tooltips and script content */
+.description-tooltip blockquote,
+.script-content blockquote {
+  margin: 0.5em 0;
+  padding: 0.5em 0.75em;
+  border-left: 4px solid var(--accent-color);
+  background: var(--bg-tertiary);
+  /* font-style: italic; */
+  font-size: 1.1rem;
+  color: var(--text-secondary);
 }
 
 /* Dark mode colors for markdown elements */
 @media (prefers-color-scheme: dark) {
-    .description-tooltip strong,
-    .description-tooltip b {
-        color: #fb923c; /* Orange in dark mode */
-    }
-    
-    .description-tooltip em,
-    .description-tooltip i {
-        color: #22d3ee; /* Cyan in dark mode */
-        opacity: 1;
-    }
-    
-    .description-tooltip code {
-        background: #2d2d2d;
-        color: #e5e5e5;
-        border-color: #404040;
-    }
+  .description-tooltip strong,
+  .description-tooltip b {
+    color: #fb923c; /* Orange in dark mode */
+  }
+
+  .description-tooltip em,
+  .description-tooltip i {
+    color: #22d3ee; /* Cyan in dark mode */
+    opacity: 1;
+  }
+
+  .description-tooltip code,
+  .script-content code {
+    background: #2d2d2d;
+    color: #e5e5e5;
+    border-color: #404040;
+  }
+
+  .description-tooltip blockquote,
+  .script-content blockquote {
+    background: #1a1a1a;
+    border-left-color: #3b82f6; /* Accent blue for dark mode */
+    color: #a1a1aa;
+  }
 }
 
-/* Animation Enhancements */
-@keyframes pulse-highlight {
-    0% { background: rgba(255, 255, 255, 0.1); }
-    50% { background: rgba(255, 255, 255, 0.2); }
-    100% { background: rgba(255, 255, 255, 0.1); }
-}
-
-.hotspot:hover .highlight {
-    animation: pulse-highlight 2s ease-in-out infinite;
-}
-
-/* Color Variations for Different Highlights */
-.highlight-primary {
-    border-color: #3498db;
-    background: rgba(52, 152, 219, 0.1);
-}
-
-.highlight-success {
-    border-color: #2ecc71;
-    background: rgba(46, 204, 113, 0.1);
-}
-
-.highlight-warning {
-    border-color: #f39c12;
-    background: rgba(243, 156, 18, 0.1);
-}
-
-.highlight-danger {
-    border-color: #e74c3c;
-    background: rgba(231, 76, 60, 0.1);
-}
-
-.highlight-info {
-    border-color: #9b59b6;
-    background: rgba(155, 89, 182, 0.1);
-}
+/* Removed unused color variations and excessive animations */
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-    .description-tooltip {
-        font-size: 13px;
-        padding: 10px 14px;
-        max-width: 240px;
-        min-width: 160px;
-    }
-    
-    .script-showcase {
-        padding: 1rem;
-    }
-    
-    /* Adjust tooltip positioning for mobile */
-    .line-left .description-tooltip,
-    .line-right .description-tooltip {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        right: 20px;
-        max-width: none;
-        transform: none;
-    }
-    
-    .hotspot:hover .line-left .description-tooltip,
-    .hotspot:hover .line-right .description-tooltip {
-        transform: none;
-    }
+  .description-tooltip {
+    font-size: 13px;
+    padding: 10px 14px;
+    max-width: 240px;
+    min-width: 160px;
+  }
+
+  .script-showcase {
+    padding: 1rem;
+  }
+
+  /* Adjust tooltip positioning for mobile */
+  .line-left .description-tooltip,
+  .line-right .description-tooltip {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    max-width: none;
+    transform: none;
+  }
+
+  .hotspot:hover .line-left .description-tooltip,
+  .hotspot:hover .line-right .description-tooltip {
+    transform: none;
+  }
 }
 
 /* Loading state for images */
 .script-image-container.loading {
-    background: #f8f9fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 300px;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
 }
 
 .script-image-container.loading::after {
-    content: "Loading...";
-    color: #6c757d;
-    font-size: 1rem;
+  content: 'Loading...';
+  color: #6c757d;
+  font-size: 1rem;
 }
 
 /* Fade-in animation for loaded content */
 .script-image-container.loaded {
-    animation: fadeIn 0.5s ease-in-out;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Script Content Section */
 .script-content {
-    margin-top: 1.5rem;
-    padding: 1.5rem;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    text-align: left;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  text-align: left;
 }
 
 .script-content h2,
 .script-content h3 {
-    color: var(--text-primary);
-    margin-bottom: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
 }
 
 .script-content h3 {
-    margin-top: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 .script-content h3:last-of-type {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-color);
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
 }
 
 .script-content p {
-    line-height: 1.6;
-    color: var(--text-secondary);
-    margin-bottom: 1rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
 }
 
 .script-content ul,
 .script-content ol {
-    line-height: 1.6;
-    color: var(--text-secondary);
-    margin-left: 2rem;
-    margin-bottom: 1rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-left: 2rem;
+  margin-bottom: 1rem;
 }
 
 .script-content li {
-    line-height: 1.6;
-    color: var(--text-secondary);
-    margin-bottom: 0.5rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
 }
 
 .script-tags-section {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
 }
 
 .script-tags {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
 }
 
 /* Tags within script-tags-section should not have margin-top */
 .script-tags-section .script-tags {
-    margin-top: 0;
-    font-size: 0.9rem;
+  margin-top: 0;
+  font-size: 0.9rem;
 }
 
 .script-tags-section .script-tags .tag {
-    font-size: 0.9rem;
+  font-size: 0.9rem;
 }
 
 /* Tag icon styling - inline SVG approach with moderate size */
 .script-tags-section .tag-icon {
-    width: 22px;
-    height: 22px;
-    flex-shrink: 0;
-    color: var(--text-secondary);
-    stroke: currentColor;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  stroke: currentColor;
 }

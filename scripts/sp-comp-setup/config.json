@@ -12,63 +12,156 @@
   },
   "overlays": [
     {
-      "id": "project-path-check",
+      "id": "proj-path-check",
       "coordinates": {
         "x": 24,
-        "y": 62,
+        "y": 63,
         "width": 228,
         "height": 24
       },
-      "style": {
-        "color": "cyan"
-      },
+      "color": "red",
       "line": {
         "direction": "left",
-        "length": 137,
-        "color": "cyan"
+        "length": 137
       },
       "description": {
-        "content": "**Green** if the project is already saved at the correct path"
+        "content": "Project **must be saved** at `02_WIP/05_AE/03_COMP/`"
       }
     },
     {
-      "id": "ae-template-selection",
+      "id": "template-select",
       "coordinates": {
         "x": 24,
         "y": 90,
-        "width": 280,
+        "width": 277,
         "height": 24
       },
-      "style": {
-        "color": "orange"
-      },
+      "color": "cyan",
       "line": {
         "direction": "right",
-        "length": 163,
-        "color": "orange"
+        "length": 168
       },
       "description": {
-        "content": "Allow user to choose between **predefined** template, and _custom_ ones"
+        "content": "Select a template or navigate to a custom one"
+      }
+    },
+    {
+      "id": "auto-interpret",
+      "coordinates": {
+        "x": 24,
+        "y": 121,
+        "width": 142,
+        "height": 24
+      },
+      "color": "orange",
+      "line": {
+        "direction": "left",
+        "length": 94
+      },
+      "description": {
+        "content": "Automatically interpret Ignore Alpha & Premult to White"
+      }
+    },
+    {
+      "id": "1+2",
+      "coordinates": {
+        "x": 62,
+        "y": 185,
+        "width": 205,
+        "height": 30
+      },
+      "color": "cyan",
+      "line": {
+        "direction": "right",
+        "length": 166
+      },
+      "description": {
+        "content": "Batch import & setup shot"
       }
     },
     {
       "id": "color-settings",
       "coordinates": {
-        "x": 42,
+        "x": 43,
         "y": 252,
-        "width": 98,
+        "width": 97,
         "height": 26
       },
-      "style": {
-        "color": "purple"
-      },
+      "color": "purple",
       "line": {
         "direction": "left",
-        "length": 90,
-        "color": "purple"
+        "length": 90
       },
       "description": {
-        "content": "Set project color space to **linear**, **32bpc**"
+        "content": "sRGB Linear 32bpc"
+      }
+    },
+    {
+      "id": "manual-interpret",
+      "coordinates": {
+        "x": 144,
+        "y": 252,
+        "width": 139,
+        "height": 26
+      },
+      "color": "purple",
+      "line": {
+        "direction": "right",
+        "length": 116
+      },
+      "description": {
+        "content": "Set Interpretation (according to rules) to the _selected_ footage"
+      }
+    },
+    {
+      "id": "new-shot-from-ld",
+      "coordinates": {
+        "x": 90,
+        "y": 286,
+        "width": 148,
+        "height": 26
+      },
+      "color": "cyan",
+      "line": {
+        "direction": "left",
+        "length": 163
+      },
+      "description": {
+        "content": "Generate new shots based on selected 'master'"
+      }
+    },
+    {
+      "id": "import-only",
+      "coordinates": {
+        "x": 49,
+        "y": 153,
+        "width": 120,
+        "height": 26
+      },
+      "color": "purple",
+      "line": {
+        "direction": "left",
+        "length": 108
+      },
+      "description": {
+        "content": "Batch import shot footage"
+      }
+    },
+    {
+      "id": "setup-only",
+      "coordinates": {
+        "x": 175,
+        "y": 153,
+        "width": 105,
+        "height": 26
+      },
+      "color": "purple",
+      "line": {
+        "direction": "right",
+        "length": 103
+      },
+      "description": {
+        "content": "Batch setup for _imported shots only_"
       }
     }
   ]

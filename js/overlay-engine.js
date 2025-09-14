@@ -236,8 +236,10 @@ class OverlayEngine {
         highlight.style.width = `${coords.width * scaleX}px`;
         highlight.style.height = `${coords.height * scaleY}px`;
 
-        if (styleConfig && styleConfig.color) {
-            const colorValue = this.getCurrentColorValue(styleConfig.color);
+        // Use color from overlay or line config (single source of truth)
+        const overlayColor = this.currentOverlay?.color || styleConfig?.color;
+        if (overlayColor) {
+            const colorValue = this.getCurrentColorValue(overlayColor);
             highlight.style.borderColor = colorValue;
             // Create semi-transparent background
             const rgb = this.hexToRgb(colorValue);
@@ -264,8 +266,9 @@ class OverlayEngine {
         line.style.setProperty('--line-length', `${lineConfig.length}px`);
         line.style.setProperty('--line-thickness', `${lineConfig.thickness || OVERLAY_DEFAULTS.LINE_THICKNESS}px`);
         
-        // Set the line color directly and use !important to override CSS
-        const lineColor = this.getCurrentColorValue(lineConfig.color || 'cyan');
+        // Use color from overlay or line config (single source of truth)
+        const overlayColor = this.currentOverlay?.color || lineConfig.color || 'cyan';
+        const lineColor = this.getCurrentColorValue(overlayColor);
         line.style.backgroundColor = lineColor;
         line.style.setProperty('--line-color', lineColor);
 
@@ -431,83 +434,23 @@ class OverlayEngine {
     }
 
     /**
-     * Process basic markdown formatting
+     * Process markdown using Marked.js library
      */
     processMarkdown(text) {
-        // Split into lines for processing
-        const lines = text.split('\n');
-        const processed = [];
-        let inList = false;
-        let listType = null;
-        
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
-            
-            // Skip empty lines
-            if (!line) {
-                if (inList) {
-                    processed.push(`</${listType}>`);
-                    inList = false;
-                    listType = null;
-                }
-                processed.push('');
-                continue;
-            }
-            
-            // Headers
-            if (line.startsWith('### ')) {
-                if (inList) { processed.push(`</${listType}>`); inList = false; }
-                processed.push(`<h3>${line.substring(4)}</h3>`);
-            } else if (line.startsWith('## ')) {
-                if (inList) { processed.push(`</${listType}>`); inList = false; }
-                processed.push(`<h2>${line.substring(3)}</h2>`);
-            } else if (line.startsWith('# ')) {
-                if (inList) { processed.push(`</${listType}>`); inList = false; }
-                processed.push(`<h1>${line.substring(2)}</h1>`);
-            }
-            // Numbered lists
-            else if (/^\d+\.\s+/.test(line)) {
-                if (!inList || listType !== 'ol') {
-                    if (inList) processed.push(`</${listType}>`);
-                    processed.push('<ol>');
-                    inList = true;
-                    listType = 'ol';
-                }
-                processed.push(`<li>${line.replace(/^\d+\.\s+/, '')}</li>`);
-            }
-            // Bullet lists
-            else if (/^[-*]\s+/.test(line)) {
-                if (!inList || listType !== 'ul') {
-                    if (inList) processed.push(`</${listType}>`);
-                    processed.push('<ul>');
-                    inList = true;
-                    listType = 'ul';
-                }
-                processed.push(`<li>${line.replace(/^[-*]\s+/, '')}</li>`);
-            }
-            // Regular paragraphs
-            else {
-                if (inList) {
-                    processed.push(`</${listType}>`);
-                    inList = false;
-                    listType = null;
-                }
-                processed.push(`<p>${line}</p>`);
-            }
+        if (typeof marked === 'undefined') {
+            console.warn('Marked.js not loaded, falling back to plain text');
+            return `<p>${text}</p>`;
         }
         
-        // Close any open list
-        if (inList) {
-            processed.push(`</${listType}>`);
-        }
+        // Configure marked for consistent rendering
+        marked.setOptions({
+            gfm: true,          // GitHub Flavored Markdown
+            breaks: false,      // Don't convert \n to <br>
+            sanitize: false,    // We trust our content
+            smartypants: false  // Don't convert quotes to smart quotes
+        });
         
-        // Join and process inline formatting
-        return processed.join('\n')
-            .replace(/`(.*?)`/g, '<code>$1</code>')           // Inline code
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-            .replace(/__(.*?)__/g, '<strong>$1</strong>')     // Bold alternative
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')             // Italic  
-            .replace(/_(.*?)_/g, '<em>$1</em>');              // Italic alternative
+        return marked.parse(text);
     }
 
     /**

@@ -289,6 +289,7 @@ function createIndexHtmlFile(scriptId, scriptData) {
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="../../js/utils.js"></script>
     <script src="../../js/overlay-engine.js"></script>
     <script>
