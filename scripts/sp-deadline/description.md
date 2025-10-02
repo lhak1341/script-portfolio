@@ -1,31 +1,23 @@
-# About This Script
+> **SP Deadline** provides a one-click solution to submit renders to the Deadline render farm.
 
-Deadline render farm integration with job submission and monitoring
+# Key Features
 
-This script provides powerful functionality for After Effects users, designed to streamline workflows and enhance productivity. The interface is carefully crafted to be both intuitive and feature-rich.
+- Choose render pools for different rendering needs
+- Optimal settings automatically applied based on output type (video vs image sequence)
+- Access full Deadline submission dialog when advanced configuration is needed
 
-## Key Features
+# Quick Start Workflow
 
-- Professional After Effects integration
-- Intuitive user interface design
-- Advanced functionality and options  
-- Streamlined workflow optimization
-- Comprehensive feature set
-- Reliable performance and stability
+1. Use **After Effects 2024** (required)
+2. Queue your render in the **Render Queue** (Ctrl-Alt-0)
+3. Configure Render Settings, Output Module, and Output To as you would for local rendering
+4. Open **SP Deadline** instead of clicking Render
+5. Verify Pool/Secondary settings are appropriate
+6. Click **Submit to Deadline**
 
-## How It Works
+# Reference
 
-1. **Launch**: Access the script from your After Effects Scripts menu
-2. **Configure**: Set up your preferences and options
-3. **Execute**: Run the script functionality with your chosen settings
-4. **Results**: Review and apply the generated output
+## Pools
 
-## Installation
-
-Simply run the script from your After Effects Scripts menu. No additional setup required.
-
-## Compatibility
-
-- After Effects CC 2019 and later
-- Windows and macOS supported
-- No additional plugins required
+- `_ae_2024` — Default pool for standard After Effects renders
+- `miele` — Dedicated pool for Miele versioning project renders (Self-help in particular)

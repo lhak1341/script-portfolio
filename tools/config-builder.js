@@ -742,10 +742,39 @@ class ConfigurationBuilder {
         this.selectedHotspot.description.content = document.getElementById('description-text').value;
 
         this.updateHotspotList();
-        this.renderHotspots();
+
+        // Selective re-render: only update the selected hotspot instead of all
+        this.renderSingleHotspot(this.selectedHotspot);
 
         // Show live feedback
         this.showStatus(`Updated "${this.selectedHotspot.id}" properties`, 'success', 2000);
+    }
+
+    /**
+     * Selective re-render: only update the selected hotspot
+     * Much faster than full re-render for continuous adjustments
+     */
+    renderSingleHotspot(hotspot) {
+        if (!this.currentImage || !hotspot) return;
+
+        const canvas = document.getElementById('image-canvas');
+        const img = canvas.querySelector('.workspace-image');
+        if (!img) return;
+
+        // Remove only this hotspot's preview elements
+        const hotspotId = hotspot.id;
+        const existingElements = canvas.querySelectorAll(`[data-hotspot-id="${hotspotId}"]`);
+        existingElements.forEach(el => {
+            if (el.innerHTML) el.innerHTML = '';
+            if (el.parentNode) el.parentNode.removeChild(el);
+        });
+
+        // Calculate scale
+        const scaleX = img.offsetWidth / this.currentImage.width;
+        const scaleY = img.offsetHeight / this.currentImage.height;
+
+        // Render just this hotspot
+        this.renderFullHotspotPreview(hotspot, scaleX, scaleY, canvas);
     }
 
     renderHotspots() {
@@ -776,6 +805,7 @@ class ConfigurationBuilder {
         // Create hotspot container
         const hotspotContainer = document.createElement('div');
         hotspotContainer.className = 'preview-element hotspot-preview';
+        hotspotContainer.setAttribute('data-hotspot-id', hotspot.id); // For selective removal
         hotspotContainer.style.position = 'absolute';
         hotspotContainer.style.left = `${hotspot.coordinates.x * scaleX}px`;
         hotspotContainer.style.top = `${hotspot.coordinates.y * scaleY}px`;
@@ -803,12 +833,13 @@ class ConfigurationBuilder {
         if (hotspot.color) {
             const highlight = document.createElement('div');
             highlight.className = 'preview-element highlight-preview';
+            highlight.setAttribute('data-hotspot-id', hotspot.id); // For selective removal
             highlight.style.position = 'absolute';
             highlight.style.left = `${hotspot.coordinates.x * scaleX}px`;
             highlight.style.top = `${hotspot.coordinates.y * scaleY}px`;
             highlight.style.width = `${hotspot.coordinates.width * scaleX}px`;
             highlight.style.height = `${hotspot.coordinates.height * scaleY}px`;
-            
+
             const colorValue = this.getCurrentColorValue(hotspot.color);
             highlight.style.border = `2px solid ${colorValue}`;
             highlight.style.borderRadius = `${OVERLAY_DEFAULTS.BORDER_RADIUS}px`;
@@ -827,6 +858,7 @@ class ConfigurationBuilder {
         // Create tooltip
         if (hotspot.description) {
             const tooltip = this.createPreviewTooltip(hotspot, scaleX, scaleY);
+            tooltip.setAttribute('data-hotspot-id', hotspot.id); // For selective removal
             // Add click handler to tooltip as well
             tooltip.style.cursor = 'pointer';
             tooltip.style.pointerEvents = 'auto';
