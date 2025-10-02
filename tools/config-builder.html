@@ -628,19 +628,27 @@
                     </div>
                 </div>
 
+                <!-- Intuitive Connector Configuration -->
                 <div class="form-group">
-                    <label>Line Direction</label>
-                    <select id="line-direction">
-                        <option value="left">Left</option>
-                        <option value="right">Right</option>
-                        <option value="top">Top</option>
-                        <option value="bottom">Bottom</option>
-                    </select>
+                    <label>Horizontal Distance (px)</label>
+                    <input type="number" id="horizontal-distance" value="120" min="-300" max="300" placeholder="Horizontal distance to tooltip">
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">Positive = right, Negative = left. Total horizontal distance from hotspot to tooltip.</div>
                 </div>
-
                 <div class="form-group">
-                    <label>Line Length (px)</label>
-                    <input type="number" id="line-length" value="120" min="20" max="300">
+                    <label>Vertical Distance (px)</label>
+                    <input type="number" id="vertical-distance" value="0" min="-300" max="300" placeholder="Vertical distance to tooltip">
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">Positive = down, Negative = up. Set to 0 for straight line.</div>
+                </div>
+                <div class="form-group">
+                    <label>Turn Point (px) <span style="font-size: 0.7rem; font-weight: 400; opacity: 0.7;">— Always positive, direction from H</span></label>
+                    <input type="number" id="turning-point" value="0" min="0" max="300" placeholder="When to start turning">
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">How far to go straight before turning (always positive). Direction automatically matches horizontal distance sign.</div>
+                </div>
+                <div style="padding: 0.5rem; background: var(--bg-tertiary); border-radius: 4px; font-size: 0.75rem; color: var(--text-secondary);">
+                    <strong>Examples:</strong><br>
+                    • <strong>Straight right:</strong> H=120, V=0 → [H]<br>
+                    • <strong>Right then up (with turn):</strong> H=120, V=-60, Turn=80 → [H, V, H]<br>
+                    • <strong>Left then down (direct):</strong> H=-120, V=60, Turn=0 → [H, V, H]
                 </div>
 
                 <div class="form-group">

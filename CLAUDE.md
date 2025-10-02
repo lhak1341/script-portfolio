@@ -20,8 +20,9 @@ The website is automatically deployed via GitHub Pages whenever changes are push
 
 #### Overlay Positioning System
 - **Coordinate scaling**: Overlays scale using `image.offsetWidth / config.width` ratio to maintain accuracy across display sizes
-- **Line rendering**: CSS `::before` pseudo-elements positioned at hotspot edges using `left: 100%` and `right: 100%` for directional extension
-- **Tooltip positioning**: Absolute positioning calculated from hotspot center + line length + 15px offset, with direction-specific transform centering
+- **Flexible connector lines**: Support for both single-direction lines and multi-segment H-V-H (horizontal-vertical-horizontal) connectors for flexible tooltip positioning
+- **Line rendering**: CSS-based line segments with absolute positioning, supports both legacy `::before` pseudo-elements and new multi-segment DOM elements
+- **Tooltip positioning**: Absolute positioning calculated from connector end point + 15px offset, with automatic direction detection for segmented lines
 - **Z-index layering**: Highlights (z-5), hotspots (z-10), lines (z-30), tooltips (z-25) prevent visual conflicts
 
 #### Configuration Schema
@@ -50,6 +51,15 @@ Each script overlay configuration follows this consolidated structure with theme
         "direction": "left", "length": 150,
         "thickness": 2
       },
+      // OR use new 3-segment connector system:
+      "line": {
+        "segments": [
+          {"type": "horizontal", "length": 80},
+          {"type": "vertical", "length": -60},
+          {"type": "horizontal", "length": 40}
+        ],
+        "thickness": 2
+      },
       "description": {
         "content": "**Bold** and _italic_ markdown support in tooltips"
       }
@@ -75,6 +85,45 @@ Each script overlay configuration follows this consolidated structure with theme
 | `cyan` | `#06b6d4` | `#22d3ee` | Information, primary highlights |
 | `purple` | `#a855f7` | `#c084fc` | Special features, secondary actions |
 | `pink` | `#ec4899` | `#f472b6` | Creative elements, decorative highlights |
+
+#### Multi-Segment Connector System
+**Enforced Patterns**: System validates segments and only accepts two patterns:
+- **1 segment**: `[{type: "horizontal", length: N}]` - straight horizontal line
+- **3 segments**: `[{type: "horizontal"}, {type: "vertical"}, {type: "horizontal"}]` - H-V-H path
+
+**Validation**: `isValidSegmentPattern()` in `overlay-engine.js:313` and `config-builder.js:899` rejects invalid patterns with console warning, returns fallback `[{type: "horizontal", length: 100}]`
+
+**Configuration Structure**:
+```json
+"line": {
+  "segments": [
+    {"type": "horizontal", "length": 80},    // First horizontal: distance before turn
+    {"type": "vertical", "length": -60},     // Vertical: up 60px (negative = up)
+    {"type": "horizontal", "length": 40}     // Second horizontal: remaining distance
+  ],
+  "thickness": 2
+}
+```
+
+**Segment Properties**:
+- `type`: `"horizontal"` or `"vertical"` only
+- `length`: Pixels (positive = right/down, negative = left/up)
+- First segment type determines line starting edge (horizontal starts from left/right edge, vertical from top/bottom)
+- Tooltip positioned at final segment endpoint + 15px offset
+
+**Zero-Length Segment Filtering**: `simplifyLineSegments()` in `overlay-engine.js:287` removes segments with `Math.abs(length) ≤ 0.1` before validation. When turning point equals horizontal distance, uses 0.1px minimum instead of 0 to prevent filter removal.
+
+**Dual-Line Display System**:
+- **Hover mode** (toggle OFF): Single horizontal line calculated by summing all horizontal segments, tooltip positioned at total horizontal distance end. Cleaner UI with less visual clutter.
+- **Show All mode** (toggle ON): Full H-V-H multi-segment path with tooltip at complex endpoint. Designed paths visible to show navigation around overlapping elements.
+- Implementation: Creates two line containers (`.hover-line` and `.show-all-line`) and two tooltips (`.hover-tooltip` and `.show-all-tooltip`), toggles visibility via `updateOverlayVisibility()` at `overlay-engine.js:868`
+
+#### Line Connector System Implementation
+**Rendering Logic**: `js/overlay-engine.js` detects `line.segments` array and creates individual `div` elements for each segment positioned using calculated coordinates. Legacy `line.direction` creates single CSS `::before` pseudo-element.
+
+**CSS Architecture**: `.line-segment` elements use absolute positioning within `.overlay-line-container`, inheriting color and thickness from parent configuration.
+
+**Scaling Behavior**: Segment lengths scale proportionally with image display size using `Math.min(scaleX, scaleY)` to maintain consistent visual proportions.
 
 #### Main Scripts Data Schema
 The `data/scripts-list.json` file contains all script metadata with the following structure:
@@ -191,13 +240,35 @@ The `data/scripts-list.json` file contains all script metadata with the followin
 - **Toggle-based mode switching**: Single checkbox toggles between select mode (default) and create mode for clear workflow separation
 - **Click-drag selection**: Mouse events create rectangular hotspot boundaries when in create mode, automatic coordinate calculation
 - **Pixel-precise editing**: Dedicated number inputs for Position (X, Y) and Size (Width, Height) allow 1-pixel adjustments
-- **Visual property panel**: Hotspot ID input, single-row color palette (7 theme-aware colors), line direction/length controls, markdown description field
+- **Visual property panel**: Hotspot ID input, single-row color palette (7 theme-aware colors), line distance controls, markdown description field
 - **Real-time preview**: All changes instantly update visual overlay preview using same positioning logic as production engine
+
+#### Intuitive Line Configuration System
+Replaces low-level segment editing with high-level distance parameters:
+
+**Distance-Based Controls**:
+- **Horizontal Distance** (-300 to 300px): Total horizontal distance to tooltip. Positive = right, negative = left.
+- **Vertical Distance** (-300 to 300px): Vertical offset from hotspot center. Positive = down, negative = up. Set to 0 for straight horizontal line.
+- **Turn Point** (0 to 300px): How far to go horizontally before turning vertically. Always positive, direction inferred from horizontal distance sign. Disabled when vertical distance is 0.
+
+**Auto-Conversion Logic** (`config-builder.js:156`):
+- `verticalDistance === 0` → Generates `[{horizontal: H}]` (1 segment)
+- `verticalDistance !== 0, turningPoint === 0` → Auto-sets turning point to `horizontalDistance / 2` for balanced path
+- `turningPoint === horizontalDistance` → Special case generates `[0.1, V, H-0.1]` to keep tooltip at edge while satisfying 3-segment pattern
+- Otherwise → Generates `[turningPoint * direction, V, remainingHorizontal]`
+
+**Zero-Value Handling**: Fixed JavaScript `||` operator treating `0` as falsy. Now checks `value !== ''` before parsing, allowing vertical distance of 0 to create straight lines (`config-builder.js:729`).
+
+**UI State Management**:
+- Turn Point field automatically disabled (opacity 0.5, pointer-events none) when vertical distance is 0 via `updateTurningPointState()` at `config-builder.js:395`
+- When changing vertical distance from 0 to non-zero, turn point auto-populates to half of horizontal distance and updates UI input value
+- Example guidance shows resulting segment patterns: "Straight right: H=120, V=0 → [H]"
 
 #### Configuration Management
 - **Script selection**: Dropdown loads existing `config.json` files from `scripts/{id}/` directories
 - **Cache-busting**: `fetch()` requests include timestamp parameters to bypass browser caching
-- **Copy-paste workflow**: JSON output with instructions to manually update script config files
+- **Streamlined output**: Generates `"overlays": [...]` format directly (not wrapped in object), eliminating need to strip outer braces during copy-paste
+- **Auto-copy**: Configuration automatically copied to clipboard on save, button changes to "Copied! ✓" for 3 seconds
 - **Hot reload**: Configuration changes immediately visible in both builder and script pages
 
 ### Main Landing Page (✅ Complete)
@@ -234,6 +305,16 @@ The `data/scripts-list.json` file contains all script metadata with the followin
 - **Alphabetical tag sorting**: Tags sorted using `[...config.tags].sort()` across all generation files (generate-system.js, add-script.js, overlay-engine.js) and display with 0.9rem font-size for subtle hierarchy
 - **Clickable tags**: Navigate back to main page with automatic tag filtering via `encodeURIComponent(tag)` URL parameters
 - **Feature documentation**: Key features list and implementation details below interactive screenshot
+
+#### Tooltip Styling
+**Fixed CSS constraints** (`overlay-system.css:159`):
+- `max-width: 320px` - prevents tooltips from becoming too wide for readability
+- `min-width: 200px` - ensures consistent visual presence, prevents narrow tooltips
+- `font-size: 13px` with `line-height: 1.4` - optimized for ~50-65 characters per line at max width
+- `padding: 10px 14px` with `border-radius: 6px` - compact spacing with rounded corners
+- `box-shadow: var(--card-shadow)` - theme-aware elevation consistent with card elements
+
+**Content auto-wrapping**: Width determined by content length between min/max bounds, `word-wrap: break-word` prevents overflow on long unbroken strings.
 
 ## Development Setup
 

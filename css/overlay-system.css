@@ -57,7 +57,20 @@
   border-color: var(--accent-color);
 }
 
-/* Lines */
+/* Lines - Multi-segment and Single Line Support */
+.overlay-line-container {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 30;
+}
+
+.hotspot:hover .overlay-line-container {
+  opacity: 1;
+}
+
+/* Legacy single-line system */
 .overlay-line {
   position: absolute;
   pointer-events: none;
@@ -75,6 +88,15 @@
   position: absolute;
   background-color: var(--line-color, #3498db);
   transition: all 0.3s ease;
+}
+
+/* Multi-segment line system */
+.line-segment {
+  position: absolute;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  opacity: 0;
+  z-index: 30;
 }
 
 /* Line Directions */
@@ -134,8 +156,8 @@
   box-shadow: var(--card-shadow);
 
   /* Size and positioning */
-  max-width: 280px;
-  min-width: 180px;
+  max-width: 320px;
+  min-width: 200px;
   white-space: normal;
   word-wrap: break-word;
 }
@@ -210,6 +232,20 @@
     border-left-color: #3b82f6; /* Accent blue for dark mode */
     color: #a1a1aa;
   }
+}
+
+/* Segmented Line Hover States */
+.hotspot:hover .line-segment {
+  opacity: 1;
+}
+
+/* Ensure container visibility */
+.hotspot:hover .overlay-line-container {
+  opacity: 1;
+}
+
+.overlay-line-container .line-segment {
+  opacity: inherit;
 }
 
 /* Removed unused color variations and excessive animations */

@@ -21,8 +21,21 @@
       },
       "color": "red",
       "line": {
-        "direction": "left",
-        "length": 137
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": -40
+          },
+          {
+            "type": "vertical",
+            "length": -16
+          },
+          {
+            "type": "horizontal",
+            "length": -45
+          }
+        ],
+        "thickness": 2
       },
       "description": {
         "content": "Project **must be saved** at `02_WIP/05_AE/03_COMP/`"
@@ -38,8 +51,21 @@
       },
       "color": "cyan",
       "line": {
-        "direction": "right",
-        "length": 168
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": 42
+          },
+          {
+            "type": "vertical",
+            "length": -32
+          },
+          {
+            "type": "horizontal",
+            "length": 43
+          }
+        ],
+        "thickness": 2
       },
       "description": {
         "content": "Select a template or navigate to a custom one"
@@ -55,8 +81,13 @@
       },
       "color": "orange",
       "line": {
-        "direction": "left",
-        "length": 94
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": -86
+          }
+        ],
+        "thickness": 2
       },
       "description": {
         "content": "Automatically interpret Ignore Alpha & Premult to White"
@@ -72,8 +103,13 @@
       },
       "color": "cyan",
       "line": {
-        "direction": "right",
-        "length": 166
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": 120
+          }
+        ],
+        "thickness": 2
       },
       "description": {
         "content": "Batch import & setup shot"
@@ -89,8 +125,13 @@
       },
       "color": "purple",
       "line": {
-        "direction": "left",
-        "length": 90
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": -101
+          }
+        ],
+        "thickness": 2
       },
       "description": {
         "content": "sRGB Linear 32bpc"
@@ -106,8 +147,21 @@
       },
       "color": "purple",
       "line": {
-        "direction": "right",
-        "length": 116
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": 60
+          },
+          {
+            "type": "vertical",
+            "length": 10
+          },
+          {
+            "type": "horizontal",
+            "length": 44
+          }
+        ],
+        "thickness": 2
       },
       "description": {
         "content": "Set Interpretation (according to rules) to the _selected_ footage"
@@ -123,8 +177,21 @@
       },
       "color": "cyan",
       "line": {
-        "direction": "left",
-        "length": 163
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": -105
+          },
+          {
+            "type": "vertical",
+            "length": 32
+          },
+          {
+            "type": "horizontal",
+            "length": -44
+          }
+        ],
+        "thickness": 2
       },
       "description": {
         "content": "Generate new shots based on selected 'master'"
@@ -140,8 +207,21 @@
       },
       "color": "purple",
       "line": {
-        "direction": "left",
-        "length": 108
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": -65
+          },
+          {
+            "type": "vertical",
+            "length": 42
+          },
+          {
+            "type": "horizontal",
+            "length": -45
+          }
+        ],
+        "thickness": 2
       },
       "description": {
         "content": "Batch import shot footage"
@@ -157,8 +237,21 @@
       },
       "color": "purple",
       "line": {
-        "direction": "right",
-        "length": 103
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": 65
+          },
+          {
+            "type": "vertical",
+            "length": -31
+          },
+          {
+            "type": "horizontal",
+            "length": 41
+          }
+        ],
+        "thickness": 2
       },
       "description": {
         "content": "Batch setup for _imported shots only_"

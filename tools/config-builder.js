@@ -150,6 +150,72 @@ class ConfigurationBuilder {
     }
 
     /**
+     * Convert intuitive distance parameters to segments
+     * Always returns either [H] or [H, V, H]
+     */
+    convertDistancesToSegments(horizontalDistance, verticalDistance, turningPoint) {
+        // If no vertical distance, create a straight line (ignore turning point)
+        if (verticalDistance === 0) {
+            return [
+                {type: 'horizontal', length: horizontalDistance}
+            ];
+        }
+
+        // When there's vertical distance, always use H-V-H pattern
+        // Turn point represents how far to go before turning vertically
+        const direction = horizontalDistance >= 0 ? 1 : -1;
+
+        // If turning point equals absolute horizontal distance, means "turn immediately"
+        // This keeps tooltip at the edge: [0.1, V, H-0.1] pattern
+        // Use 0.1 instead of 0 to avoid being filtered out by simplifyLineSegments
+        if (turningPoint === Math.abs(horizontalDistance)) {
+            const minSegment = 0.1 * direction;
+            return [
+                {type: 'horizontal', length: minSegment},
+                {type: 'vertical', length: verticalDistance},
+                {type: 'horizontal', length: horizontalDistance - minSegment}
+            ];
+        }
+
+        // Otherwise, turn after going some distance
+        const signedTurnPoint = turningPoint * direction;
+        const remainingHorizontal = horizontalDistance - signedTurnPoint;
+
+        return [
+            {type: 'horizontal', length: signedTurnPoint},
+            {type: 'vertical', length: verticalDistance},
+            {type: 'horizontal', length: remainingHorizontal}
+        ];
+    }
+
+    /**
+     * Convert segments back to distance parameters for UI display
+     */
+    convertSegmentsToDistances(segments) {
+        const seg1 = segments[0] || {type: 'horizontal', length: 0};
+        const seg2 = segments[1] || {type: 'vertical', length: 0};
+        const seg3 = segments[2] || {type: 'horizontal', length: 0};
+
+        // Calculate total horizontal distance
+        let horizontalDistance = 0;
+        if (seg1.type === 'horizontal') horizontalDistance += seg1.length;
+        if (seg3.type === 'horizontal') horizontalDistance += seg3.length;
+
+        // Vertical distance is the middle segment
+        const verticalDistance = seg2.type === 'vertical' ? seg2.length : 0;
+
+        // Turning point is always returned as positive (absolute value)
+        // Direction is inferred from horizontal distance sign
+        const turningPoint = (seg1.type === 'horizontal' && segments.length === 3) ? Math.abs(seg1.length) : 0;
+
+        return {
+            horizontalDistance,
+            verticalDistance,
+            turningPoint
+        };
+    }
+
+    /**
      * Show status message
      */
     showStatus(message, type = 'info', duration = 5000) {
@@ -256,41 +322,18 @@ class ConfigurationBuilder {
         }
 
         const config = this.generateConfiguration();
-        
+
         // Show the JSON for copying
         const jsonOutput = document.getElementById('json-output');
         const copyBtn = document.getElementById('copy-btn');
-        
-        jsonOutput.textContent = JSON.stringify(config, null, 2);
+
+        jsonOutput.textContent = config;
         jsonOutput.style.display = 'block';
         copyBtn.style.display = 'block';
 
-        // Show clear instructions
-        const instructions = document.createElement('div');
-        instructions.style.cssText = `
-            background: #e3f2fd;
-            border: 1px solid #2196F3;
-            border-radius: 6px;
-            padding: 1rem;
-            margin: 1rem 0;
-            font-size: 0.9rem;
-            line-height: 1.5;
-        `;
-        instructions.innerHTML = `
-            <strong><i data-lucide="clipboard-list" style="width: 16px; height: 16px; margin-right: 0.5rem;"></i>Next Steps:</strong><br>
-            1. Click "Copy to Clipboard" below<br>
-            2. Open: <code>scripts/${this.currentScript}/config.json</code><br>
-            3. Replace the <code>"overlays": [...]</code> section with the copied content<br>
-            4. Save the file<br>
-            5. Refresh your script page to see changes
-        `;
-
-        // Insert instructions before JSON output
-        jsonOutput.parentNode.insertBefore(instructions, jsonOutput);
-
         // Auto-copy to clipboard
         try {
-            await navigator.clipboard.writeText(jsonOutput.textContent);
+            await navigator.clipboard.writeText(config);
             copyBtn.textContent = 'Copied! ✓';
             copyBtn.style.background = '#4CAF50';
             setTimeout(() => {
@@ -303,18 +346,18 @@ class ConfigurationBuilder {
     }
 
     /**
-     * Generate configuration object - now returns only overlays array
+     * Generate configuration - returns just the overlays array content as a string
      */
-    generateConfiguration() {        
-        return {
-            "overlays": this.hotspots
-        };
+    generateConfiguration() {
+        // Return formatted string: "overlays": [...]
+        return `"overlays": ${JSON.stringify(this.hotspots, null, 2)}`;
     }
 
     setupPropertyListeners() {
         const inputs = [
-            'hotspot-id', 'hotspot-x', 'hotspot-y', 'hotspot-width', 'hotspot-height', 
-            'line-direction', 'line-length', 'description-text'
+            'hotspot-id', 'hotspot-x', 'hotspot-y', 'hotspot-width', 'hotspot-height',
+            'horizontal-distance', 'vertical-distance', 'turning-point',
+            'description-text'
         ];
 
         inputs.forEach(id => {
@@ -324,6 +367,36 @@ class ConfigurationBuilder {
                 element.addEventListener('change', this.updateCurrentHotspot.bind(this));
             }
         });
+
+        // Special listener for vertical distance to enable/disable turning point
+        const verticalDistanceInput = document.getElementById('vertical-distance');
+        if (verticalDistanceInput) {
+            verticalDistanceInput.addEventListener('input', () => {
+                this.updateTurningPointState();
+            });
+        }
+    }
+
+    /**
+     * Enable/disable turning point input based on vertical distance
+     */
+    updateTurningPointState() {
+        const verticalDistance = parseFloat(document.getElementById('vertical-distance').value) || 0;
+        const turningPointInput = document.getElementById('turning-point');
+        const turningPointGroup = turningPointInput.closest('.form-group');
+
+        if (verticalDistance === 0) {
+            // Disable turning point when no vertical distance
+            turningPointInput.disabled = true;
+            turningPointInput.value = 0;
+            turningPointGroup.style.opacity = '0.5';
+            turningPointGroup.style.pointerEvents = 'none';
+        } else {
+            // Enable turning point when there's vertical distance
+            turningPointInput.disabled = false;
+            turningPointGroup.style.opacity = '1';
+            turningPointGroup.style.pointerEvents = 'auto';
+        }
     }
 
     handleDragOver(e) {
@@ -511,8 +584,12 @@ class ConfigurationBuilder {
             },
             color: this.selectedColor,
             line: {
-                direction: 'left',
-                length: 120
+                segments: [
+                    {type: 'horizontal', length: -120}, // left direction with negative horizontal
+                    {type: 'vertical', length: 0},
+                    {type: 'horizontal', length: 0}
+                ],
+                thickness: OVERLAY_DEFAULTS.LINE_THICKNESS
             },
             description: {
                 content: 'Add description here with **bold** and _italic_ formatting'
@@ -588,15 +665,18 @@ class ConfigurationBuilder {
         }
 
         panel.style.display = 'block';
-        
+
         // Update form fields
         document.getElementById('hotspot-id').value = this.selectedHotspot.id;
         document.getElementById('hotspot-x').value = this.selectedHotspot.coordinates.x;
         document.getElementById('hotspot-y').value = this.selectedHotspot.coordinates.y;
         document.getElementById('hotspot-width').value = this.selectedHotspot.coordinates.width;
         document.getElementById('hotspot-height').value = this.selectedHotspot.coordinates.height;
-        document.getElementById('line-direction').value = this.selectedHotspot.line.direction;
-        document.getElementById('line-length').value = this.selectedHotspot.line.length;
+        // Update distance-based line configuration
+        const distances = this.convertSegmentsToDistances(this.selectedHotspot.line.segments);
+        document.getElementById('horizontal-distance').value = distances.horizontalDistance;
+        document.getElementById('vertical-distance').value = distances.verticalDistance;
+        document.getElementById('turning-point').value = distances.turningPoint;
         document.getElementById('description-text').value = this.selectedHotspot.description.content;
 
         // Update color palette selection
@@ -607,6 +687,9 @@ class ConfigurationBuilder {
             activeColor.classList.add('active');
             this.selectedColor = this.selectedHotspot.color;
         }
+
+        // Update turning point state based on vertical distance
+        this.updateTurningPointState();
     }
 
     updateCurrentHotspot() {
@@ -619,13 +702,37 @@ class ConfigurationBuilder {
         this.selectedHotspot.coordinates.width = parseInt(document.getElementById('hotspot-width').value) || 1;
         this.selectedHotspot.coordinates.height = parseInt(document.getElementById('hotspot-height').value) || 1;
         this.selectedHotspot.color = this.selectedColor;
-        this.selectedHotspot.line.direction = document.getElementById('line-direction').value;
-        this.selectedHotspot.line.length = parseInt(document.getElementById('line-length').value);
+
+        // Update line configuration using distance-based system
+        // Use ?? instead of || to allow 0 values
+        const horizontalDistanceValue = document.getElementById('horizontal-distance').value;
+        const verticalDistanceValue = document.getElementById('vertical-distance').value;
+        const turningPointValue = document.getElementById('turning-point').value;
+
+        const horizontalDistance = horizontalDistanceValue !== '' ? parseInt(horizontalDistanceValue) : 120;
+        const verticalDistance = verticalDistanceValue !== '' ? parseInt(verticalDistanceValue) : 0;
+        let turningPoint = turningPointValue !== '' ? parseInt(turningPointValue) : 0;
+
+        // Smart default: when vertical distance is non-zero and turning point is 0,
+        // set turning point to half of horizontal distance for balanced path
+        if (verticalDistance !== 0 && turningPoint === 0) {
+            turningPoint = Math.abs(Math.round(horizontalDistance / 2));
+            // Update the UI to reflect this
+            document.getElementById('turning-point').value = turningPoint;
+        }
+
+        // Convert distances to segments
+        const segments = this.convertDistancesToSegments(horizontalDistance, verticalDistance, turningPoint);
+
+        this.selectedHotspot.line = {
+            segments: segments,
+            thickness: OVERLAY_DEFAULTS.LINE_THICKNESS
+        };
         this.selectedHotspot.description.content = document.getElementById('description-text').value;
 
         this.updateHotspotList();
         this.renderHotspots();
-        
+
         // Show live feedback
         this.showStatus(`Updated "${this.selectedHotspot.id}" properties`, 'success', 2000);
     }
@@ -633,10 +740,10 @@ class ConfigurationBuilder {
     renderHotspots() {
         if (!this.currentImage) return;
 
-        // Remove existing overlays
+        // Clean up existing overlays with proper memory management
+        this.cleanupPreviousRender();
+
         const canvas = document.getElementById('image-canvas');
-        const existingOverlays = canvas.querySelectorAll('.preview-element');
-        existingOverlays.forEach(overlay => overlay.remove());
 
         const img = canvas.querySelector('.workspace-image');
         if (!img) return;
@@ -726,90 +833,182 @@ class ConfigurationBuilder {
     }
 
     /**
-     * Create preview line - matches real overlay engine structure exactly
+     * Create preview line - unified multi-segment system
      */
     createPreviewLine(hotspot, scaleX, scaleY, hotspotContainer) {
-        // Create line element positioned relative to hotspot (like real engine)
-        const line = document.createElement('div');
-        line.className = `preview-element overlay-line line-${hotspot.line.direction}`;
-        line.style.position = 'absolute';
-        line.style.pointerEvents = 'none';
-        line.style.zIndex = '15';
-
-        // Scale the line dimensions like the real engine
-        const scaledLength = hotspot.line.length * Math.min(scaleX, scaleY);
-        const thickness = OVERLAY_DEFAULTS.LINE_THICKNESS;
-        
-        // Set CSS custom properties like real engine
-        line.style.setProperty('--line-length', `${scaledLength}px`);
-        line.style.setProperty('--line-thickness', `${thickness}px`);
-        
         const lineColor = this.getCurrentColorValue(hotspot.color);
-        line.style.setProperty('--line-color', lineColor);
+        const thickness = OVERLAY_DEFAULTS.LINE_THICKNESS;
 
-        // Position line at hotspot edge like real engine (relative positioning)
-        switch (hotspot.line.direction) {
+        // Use unified multi-segment system
+        return this.createPreviewSegmentedLine(hotspot, scaleX, scaleY, lineColor, thickness);
+    }
+
+    /**
+     * Convert legacy single-direction line format to multi-segment format
+     */
+    convertLegacyLineToSegments(legacyLine) {
+        const direction = legacyLine.direction;
+        const length = legacyLine.length;
+
+        let segment1Type, segment1Length;
+
+        switch (direction) {
             case 'left':
-                line.style.left = '0px';
-                line.style.top = '50%';
-                line.style.transform = 'translateY(-50%)';
+                segment1Type = 'horizontal';
+                segment1Length = -length;
                 break;
             case 'right':
-                line.style.right = '0px';
-                line.style.top = '50%';
-                line.style.transform = 'translateY(-50%)';
+                segment1Type = 'horizontal';
+                segment1Length = length;
                 break;
             case 'top':
-                line.style.top = '0px';
-                line.style.left = '50%';
-                line.style.transform = 'translateX(-50%)';
+                segment1Type = 'vertical';
+                segment1Length = -length;
                 break;
             case 'bottom':
-                line.style.bottom = '0px';
-                line.style.left = '50%';
-                line.style.transform = 'translateX(-50%)';
+                segment1Type = 'vertical';
+                segment1Length = length;
                 break;
+            default:
+                segment1Type = 'horizontal';
+                segment1Length = length;
         }
 
-        // Create the visual line using ::before pseudo-element styles directly
-        const pseudoElement = document.createElement('div');
-        pseudoElement.style.position = 'absolute';
-        pseudoElement.style.backgroundColor = lineColor;
-        pseudoElement.style.content = '';
-        
-        switch (hotspot.line.direction) {
-            case 'left':
-                pseudoElement.style.width = `${scaledLength}px`;
-                pseudoElement.style.height = `${thickness}px`;
-                pseudoElement.style.top = '50%';
-                pseudoElement.style.right = '100%';
-                pseudoElement.style.transform = 'translateY(-50%)';
-                break;
-            case 'right':
-                pseudoElement.style.width = `${scaledLength}px`;
-                pseudoElement.style.height = `${thickness}px`;
-                pseudoElement.style.top = '50%';
-                pseudoElement.style.left = '100%';
-                pseudoElement.style.transform = 'translateY(-50%)';
-                break;
-            case 'top':
-                pseudoElement.style.width = `${thickness}px`;
-                pseudoElement.style.height = `${scaledLength}px`;
-                pseudoElement.style.bottom = '100%';
-                pseudoElement.style.left = '50%';
-                pseudoElement.style.transform = 'translateX(-50%)';
-                break;
-            case 'bottom':
-                pseudoElement.style.width = `${thickness}px`;
-                pseudoElement.style.height = `${scaledLength}px`;
-                pseudoElement.style.top = '100%';
-                pseudoElement.style.left = '50%';
-                pseudoElement.style.transform = 'translateX(-50%)';
-                break;
+        return {
+            segments: [
+                {type: segment1Type, length: segment1Length},
+                {type: segment1Type === 'horizontal' ? 'vertical' : 'horizontal', length: 0},
+                {type: segment1Type, length: 0}
+            ],
+            thickness: OVERLAY_DEFAULTS.LINE_THICKNESS
+        };
+    }
+
+    /**
+     * Validate segment pattern matches required format
+     * Only [H] or [H, V, H] allowed
+     */
+    isValidSegmentPattern(segments) {
+        if (segments.length === 1) {
+            return segments[0].type === 'horizontal';
+        }
+        if (segments.length === 3) {
+            return segments[0].type === 'horizontal' &&
+                   segments[1].type === 'vertical' &&
+                   segments[2].type === 'horizontal';
+        }
+        return false;
+    }
+
+    /**
+     * Create preview for multi-segment line (H-V-H system)
+     */
+    createPreviewSegmentedLine(hotspot, scaleX, scaleY, lineColor, thickness) {
+        const container = document.createElement('div');
+        container.className = 'preview-element overlay-line-container';
+        container.style.position = 'absolute';
+        container.style.pointerEvents = 'none';
+        container.style.zIndex = '15';
+
+        const segments = hotspot.line.segments;
+
+        // Validate pattern
+        if (!this.isValidSegmentPattern(segments)) {
+            console.warn('Invalid segment pattern in preview. Expected [H] or [H,V,H]. Got:', segments);
+            // Show error in preview
+            container.style.border = '2px solid red';
+            container.style.padding = '4px';
+            container.innerHTML = '<span style="color: red; font-size: 10px;">Invalid pattern</span>';
+            return container;
         }
 
-        line.appendChild(pseudoElement);
-        return line;
+        const scale = Math.min(scaleX, scaleY);
+        const firstSegment = segments[0];
+
+        // Start from hotspot edge based on first segment direction
+        if (firstSegment.type === 'horizontal') {
+            if (firstSegment.length > 0) {
+                // Starting horizontal right - start from right edge
+                container.style.left = '100%';
+                container.style.top = '50%';
+                container.style.transform = 'translateY(-50%)';
+            } else {
+                // Starting horizontal left - start from left edge
+                container.style.left = '0%';
+                container.style.top = '50%';
+                container.style.transform = 'translateY(-50%)';
+            }
+        } else {
+            if (firstSegment.length > 0) {
+                // Starting vertical down - start from bottom edge
+                container.style.left = '50%';
+                container.style.top = '100%';
+                container.style.transform = 'translateX(-50%)';
+            } else {
+                // Starting vertical up - start from top edge
+                container.style.left = '50%';
+                container.style.top = '0%';
+                container.style.transform = 'translateX(-50%)';
+            }
+        }
+
+        // Create each segment
+        let currentX = 0;
+        let currentY = 0;
+
+        segments.forEach((segment, index) => {
+            const segmentEl = document.createElement('div');
+            segmentEl.className = `preview-element line-segment segment-${index}`;
+            segmentEl.style.position = 'absolute';
+            segmentEl.style.backgroundColor = lineColor;
+            segmentEl.style.opacity = '1';
+            segmentEl.style.zIndex = '30';
+
+            // Apply scaling to segment lengths
+            const scaledLength = segment.length * scale;
+
+            if (segment.type === 'horizontal') {
+                const width = Math.abs(scaledLength);
+                segmentEl.style.width = `${width}px`;
+                segmentEl.style.height = `${thickness}px`;
+
+                // Position segment
+                if (scaledLength >= 0) {
+                    // Going right
+                    segmentEl.style.left = `${currentX}px`;
+                } else {
+                    // Going left
+                    segmentEl.style.left = `${currentX - width}px`;
+                }
+                segmentEl.style.top = `${currentY - thickness/2}px`;
+
+                currentX += scaledLength;
+            } else { // vertical
+                const height = Math.abs(scaledLength);
+                segmentEl.style.width = `${thickness}px`;
+                segmentEl.style.height = `${height}px`;
+
+                // Position segment
+                segmentEl.style.left = `${currentX - thickness/2}px`;
+                if (scaledLength >= 0) {
+                    // Going down
+                    segmentEl.style.top = `${currentY}px`;
+                } else {
+                    // Going up
+                    segmentEl.style.top = `${currentY - height}px`;
+                }
+
+                currentY += scaledLength;
+            }
+
+            container.appendChild(segmentEl);
+        });
+
+        // Store final position for tooltip positioning
+        container.setAttribute('data-end-x', currentX);
+        container.setAttribute('data-end-y', currentY);
+
+        return container;
     }
 
     /**
@@ -842,44 +1041,95 @@ class ConfigurationBuilder {
             white-space: normal;
         `;
 
-        // Use EXACT same calculation as real overlay engine
-        const hotspotCenterX = (hotspot.coordinates.x + hotspot.coordinates.width / 2) * scaleX;
-        const hotspotCenterY = (hotspot.coordinates.y + hotspot.coordinates.height / 2) * scaleY;
-        const length = hotspot.line.length * Math.min(scaleX, scaleY); // Same scaling as real engine
         const offset = 15; // Same offset as real engine
 
-        switch (hotspot.line.direction) {
-            case 'left':
-                tooltip.style.right = `calc(100% - ${hotspotCenterX - length - offset}px)`;
-                tooltip.style.top = `${hotspotCenterY}px`;
-                tooltip.style.transform = 'translateY(-50%)';
-                tooltip.style.left = 'auto';
-                tooltip.style.bottom = 'auto';
-                break;
-            case 'right':
-                tooltip.style.left = `${hotspotCenterX + length + offset}px`;
-                tooltip.style.top = `${hotspotCenterY}px`;
-                tooltip.style.transform = 'translateY(-50%)';
-                tooltip.style.right = 'auto';
-                tooltip.style.bottom = 'auto';
-                break;
-            case 'top':
-                tooltip.style.left = `${hotspotCenterX}px`;
-                tooltip.style.bottom = `calc(100% - ${hotspotCenterY - length - offset}px)`;
-                tooltip.style.transform = 'translateX(-50%)';
-                tooltip.style.top = 'auto';
-                tooltip.style.right = 'auto';
-                break;
-            case 'bottom':
-                tooltip.style.left = `${hotspotCenterX}px`;
-                tooltip.style.top = `${hotspotCenterY + length + offset}px`;
-                tooltip.style.transform = 'translateX(-50%)';
-                tooltip.style.bottom = 'auto';
-                tooltip.style.right = 'auto';
-                break;
-        }
+        // Use unified multi-segment positioning
+        this.positionTooltipForSegmentedLinePreview(tooltip, hotspot, scaleX, scaleY, offset);
 
         return tooltip;
+    }
+
+
+    /**
+     * Position tooltip for segmented line preview - matches main engine positioning
+     */
+    positionTooltipForSegmentedLinePreview(tooltip, hotspot, scaleX, scaleY, offset) {
+        const segments = hotspot.line.segments;
+        const scale = Math.min(scaleX, scaleY);
+        const firstSegment = segments[0];
+        const lastSegment = segments[segments.length - 1];
+
+        // Calculate starting position based on hotspot edge
+        let startX, startY;
+        const hotspotLeft = hotspot.coordinates.x * scaleX;
+        const hotspotTop = hotspot.coordinates.y * scaleY;
+        const hotspotWidth = hotspot.coordinates.width * scaleX;
+        const hotspotHeight = hotspot.coordinates.height * scaleY;
+
+        if (firstSegment.type === 'horizontal') {
+            startY = hotspotTop + hotspotHeight / 2; // Middle of hotspot vertically
+            if (firstSegment.length > 0) {
+                // Starting from right edge
+                startX = hotspotLeft + hotspotWidth;
+            } else {
+                // Starting from left edge
+                startX = hotspotLeft;
+            }
+        } else {
+            startX = hotspotLeft + hotspotWidth / 2; // Middle of hotspot horizontally
+            if (firstSegment.length > 0) {
+                // Starting from bottom edge
+                startY = hotspotTop + hotspotHeight;
+            } else {
+                // Starting from top edge
+                startY = hotspotTop;
+            }
+        }
+
+        // Calculate final position after all segments
+        let endX = startX;
+        let endY = startY;
+
+        segments.forEach(segment => {
+            if (segment.type === 'horizontal') {
+                endX += segment.length * scale;
+            } else {
+                endY += segment.length * scale;
+            }
+        });
+
+        // Position tooltip at end of segmented line with no gap
+        if (lastSegment.type === 'horizontal') {
+            // Last segment is horizontal - position tooltip left/right of end point
+            if (lastSegment.length > 0) {
+                // Line ends going right, tooltip to the right (no gap)
+                tooltip.style.left = `${endX}px`;
+                tooltip.style.transform = 'translateY(-50%)';
+            } else {
+                // Line ends going left, tooltip to the left (no gap)
+                tooltip.style.right = `calc(100% - ${endX}px)`;
+                tooltip.style.transform = 'translateY(-50%)';
+            }
+            tooltip.style.top = `${endY}px`;
+
+            // Clear other positioning
+            tooltip.style.bottom = 'auto';
+        } else {
+            // Last segment is vertical - position tooltip above/below end point
+            if (lastSegment.length > 0) {
+                // Line ends going down, tooltip below (no gap)
+                tooltip.style.top = `${endY}px`;
+                tooltip.style.transform = 'translateX(-50%)';
+            } else {
+                // Line ends going up, tooltip above (no gap)
+                tooltip.style.bottom = `calc(100% - ${endY}px)`;
+                tooltip.style.transform = 'translateX(-50%)';
+            }
+            tooltip.style.left = `${endX}px`;
+
+            // Clear other positioning
+            tooltip.style.right = 'auto';
+        }
     }
 
     /**
@@ -1004,6 +1254,22 @@ class ConfigurationBuilder {
         this.renderHotspots();
     }
 
+    /**
+     * Clean up memory from previous render - remove elements and event listeners
+     */
+    cleanupPreviousRender() {
+        const canvas = document.getElementById('image-canvas');
+        const existingOverlays = canvas.querySelectorAll('.preview-element');
+
+        // Remove event listeners by replacing with cloned elements, then remove
+        existingOverlays.forEach(overlay => {
+            // Clone without event listeners, replace, then remove
+            const cleanOverlay = overlay.cloneNode(false);
+            overlay.parentNode.replaceChild(cleanOverlay, overlay);
+            cleanOverlay.remove();
+        });
+    }
+
 }
 
 // Initialize the builder
@@ -1042,3 +1308,4 @@ function copyToClipboard() {
         }, 2000);
     });
 }
+

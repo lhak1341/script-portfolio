@@ -190,32 +190,52 @@ class OverlayEngine {
 
         console.log(`Hotspot ${overlay.id}:`, { left, top, width, height });
 
-        // Store current overlay for highlight creation
+        // Store current overlay and scale factors for highlight creation
         this.currentOverlay = overlay;
+        this.currentScaleX = scaleX;
+        this.currentScaleY = scaleY;
 
         // Create highlight
         const highlight = this.createHighlight(coords, overlay.style, scaleX, scaleY);
         hotspot.appendChild(highlight);
 
-        // Create line
+        // Create two lines: one simple for hover, one complex for show-all mode
         if (overlay.line) {
-            const line = this.createLine(overlay.line);
-            hotspot.appendChild(line);
+            // Simple line for hover (always 1-segment horizontal)
+            const hoverLine = this.createSimpleLine(overlay.line, coords, scaleX, scaleY);
+            hoverLine.classList.add('hover-line');
+            hotspot.appendChild(hoverLine);
+
+            // Complex line for show-all mode (original multi-segment)
+            const showAllLine = this.createLine(overlay.line);
+            showAllLine.classList.add('show-all-line');
+            showAllLine.style.display = 'none'; // Hidden by default
+            hotspot.appendChild(showAllLine);
         }
 
-        // Create description tooltip positioned relative to the image container
+        // Create two tooltips: one simple for hover, one complex for show-all
         if (overlay.description) {
-            const tooltip = this.createTooltipAbsolute(overlay, scaleX, scaleY, imageContainer);
-            imageContainer.appendChild(tooltip);
-            
-            // Link tooltip to hotspot for hover behavior
+            // Simple tooltip for hover (positioned at end of horizontal line)
+            const hoverTooltip = this.createSimpleTooltipAbsolute(overlay, scaleX, scaleY, imageContainer);
+            hoverTooltip.classList.add('hover-tooltip');
+            imageContainer.appendChild(hoverTooltip);
+
+            // Complex tooltip for show-all mode (positioned at end of multi-segment line)
+            const showAllTooltip = this.createTooltipAbsolute(overlay, scaleX, scaleY, imageContainer);
+            showAllTooltip.classList.add('show-all-tooltip');
+            showAllTooltip.style.display = 'none'; // Hidden by default
+            imageContainer.appendChild(showAllTooltip);
+
+            // Link tooltips to hotspot for hover behavior
             hotspot.addEventListener('mouseenter', () => {
-                tooltip.style.opacity = '1';
+                if (!this.showAllMode) {
+                    hoverTooltip.style.opacity = '1';
+                }
             });
             hotspot.addEventListener('mouseleave', () => {
                 // Only hide tooltip if not in "show all" mode
                 if (!this.showAllMode) {
-                    tooltip.style.opacity = '0';
+                    hoverTooltip.style.opacity = '0';
                 }
             });
         }
@@ -256,54 +276,199 @@ class OverlayEngine {
     }
 
     /**
-     * Create line element
+     * Create simple single-segment horizontal line for hover state
+     */
+    createSimpleLine(lineConfig, coords, scaleX, scaleY) {
+        const container = document.createElement('div');
+        container.className = 'overlay-line-container';
+
+        // Use color from overlay or line config
+        const overlayColor = this.currentOverlay?.color || lineConfig.color || 'cyan';
+        const lineColor = this.getCurrentColorValue(overlayColor);
+        const thickness = lineConfig.thickness || OVERLAY_DEFAULTS.LINE_THICKNESS;
+
+        // Calculate total horizontal distance from segments
+        const segments = lineConfig.segments;
+        let totalHorizontal = 0;
+        segments.forEach(seg => {
+            if (seg.type === 'horizontal') {
+                totalHorizontal += seg.length;
+            }
+        });
+
+        // Create single horizontal segment
+        const scale = Math.min(scaleX, scaleY);
+        const simpleSegments = [{type: 'horizontal', length: totalHorizontal}];
+
+        this.createSegmentedLine(container, simpleSegments, lineColor, thickness, scaleX, scaleY);
+
+        return container;
+    }
+
+    /**
+     * Create line element - supports both single direction lines and multi-segment connectors
      */
     createLine(lineConfig) {
-        const line = document.createElement('div');
-        line.className = `overlay-line line-${lineConfig.direction}`;
+        const container = document.createElement('div');
+        container.className = 'overlay-line-container';
 
-        // Set CSS custom properties for line dimensions
-        line.style.setProperty('--line-length', `${lineConfig.length}px`);
-        line.style.setProperty('--line-thickness', `${lineConfig.thickness || OVERLAY_DEFAULTS.LINE_THICKNESS}px`);
-        
         // Use color from overlay or line config (single source of truth)
         const overlayColor = this.currentOverlay?.color || lineConfig.color || 'cyan';
         const lineColor = this.getCurrentColorValue(overlayColor);
-        line.style.backgroundColor = lineColor;
-        line.style.setProperty('--line-color', lineColor);
+        const thickness = lineConfig.thickness || OVERLAY_DEFAULTS.LINE_THICKNESS;
 
-        // Position line at the edge of the hotspot
-        switch (lineConfig.direction) {
-            case 'left':
-                line.style.left = '0px';
-                line.style.top = '50%';
-                line.style.transform = 'translateY(-50%)';
-                break;
-            case 'right':
-                line.style.right = '0px';
-                line.style.top = '50%';
-                line.style.transform = 'translateY(-50%)';
-                break;
-            case 'top':
-                line.style.top = '0px';
-                line.style.left = '50%';
-                line.style.transform = 'translateX(-50%)';
-                break;
-            case 'bottom':
-                line.style.bottom = '0px';
-                line.style.left = '50%';
-                line.style.transform = 'translateX(-50%)';
-                break;
+        // Use unified multi-segment system
+        const scaleX = this.currentScaleX || 1;
+        const scaleY = this.currentScaleY || 1;
+
+        // Simplify segments: remove segments with zero length
+        const simplifiedSegments = this.simplifyLineSegments(lineConfig.segments);
+
+        this.createSegmentedLine(container, simplifiedSegments, lineColor, thickness, scaleX, scaleY);
+
+        return container;
+    }
+
+    /**
+     * Simplify line segments by removing zero-length segments
+     */
+    simplifyLineSegments(segments) {
+        if (!segments || segments.length === 0) return [];
+
+        // Filter out segments with zero or near-zero length
+        const filtered = segments.filter(seg => Math.abs(seg.length) > 0.1);
+
+        // If we filtered down to nothing, return a minimal segment
+        if (filtered.length === 0) {
+            return [{ type: 'horizontal', length: 1 }];
         }
 
-        console.log(`Line created for ${lineConfig.direction}:`, {
-            color: lineColor,
-            length: lineConfig.length,
-            thickness: lineConfig.thickness || OVERLAY_DEFAULTS.LINE_THICKNESS
+        // Validate pattern: must be [H] or [H,V,H]
+        if (!this.isValidSegmentPattern(filtered)) {
+            console.warn('Invalid segment pattern detected. Expected [H] or [H,V,H]. Got:', filtered);
+            // Return a safe fallback
+            return [{ type: 'horizontal', length: 100 }];
+        }
+
+        return filtered;
+    }
+
+    /**
+     * Validate that segments follow the required pattern:
+     * - 1 segment: [H]
+     * - 3 segments: [H, V, H]
+     */
+    isValidSegmentPattern(segments) {
+        if (segments.length === 1) {
+            return segments[0].type === 'horizontal';
+        }
+        if (segments.length === 3) {
+            return segments[0].type === 'horizontal' &&
+                   segments[1].type === 'vertical' &&
+                   segments[2].type === 'horizontal';
+        }
+        // Any other length is invalid
+        return false;
+    }
+
+    /**
+     * Create multi-segment line (horizontal-vertical-horizontal)
+     */
+    createSegmentedLine(container, segments, lineColor, thickness, scaleX, scaleY) {
+        let currentX = 0;
+        let currentY = 0;
+        const scale = Math.min(scaleX, scaleY); // Use consistent scaling
+        const firstSegment = segments[0];
+
+        // Start from hotspot edge based on first segment direction
+        if (firstSegment.type === 'horizontal') {
+            if (firstSegment.length > 0) {
+                // Starting horizontal right - start from right edge
+                container.style.left = '100%';
+                container.style.top = '50%';
+                container.style.transform = 'translateY(-50%)';
+            } else {
+                // Starting horizontal left - start from left edge
+                container.style.left = '0%';
+                container.style.top = '50%';
+                container.style.transform = 'translateY(-50%)';
+            }
+        } else {
+            if (firstSegment.length > 0) {
+                // Starting vertical down - start from bottom edge
+                container.style.left = '50%';
+                container.style.top = '100%';
+                container.style.transform = 'translateX(-50%)';
+            } else {
+                // Starting vertical up - start from top edge
+                container.style.left = '50%';
+                container.style.top = '0%';
+                container.style.transform = 'translateX(-50%)';
+            }
+        }
+
+        // Create each segment
+        segments.forEach((segment, index) => {
+            const segmentEl = document.createElement('div');
+            segmentEl.className = `line-segment segment-${index}`;
+            segmentEl.style.position = 'absolute';
+            segmentEl.style.backgroundColor = lineColor;
+            segmentEl.style.opacity = '1'; // Ensure visibility
+
+            // Apply scaling to segment lengths
+            const scaledLength = segment.length * scale;
+
+            if (segment.type === 'horizontal') {
+                const width = Math.abs(scaledLength);
+                segmentEl.style.width = `${width}px`;
+                segmentEl.style.height = `${thickness}px`;
+
+                // Position segment
+                if (scaledLength >= 0) {
+                    // Going right
+                    segmentEl.style.left = `${currentX}px`;
+                } else {
+                    // Going left
+                    segmentEl.style.left = `${currentX - width}px`;
+                }
+                segmentEl.style.top = `${currentY - thickness/2}px`;
+
+                currentX += scaledLength;
+            } else { // vertical
+                const height = Math.abs(scaledLength);
+                segmentEl.style.width = `${thickness}px`;
+                segmentEl.style.height = `${height}px`;
+
+                // Position segment
+                segmentEl.style.left = `${currentX - thickness/2}px`;
+                if (scaledLength >= 0) {
+                    // Going down
+                    segmentEl.style.top = `${currentY}px`;
+                } else {
+                    // Going up
+                    segmentEl.style.top = `${currentY - height}px`;
+                }
+
+                currentY += scaledLength;
+            }
+
+            container.appendChild(segmentEl);
         });
 
-        return line;
+        // Store final position for tooltip positioning
+        container.setAttribute('data-end-x', currentX);
+        container.setAttribute('data-end-y', currentY);
+
+        console.log('Multi-segment line created:', {
+            segments: segments.length,
+            endPosition: { x: currentX, y: currentY },
+            color: lineColor,
+            thickness,
+            scale,
+            startEdge: firstSegment.type === 'horizontal' ? (firstSegment.length > 0 ? 'right' : 'left') : (firstSegment.length > 0 ? 'bottom' : 'top')
+        });
     }
+
 
     /**
      * Create description tooltip
@@ -325,73 +490,182 @@ class OverlayEngine {
     }
 
     /**
+     * Create simple tooltip positioned at end of horizontal line
+     */
+    createSimpleTooltipAbsolute(overlay, scaleX, scaleY, imageContainer) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'description-tooltip';
+
+        // Process markdown-like formatting
+        const content = this.processMarkdown(overlay.description.content);
+        tooltip.innerHTML = content;
+
+        // Get coordinates
+        const coords = this.getOverlayCoordinates(overlay);
+
+        // Calculate hotspot position
+        const hotspotLeft = coords.x * scaleX;
+        const hotspotTop = coords.y * scaleY;
+        const hotspotWidth = coords.width * scaleX;
+        const hotspotHeight = coords.height * scaleY;
+
+        // Calculate total horizontal distance from segments
+        const segments = overlay.line.segments;
+        let totalHorizontal = 0;
+        segments.forEach(seg => {
+            if (seg.type === 'horizontal') {
+                totalHorizontal += seg.length;
+            }
+        });
+
+        const scale = Math.min(scaleX, scaleY);
+        const scaledHorizontal = totalHorizontal * scale;
+
+        // Position tooltip at end of horizontal line
+        if (totalHorizontal >= 0) {
+            // Going right
+            const endX = hotspotLeft + hotspotWidth + scaledHorizontal;
+            const endY = hotspotTop + hotspotHeight / 2;
+            tooltip.style.left = `${endX}px`;
+            tooltip.style.top = `${endY}px`;
+            tooltip.style.transform = 'translateY(-50%)';
+        } else {
+            // Going left
+            const endX = hotspotLeft + scaledHorizontal;
+            const endY = hotspotTop + hotspotHeight / 2;
+            tooltip.style.right = `calc(100% - ${endX}px)`;
+            tooltip.style.top = `${endY}px`;
+            tooltip.style.transform = 'translateY(-50%)';
+        }
+
+        return tooltip;
+    }
+
+    /**
      * Create tooltip positioned absolutely relative to image container
      */
     createTooltipAbsolute(overlay, scaleX, scaleY, imageContainer) {
         const tooltip = document.createElement('div');
         tooltip.className = 'description-tooltip';
-        
+
         // Process markdown-like formatting
         const content = this.processMarkdown(overlay.description.content);
         tooltip.innerHTML = content;
 
         // Get coordinates (support both old and new format)
         const coords = this.getOverlayCoordinates(overlay);
-        
+
         // Calculate hotspot center position
         const hotspotCenterX = (coords.x + coords.width / 2) * scaleX;
         const hotspotCenterY = (coords.y + coords.height / 2) * scaleY;
 
-        // Calculate tooltip position based on line direction
-        const direction = overlay.line.direction;
-        const length = overlay.line.length * Math.min(scaleX, scaleY); // Scale the line length
         const offset = 15; // Space between line end and tooltip
 
-        switch (direction) {
-            case 'left':
-                tooltip.style.right = `calc(100% - ${hotspotCenterX - length - offset}px)`;
-                tooltip.style.top = `${hotspotCenterY}px`;
-                tooltip.style.transform = 'translateY(-50%)';
-                tooltip.style.left = 'auto';
-                tooltip.style.bottom = 'auto';
-                break;
-            case 'right':
-                tooltip.style.left = `${hotspotCenterX + length + offset}px`;
-                tooltip.style.top = `${hotspotCenterY}px`;
-                tooltip.style.transform = 'translateY(-50%)';
-                tooltip.style.right = 'auto';
-                tooltip.style.bottom = 'auto';
-                break;
-            case 'top':
-                tooltip.style.left = `${hotspotCenterX}px`;
-                tooltip.style.bottom = `calc(100% - ${hotspotCenterY - length - offset}px)`;
-                tooltip.style.transform = 'translateX(-50%)';
-                tooltip.style.top = 'auto';
-                tooltip.style.right = 'auto';
-                break;
-            case 'bottom':
-                tooltip.style.left = `${hotspotCenterX}px`;
-                tooltip.style.top = `${hotspotCenterY + length + offset}px`;
-                tooltip.style.transform = 'translateX(-50%)';
-                tooltip.style.bottom = 'auto';
-                tooltip.style.right = 'auto';
-                break;
-        }
-
-        console.log(`Tooltip for ${overlay.id}:`, {
-            direction,
-            hotspotCenter: { x: hotspotCenterX, y: hotspotCenterY },
-            length,
-            position: {
-                left: tooltip.style.left,
-                right: tooltip.style.right,
-                top: tooltip.style.top,
-                bottom: tooltip.style.bottom
-            }
-        });
+        // Use unified multi-segment positioning
+        this.positionTooltipForSegmentedLine(tooltip, overlay, hotspotCenterX, hotspotCenterY, scaleX, scaleY, offset);
 
         return tooltip;
     }
+
+    /**
+     * Position tooltip for segmented line system
+     */
+    positionTooltipForSegmentedLine(tooltip, overlay, hotspotCenterX, hotspotCenterY, scaleX, scaleY, offset) {
+        // Use simplified segments for positioning
+        const segments = this.simplifyLineSegments(overlay.line.segments);
+        const scale = Math.min(scaleX, scaleY);
+        const firstSegment = segments[0];
+        const lastSegment = segments[segments.length - 1];
+
+        // Calculate starting position based on hotspot edge
+        let startX, startY;
+        const coords = this.getOverlayCoordinates(overlay);
+        const hotspotLeft = coords.x * scaleX;
+        const hotspotTop = coords.y * scaleY;
+        const hotspotWidth = coords.width * scaleX;
+        const hotspotHeight = coords.height * scaleY;
+
+        // Also store these for debugging
+        console.log(`Hotspot bounds for ${overlay.id}:`, {
+            coords,
+            scaled: { left: hotspotLeft, top: hotspotTop, width: hotspotWidth, height: hotspotHeight },
+            scaleFactors: { scaleX, scaleY, scale }
+        });
+
+        if (firstSegment.type === 'horizontal') {
+            startY = hotspotTop + hotspotHeight / 2; // Middle of hotspot vertically
+            if (firstSegment.length > 0) {
+                // Starting from right edge
+                startX = hotspotLeft + hotspotWidth;
+            } else {
+                // Starting from left edge
+                startX = hotspotLeft;
+            }
+        } else {
+            startX = hotspotLeft + hotspotWidth / 2; // Middle of hotspot horizontally
+            if (firstSegment.length > 0) {
+                // Starting from bottom edge
+                startY = hotspotTop + hotspotHeight;
+            } else {
+                // Starting from top edge
+                startY = hotspotTop;
+            }
+        }
+
+        // Calculate final position after all segments
+        let endX = startX;
+        let endY = startY;
+
+        segments.forEach(segment => {
+            if (segment.type === 'horizontal') {
+                endX += segment.length * scale;
+            } else {
+                endY += segment.length * scale;
+            }
+        });
+
+        // Position tooltip at end of segmented line with no gap
+        if (lastSegment.type === 'horizontal') {
+            // Last segment is horizontal - position tooltip left/right of end point
+            if (lastSegment.length > 0) {
+                // Line ends going right, tooltip to the right (no gap)
+                tooltip.style.left = `${endX}px`;
+                tooltip.style.transform = 'translateY(-50%)';
+            } else {
+                // Line ends going left, tooltip to the left (no gap)
+                tooltip.style.right = `calc(100% - ${endX}px)`;
+                tooltip.style.transform = 'translateY(-50%)';
+            }
+            tooltip.style.top = `${endY}px`;
+
+            // Clear other positioning
+            tooltip.style.bottom = 'auto';
+        } else {
+            // Last segment is vertical - position tooltip above/below end point
+            if (lastSegment.length > 0) {
+                // Line ends going down, tooltip below (no gap)
+                tooltip.style.top = `${endY}px`;
+                tooltip.style.transform = 'translateX(-50%)';
+            } else {
+                // Line ends going up, tooltip above (no gap)
+                tooltip.style.bottom = `calc(100% - ${endY}px)`;
+                tooltip.style.transform = 'translateX(-50%)';
+            }
+            tooltip.style.left = `${endX}px`;
+
+            // Clear other positioning
+            tooltip.style.right = 'auto';
+        }
+
+        console.log(`Segmented tooltip for ${overlay.id}:`, {
+            segments: segments.length,
+            startPosition: { x: startX, y: startY },
+            endPosition: { x: endX, y: endY },
+            lastSegment: lastSegment,
+            hotspotBounds: { left: hotspotLeft, top: hotspotTop, width: hotspotWidth, height: hotspotHeight }
+        });
+    }
+
 
     /**
      * Position tooltip at the end of the line (legacy method)
@@ -593,27 +867,50 @@ class OverlayEngine {
      */
     updateOverlayVisibility() {
         if (this.showAllMode) {
-            // Show all overlays permanently
+            // Show all overlays permanently with complex multi-segment lines
             this.overlays.forEach(overlay => {
                 const highlights = overlay.querySelectorAll('.highlight');
-                const lines = overlay.querySelectorAll('.overlay-line');
-                const tooltips = document.querySelectorAll('.description-tooltip');
-                
+                const hoverLines = overlay.querySelectorAll('.hover-line');
+                const showAllLines = overlay.querySelectorAll('.show-all-line');
+                const hoverTooltips = document.querySelectorAll('.hover-tooltip');
+                const showAllTooltips = document.querySelectorAll('.show-all-tooltip');
+
                 highlights.forEach(h => h.style.opacity = '1');
-                lines.forEach(l => l.style.opacity = '1');
-                tooltips.forEach(t => t.style.opacity = '1');
+                // Hide simple hover lines and tooltips
+                hoverLines.forEach(l => l.style.display = 'none');
+                hoverTooltips.forEach(t => t.style.display = 'none');
+                // Show complex lines and tooltips
+                showAllLines.forEach(l => {
+                    l.style.display = '';
+                    l.style.opacity = '1';
+                });
+                showAllTooltips.forEach(t => {
+                    t.style.display = '';
+                    t.style.opacity = '1';
+                });
             });
         } else {
-            // Return to hover-only mode by removing inline opacity styles
-            // This allows CSS hover states to work again
+            // Return to hover-only mode with simple horizontal lines
             this.overlays.forEach(overlay => {
                 const highlights = overlay.querySelectorAll('.highlight');
-                const lines = overlay.querySelectorAll('.overlay-line');
-                const tooltips = document.querySelectorAll('.description-tooltip');
-                
+                const hoverLines = overlay.querySelectorAll('.hover-line');
+                const showAllLines = overlay.querySelectorAll('.show-all-line');
+                const hoverTooltips = document.querySelectorAll('.hover-tooltip');
+                const showAllTooltips = document.querySelectorAll('.show-all-tooltip');
+
                 highlights.forEach(h => h.style.opacity = '');
-                lines.forEach(l => l.style.opacity = '');
-                tooltips.forEach(t => t.style.opacity = '');
+                // Show simple hover lines and tooltips
+                hoverLines.forEach(l => {
+                    l.style.display = '';
+                    l.style.opacity = '';
+                });
+                hoverTooltips.forEach(t => {
+                    t.style.display = '';
+                    t.style.opacity = '';
+                });
+                // Hide complex lines and tooltips
+                showAllLines.forEach(l => l.style.display = 'none');
+                showAllTooltips.forEach(t => t.style.display = 'none');
             });
         }
     }
