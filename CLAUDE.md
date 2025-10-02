@@ -271,6 +271,23 @@ Replaces low-level segment editing with high-level distance parameters:
 - **Auto-copy**: Configuration automatically copied to clipboard on save, button changes to "Copied! ✓" for 3 seconds
 - **Hot reload**: Configuration changes immediately visible in both builder and script pages
 
+#### Memory Management and Performance
+**Problem**: Browser "Oh snap!" crashes after continuous pixel-by-pixel adjustments due to memory leak accumulating thousands of orphaned DOM elements.
+
+**Root Cause**: `cleanupPreviousRender()` used `cloneNode(false)` which only cloned parent elements without children. Child elements (line segments, tooltip content) remained in memory without references, preventing garbage collection. Combined with re-rendering on every keystroke (60+ times/second), memory consumption grew exponentially.
+
+**Solution** (`config-builder.js:1342`):
+- Clear `innerHTML` before removing parent elements to ensure child element cleanup
+- Call `removeChild()` instead of clone/replace pattern to properly detach from DOM
+- Optional `window.gc()` hint for browsers with exposed garbage collection
+
+**Input Throttling** (`config-builder.js:363`):
+- Debounce input events to 100ms (maximum 10 updates/second) instead of re-rendering on every keystroke
+- Immediate update on `blur`/`change` events for final value confirmation
+- Reduces DOM operations from ~1000/second to ~10/second during continuous adjustments
+
+**Stylesheet Loading**: Config builder now loads `overlay-system.css` in addition to `main.css` (line 8). Ensures tooltip markdown styling (bold, code, italic) matches script pages, prevents line-break discrepancies between preview and actual rendering.
+
 ### Main Landing Page (✅ Complete)
 
 #### Script Discovery System

@@ -58,7 +58,7 @@
           },
           {
             "type": "vertical",
-            "length": -32
+            "length": -23
           },
           {
             "type": "horizontal",
@@ -90,7 +90,7 @@
         "thickness": 2
       },
       "description": {
-        "content": "Automatically interpret Ignore Alpha & Premult to White"
+        "content": "Automatically interpret **Ignore Alpha** & **Premult to White**"
       }
     },
     {
@@ -150,21 +150,13 @@
         "segments": [
           {
             "type": "horizontal",
-            "length": 60
-          },
-          {
-            "type": "vertical",
-            "length": 10
-          },
-          {
-            "type": "horizontal",
-            "length": 44
+            "length": 104
           }
         ],
         "thickness": 2
       },
       "description": {
-        "content": "Set Interpretation (according to rules) to the _selected_ footage"
+        "content": "Set **rule-based Interpretation** to the _selected footage_"
       }
     },
     {
@@ -184,7 +176,7 @@
           },
           {
             "type": "vertical",
-            "length": 32
+            "length": 21
           },
           {
             "type": "horizontal",
@@ -194,7 +186,7 @@
         "thickness": 2
       },
       "description": {
-        "content": "Generate new shots based on selected 'master'"
+        "content": "Generate new shots based on **selected ‘master’**"
       }
     },
     {
@@ -214,7 +206,7 @@
           },
           {
             "type": "vertical",
-            "length": 42
+            "length": 31
           },
           {
             "type": "horizontal",
@@ -244,7 +236,7 @@
           },
           {
             "type": "vertical",
-            "length": -31
+            "length": -22
           },
           {
             "type": "horizontal",
@@ -255,6 +247,28 @@
       },
       "description": {
         "content": "Batch setup for _imported shots only_"
+      }
+    },
+    {
+      "id": "comp-setter",
+      "coordinates": {
+        "x": 11,
+        "y": 328,
+        "width": 305,
+        "height": 240
+      },
+      "color": "green",
+      "line": {
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": 90
+          }
+        ],
+        "thickness": 2
+      },
+      "description": {
+        "content": "Batch change comp setting (and possibly nested comp) to the defined options"
       }
     }
   ]

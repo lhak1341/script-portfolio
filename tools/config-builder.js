@@ -360,10 +360,21 @@ class ConfigurationBuilder {
             'description-text'
         ];
 
+        // Throttle function to limit update frequency
+        let updateTimeout;
+        const throttledUpdate = () => {
+            clearTimeout(updateTimeout);
+            updateTimeout = setTimeout(() => {
+                this.updateCurrentHotspot();
+            }, 100); // Update after 100ms of no input (10 updates/second max)
+        };
+
         inputs.forEach(id => {
             const element = document.getElementById(id);
             if (element) {
-                element.addEventListener('input', this.updateCurrentHotspot.bind(this));
+                // Use throttled update for continuous input
+                element.addEventListener('input', throttledUpdate);
+                // Immediate update on blur/change
                 element.addEventListener('change', this.updateCurrentHotspot.bind(this));
             }
         });
@@ -833,14 +844,73 @@ class ConfigurationBuilder {
     }
 
     /**
-     * Create preview line - unified multi-segment system
+     * Create preview line - shows complex multi-segment path like "Show All" mode
      */
     createPreviewLine(hotspot, scaleX, scaleY, hotspotContainer) {
         const lineColor = this.getCurrentColorValue(hotspot.color);
         const thickness = OVERLAY_DEFAULTS.LINE_THICKNESS;
 
-        // Use unified multi-segment system
+        // Show full multi-segment path like "Show All Overlays" mode
+        // This helps visualize the designed connector paths during configuration
         return this.createPreviewSegmentedLine(hotspot, scaleX, scaleY, lineColor, thickness);
+    }
+
+    /**
+     * Create simple horizontal line preview
+     */
+    createPreviewSimpleLine(hotspot, scaleX, scaleY, lineColor, thickness) {
+        const container = document.createElement('div');
+        container.className = 'preview-element overlay-line-container';
+        container.style.position = 'absolute';
+        container.style.pointerEvents = 'none';
+        container.style.zIndex = '15';
+
+        // Calculate total horizontal distance from segments
+        const segments = hotspot.line.segments;
+        let totalHorizontal = 0;
+        segments.forEach(seg => {
+            if (seg.type === 'horizontal') {
+                totalHorizontal += seg.length;
+            }
+        });
+
+        const scale = Math.min(scaleX, scaleY);
+        const scaledHorizontal = totalHorizontal * scale;
+
+        // Position based on horizontal direction
+        if (totalHorizontal >= 0) {
+            // Going right - start from right edge
+            container.style.left = '100%';
+            container.style.top = '50%';
+            container.style.transform = 'translateY(-50%)';
+        } else {
+            // Going left - start from left edge
+            container.style.left = '0%';
+            container.style.top = '50%';
+            container.style.transform = 'translateY(-50%)';
+        }
+
+        // Create single horizontal segment
+        const segmentEl = document.createElement('div');
+        segmentEl.className = 'preview-element line-segment segment-0';
+        segmentEl.style.position = 'absolute';
+        segmentEl.style.backgroundColor = lineColor;
+        segmentEl.style.opacity = '1';
+        segmentEl.style.zIndex = '30';
+
+        const width = Math.abs(scaledHorizontal);
+        segmentEl.style.width = `${width}px`;
+        segmentEl.style.height = `${thickness}px`;
+
+        if (scaledHorizontal >= 0) {
+            segmentEl.style.left = '0px';
+        } else {
+            segmentEl.style.left = `${-width}px`;
+        }
+        segmentEl.style.top = `${-thickness/2}px`;
+
+        container.appendChild(segmentEl);
+        return container;
     }
 
     /**
@@ -909,6 +979,7 @@ class ConfigurationBuilder {
         container.style.position = 'absolute';
         container.style.pointerEvents = 'none';
         container.style.zIndex = '15';
+        container.style.opacity = '1'; // Always visible in preview
 
         const segments = hotspot.line.segments;
 
@@ -1012,41 +1083,63 @@ class ConfigurationBuilder {
     }
 
     /**
-     * Create preview tooltip
+     * Create preview tooltip - positioned at end of multi-segment line
      */
     createPreviewTooltip(hotspot, scaleX, scaleY) {
         const tooltip = document.createElement('div');
         tooltip.className = 'preview-element tooltip-preview description-tooltip';
         tooltip.innerHTML = this.processMarkdown(hotspot.description.content);
-        
-        // Apply tooltip styling to match script page
-        tooltip.style.cssText = `
-            position: absolute;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            padding: 10px 14px;
-            border-radius: 6px;
-            font-family: var(--font-sans);
-            font-size: 13px;
-            font-weight: 400;
-            line-height: 1.4;
-            letter-spacing: -0.0125em;
-            max-width: 280px;
-            min-width: 180px;
-            box-shadow: var(--card-shadow);
-            z-index: 25;
-            pointer-events: none;
-            word-wrap: break-word;
-            white-space: normal;
-        `;
+
+        // Only set positioning styles, inherit everything else from CSS
+        tooltip.style.position = 'absolute';
+        tooltip.style.opacity = '1'; // Always visible in preview
+        tooltip.style.zIndex = '25';
 
         const offset = 15; // Same offset as real engine
 
-        // Use unified multi-segment positioning
+        // Position at end of multi-segment line (like "Show All" mode)
         this.positionTooltipForSegmentedLinePreview(tooltip, hotspot, scaleX, scaleY, offset);
 
         return tooltip;
+    }
+
+    /**
+     * Position tooltip at end of simple horizontal line
+     */
+    positionTooltipForSimpleLine(tooltip, hotspot, scaleX, scaleY) {
+        const segments = hotspot.line.segments;
+        let totalHorizontal = 0;
+        segments.forEach(seg => {
+            if (seg.type === 'horizontal') {
+                totalHorizontal += seg.length;
+            }
+        });
+
+        const scale = Math.min(scaleX, scaleY);
+        const scaledHorizontal = totalHorizontal * scale;
+
+        const hotspotLeft = hotspot.coordinates.x * scaleX;
+        const hotspotTop = hotspot.coordinates.y * scaleY;
+        const hotspotWidth = hotspot.coordinates.width * scaleX;
+        const hotspotHeight = hotspot.coordinates.height * scaleY;
+
+        const offset = 15;
+
+        if (totalHorizontal >= 0) {
+            // Going right
+            const endX = hotspotLeft + hotspotWidth + scaledHorizontal + offset;
+            const endY = hotspotTop + hotspotHeight / 2;
+            tooltip.style.left = `${endX}px`;
+            tooltip.style.top = `${endY}px`;
+            tooltip.style.transform = 'translateY(-50%)';
+        } else {
+            // Going left
+            const endX = hotspotLeft + scaledHorizontal - offset;
+            const endY = hotspotTop + hotspotHeight / 2;
+            tooltip.style.right = `calc(100% - ${endX}px)`;
+            tooltip.style.top = `${endY}px`;
+            tooltip.style.transform = 'translateY(-50%)';
+        }
     }
 
 
@@ -1261,13 +1354,22 @@ class ConfigurationBuilder {
         const canvas = document.getElementById('image-canvas');
         const existingOverlays = canvas.querySelectorAll('.preview-element');
 
-        // Remove event listeners by replacing with cloned elements, then remove
+        // Properly remove all preview elements with their children and event listeners
         existingOverlays.forEach(overlay => {
-            // Clone without event listeners, replace, then remove
-            const cleanOverlay = overlay.cloneNode(false);
-            overlay.parentNode.replaceChild(cleanOverlay, overlay);
-            cleanOverlay.remove();
+            // Recursively clear innerHTML to ensure all child elements are garbage collected
+            if (overlay.innerHTML) {
+                overlay.innerHTML = '';
+            }
+            // Remove the element itself
+            if (overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
+            }
         });
+
+        // Force garbage collection hint (browser decides if/when to run)
+        if (window.gc) {
+            window.gc();
+        }
     }
 
 }
