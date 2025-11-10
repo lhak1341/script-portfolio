@@ -1,12 +1,12 @@
 {
   "scriptName": "SP Deadline",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Submit AE 2024 job to Deadline render farm",
   "category": "automation",
   "tags": ["deadline", "render"],
   "pinned": true,
   "baseImage": {
-    "src": "../../images/script-screenshots/SPDeadline_1.0.1.png",
+    "src": "../../images/script-screenshots/SPDeadline_1.0.2.png",
     "width": 328,
     "height": 612
   },

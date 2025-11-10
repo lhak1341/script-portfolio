@@ -493,13 +493,14 @@ function generateScriptsList() {
             continue;
         }
         
-        // Determine screenshot filename - try to get from hardcoded data or use fallback
+        // Determine screenshot filename - prioritize config.json over hardcoded data
         let screenshotFilename = `${scriptId}.png`; // fallback
-        if (SCRIPT_DATA[scriptId] && SCRIPT_DATA[scriptId].image) {
-            screenshotFilename = SCRIPT_DATA[scriptId].image;
-        } else if (config.baseImage && config.baseImage.src) {
-            // Extract filename from baseImage src path
+        if (config.baseImage && config.baseImage.src) {
+            // Extract filename from baseImage src path (PRIORITY)
             screenshotFilename = path.basename(config.baseImage.src);
+        } else if (SCRIPT_DATA[scriptId] && SCRIPT_DATA[scriptId].image) {
+            // Fallback to hardcoded data if config doesn't have baseImage
+            screenshotFilename = SCRIPT_DATA[scriptId].image;
         }
         
         // Add to scripts array

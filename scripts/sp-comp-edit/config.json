@@ -1,14 +1,147 @@
 {
   "scriptName": "SP Comp Edit",
-  "version": "0.1.6",
+  "version": "1.1.3",
   "description": "Quick add 3D pass into AE comp, and update footage version",
   "category": "workflow",
   "tags": ["compositing", "import"],
   "pinned": true,
   "baseImage": {
-    "src": "../../images/script-screenshots/SPCompEdit_0.1.6.png",
+    "src": "../../images/script-screenshots/SPCompEdit_1.1.3.png",
     "width": 328,
     "height": 612
   },
-  "overlays": []
+  "overlays": [
+    {
+      "id": "proj-path-check",
+      "coordinates": {
+        "x": 5,
+        "y": 36,
+        "width": 230,
+        "height": 28
+      },
+      "color": "red",
+      "line": {
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": -50
+          }
+        ],
+        "thickness": 2
+      },
+      "description": {
+        "content": "Project **must be saved** at `02_WIP/05_AE/03_COMP/` or `02_WIP/<folder>/05_AE/03_COMP/`"
+      }
+    },
+    {
+      "id": "id-dof",
+      "coordinates": {
+        "x": 20,
+        "y": 84,
+        "width": 255,
+        "height": 30
+      },
+      "color": "green",
+      "line": {
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": 120
+          }
+        ],
+        "thickness": 2
+      },
+      "description": {
+        "content": "Add description here with **bold** and _italic_ formatting"
+      }
+    },
+    {
+      "id": "object-selector",
+      "coordinates": {
+        "x": 18,
+        "y": 120,
+        "width": 259,
+        "height": 26
+      },
+      "color": "cyan",
+      "line": {
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": -63
+          }
+        ],
+        "thickness": 2
+      },
+      "description": {
+        "content": "The default option of `Auto` infers which object (e.g. Front or Mid...) to insert using the active comp’s name"
+      }
+    },
+    {
+      "id": "passes",
+      "coordinates": {
+        "x": 17,
+        "y": 148,
+        "width": 262,
+        "height": 170
+      },
+      "color": "green",
+      "line": {
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": -120
+          }
+        ],
+        "thickness": 2
+      },
+      "description": {
+        "content": "Add description here with **bold** and _italic_ formatting"
+      }
+    },
+    {
+      "id": "replace-shot-pass",
+      "coordinates": {
+        "x": 20,
+        "y": 350,
+        "width": 255,
+        "height": 30
+      },
+      "color": "cyan",
+      "line": {
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": -120
+          }
+        ],
+        "thickness": 2
+      },
+      "description": {
+        "content": "Add description here with **bold** and _italic_ formatting"
+      }
+    },
+    {
+      "id": "update-version",
+      "coordinates": {
+        "x": 20,
+        "y": 384,
+        "width": 255,
+        "height": 30
+      },
+      "color": "cyan",
+      "line": {
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": 120
+          }
+        ],
+        "thickness": 2
+      },
+      "description": {
+        "content": "Add description here with **bold** and _italic_ formatting"
+      }
+    }
+  ]
 }

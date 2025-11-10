@@ -1,12 +1,12 @@
 {
   "scriptName": "SP SRT Importer",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Import and export SRT subtitle to/from markered text layer",
   "category": "automation",
   "tags": ["subtitle", "typography"],
   "pinned": false,
   "baseImage": {
-    "src": "../../images/script-screenshots/SPSRTImporter_0.2.0.png",
+    "src": "../../images/script-screenshots/SPSRTImporter_0.2.1.png",
     "width": 328,
     "height": 612
   },

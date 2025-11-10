@@ -58,11 +58,11 @@
     {
       "id": "sp-comp-edit",
       "name": "SP Comp Edit",
-      "version": "0.1.6",
+      "version": "1.1.3",
       "category": "workflow",
       "description": "Quick add 3D pass into AE comp, and update footage version",
-      "thumbnail": "images/script-screenshots/SPCompEdit_0.1.6.png",
-      "screenshot": "images/script-screenshots/SPCompEdit_0.1.6.png",
+      "thumbnail": "images/script-screenshots/SPCompEdit_1.1.3.png",
+      "screenshot": "images/script-screenshots/SPCompEdit_1.1.3.png",
       "pinned": true,
       "tags": [
         "compositing",
@@ -72,11 +72,11 @@
     {
       "id": "sp-comp-setup",
       "name": "SP Comp Setup",
-      "version": "0.8.2",
+      "version": "1.0.2",
       "category": "workflow",
       "description": "Automate multipass comp setup, with auto-interpretation and custom template supported",
-      "thumbnail": "images/script-screenshots/SPCompSetup_0.8.2.png",
-      "screenshot": "images/script-screenshots/SPCompSetup_0.8.2.png",
+      "thumbnail": "images/script-screenshots/SPCompSetup_1.0.2.png",
+      "screenshot": "images/script-screenshots/SPCompSetup_1.0.2.png",
       "pinned": true,
       "tags": [
         "compositing",
@@ -87,11 +87,11 @@
     {
       "id": "sp-deadline",
       "name": "SP Deadline",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "category": "automation",
       "description": "Submit AE 2024 job to Deadline render farm",
-      "thumbnail": "images/script-screenshots/SPDeadline_1.0.1.png",
-      "screenshot": "images/script-screenshots/SPDeadline_1.0.1.png",
+      "thumbnail": "images/script-screenshots/SPDeadline_1.0.2.png",
+      "screenshot": "images/script-screenshots/SPDeadline_1.0.2.png",
       "pinned": true,
       "tags": [
         "deadline",
@@ -101,11 +101,11 @@
     {
       "id": "sp-srt-importer",
       "name": "SP SRT Importer",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "category": "automation",
       "description": "Import and export SRT subtitle to/from markered text layer",
-      "thumbnail": "images/script-screenshots/SPSRTImporter_0.2.0.png",
-      "screenshot": "images/script-screenshots/SPSRTImporter_0.2.0.png",
+      "thumbnail": "images/script-screenshots/SPSRTImporter_0.2.1.png",
+      "screenshot": "images/script-screenshots/SPSRTImporter_0.2.1.png",
       "pinned": false,
       "tags": [
         "subtitle",
@@ -131,11 +131,11 @@
     {
       "id": "sp-versioning-setup-toolkit",
       "name": "SP Versioning Setup Toolkit",
-      "version": "0.2.2",
+      "version": "0.2.3",
       "category": "workflow",
       "description": "Setup master project for CSV versioning workflow",
-      "thumbnail": "images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
-      "screenshot": "images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
+      "thumbnail": "images/script-screenshots/SPVersioningSetupToolkit_0.2.3.png",
+      "screenshot": "images/script-screenshots/SPVersioningSetupToolkit_0.2.3.png",
       "pinned": false,
       "tags": [
         "versioning",

@@ -1,12 +1,12 @@
 {
   "scriptName": "SP Versioning Setup Toolkit",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Setup master project for CSV versioning workflow",
   "category": "workflow",
   "tags": ["versioning", "csv"],
   "pinned": false,
   "baseImage": {
-    "src": "../../images/script-screenshots/SPVersioningSetupToolkit_0.2.2.png",
+    "src": "../../images/script-screenshots/SPVersioningSetupToolkit_0.2.3.png",
     "width": 328,
     "height": 612
   },
