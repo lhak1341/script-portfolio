@@ -30,6 +30,8 @@ class ConfigurationBuilder {
         this.selectionStart = null;
         this.selectionRect = null;
         this.selectedColor = 'green'; // Default color
+        this.markdownCache = new Map(); // Cache processed markdown
+        this.maxCacheSize = 50; // Limit cache to prevent unbounded growth
         
         // Script metadata mapping
         this.scriptData = {
@@ -59,27 +61,27 @@ class ConfigurationBuilder {
     },
     'sp-comp-edit': {
         name: 'SP Comp Edit',
-        version: '0.1.6',
+        version: '1.1.3',
         description: 'Quick add 3D pass into AE comp, and update footage version',
-        image: 'SPCompEdit_0.1.6.png'
+        image: 'SPCompEdit_1.1.3.png'
     },
     'sp-comp-setup': {
         name: 'SP Comp Setup',
-        version: '0.8.2',
+        version: '1.0.2',
         description: 'Automate multipass comp setup, with auto-interpretation and custom template supported',
-        image: 'SPCompSetup_0.8.2.png'
+        image: 'SPCompSetup_1.0.2.png'
     },
     'sp-deadline': {
         name: 'SP Deadline',
-        version: '1.0.1',
+        version: '1.0.2',
         description: 'Submit AE 2024 job to Deadline render farm',
-        image: 'SPDeadline_1.0.1.png'
+        image: 'SPDeadline_1.0.2.png'
     },
     'sp-srt-importer': {
         name: 'SP SRT Importer',
-        version: '0.2.0',
+        version: '0.2.1',
         description: 'Import and export SRT subtitle to/from markered text layer',
-        image: 'SPSRTImporter_0.2.0.png'
+        image: 'SPSRTImporter_0.2.1.png'
     },
     'sp-versioning-csv': {
         name: 'SP Versioning CSV',
@@ -89,9 +91,9 @@ class ConfigurationBuilder {
     },
     'sp-versioning-setup-toolkit': {
         name: 'SP Versioning Setup Toolkit',
-        version: '0.2.2',
+        version: '0.2.3',
         description: 'Setup master project for CSV versioning workflow',
-        image: 'SPVersioningSetupToolkit_0.2.2.png'
+        image: 'SPVersioningSetupToolkit_0.2.3.png'
     }
         };
         
@@ -99,9 +101,30 @@ class ConfigurationBuilder {
     }
 
     init() {
+        this.populateScriptDropdown();
         this.setupEventListeners();
         this.updateModeButtons();
         this.setupColorPalette();
+    }
+
+    /**
+     * Populate script dropdown dynamically from scriptData
+     */
+    populateScriptDropdown() {
+        const selector = document.getElementById('script-selector');
+
+        // Sort scripts alphabetically by name
+        const sortedScripts = Object.entries(this.scriptData).sort((a, b) => {
+            return a[1].name.localeCompare(b[1].name);
+        });
+
+        // Add options for each script
+        sortedScripts.forEach(([scriptId, scriptInfo]) => {
+            const option = document.createElement('option');
+            option.value = scriptId;
+            option.textContent = `${scriptInfo.name} v${scriptInfo.version}`;
+            selector.appendChild(option);
+        });
     }
 
     /**
@@ -238,6 +261,10 @@ class ConfigurationBuilder {
      */
     async loadSelectedScript() {
         const scriptId = document.getElementById('script-selector').value;
+
+        // Clear cache when switching scripts to prevent memory buildup
+        this.clearCache();
+
         if (!scriptId) {
             // Clear everything when no script selected
             this.currentScript = null;
@@ -820,7 +847,7 @@ class ConfigurationBuilder {
             this.selectedHotspot = hotspot;
             this.updateHotspotList();
             this.updatePropertiesPanel();
-            this.renderHotspots();
+            this.updateSelectionVisuals();
         });
         
         // Add selection border if this is the selected hotspot
@@ -867,12 +894,34 @@ class ConfigurationBuilder {
                 this.selectedHotspot = hotspot;
                 this.updateHotspotList();
                 this.updatePropertiesPanel();
-                this.renderHotspots();
+                this.updateSelectionVisuals();
             });
             canvas.appendChild(tooltip);
         }
 
         canvas.appendChild(hotspotContainer);
+    }
+
+    /**
+     * Update selection visuals without full re-render
+     * Only updates borders/highlights for performance
+     */
+    updateSelectionVisuals() {
+        const canvas = document.getElementById('image-canvas');
+        const allHotspotContainers = canvas.querySelectorAll('.hotspot-preview');
+
+        allHotspotContainers.forEach(container => {
+            const hotspotId = container.getAttribute('data-hotspot-id');
+            const isSelected = this.selectedHotspot && this.selectedHotspot.id === hotspotId;
+
+            if (isSelected) {
+                container.style.border = '2px dashed rgba(102, 126, 234, 0.8)';
+                container.style.backgroundColor = 'rgba(102, 126, 234, 0.1)';
+            } else {
+                container.style.border = 'none';
+                container.style.backgroundColor = 'transparent';
+            }
+        });
     }
 
     /**
@@ -1274,11 +1323,25 @@ class ConfigurationBuilder {
      * Process markdown for tooltip preview using Marked.js
      */
     processMarkdown(text) {
+        // Check cache first for performance
+        if (this.markdownCache.has(text)) {
+            return this.markdownCache.get(text);
+        }
+
+        // Limit cache size to prevent memory leaks
+        if (this.markdownCache.size >= this.maxCacheSize) {
+            // Remove oldest entry (first entry in Map)
+            const firstKey = this.markdownCache.keys().next().value;
+            this.markdownCache.delete(firstKey);
+        }
+
         if (typeof marked === 'undefined') {
             console.warn('Marked.js not loaded, falling back to plain text');
-            return `<p>${text}</p>`;
+            const fallback = `<p>${text}</p>`;
+            this.markdownCache.set(text, fallback);
+            return fallback;
         }
-        
+
         // Configure marked for consistent rendering
         marked.setOptions({
             gfm: true,          // GitHub Flavored Markdown
@@ -1286,8 +1349,10 @@ class ConfigurationBuilder {
             sanitize: false,    // We trust our content
             smartypants: false  // Don't convert quotes to smart quotes
         });
-        
-        return marked.parse(text);
+
+        const result = marked.parse(text);
+        this.markdownCache.set(text, result);
+        return result;
     }
 
     deleteHotspot(index) {
@@ -1388,13 +1453,16 @@ class ConfigurationBuilder {
 
         // Properly remove all preview elements with their children and event listeners
         existingOverlays.forEach(overlay => {
-            // Recursively clear innerHTML to ensure all child elements are garbage collected
-            if (overlay.innerHTML) {
-                overlay.innerHTML = '';
+            // Remove all child nodes to break circular references
+            while (overlay.firstChild) {
+                overlay.removeChild(overlay.firstChild);
             }
-            // Remove the element itself
+            // Clone node without event listeners (cleaner approach)
+            const clone = overlay.cloneNode(false);
+            // Remove the original element
             if (overlay.parentNode) {
-                overlay.parentNode.removeChild(overlay);
+                overlay.parentNode.replaceChild(clone, overlay);
+                clone.parentNode.removeChild(clone);
             }
         });
 
@@ -1402,6 +1470,14 @@ class ConfigurationBuilder {
         if (window.gc) {
             window.gc();
         }
+    }
+
+    /**
+     * Clear cache when switching scripts to prevent memory buildup
+     */
+    clearCache() {
+        this.markdownCache.clear();
+        console.log('Cache cleared');
     }
 
 }
