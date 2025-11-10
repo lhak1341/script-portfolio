@@ -7,8 +7,8 @@
   "pinned": false,
   "baseImage": {
     "src": "../../images/script-screenshots/KhoaSharingToolbar_1.0.2.png",
-    "width": 328,
-    "height": 612
+    "width": 234,
+    "height": 346
   },
   "overlays": []
 }

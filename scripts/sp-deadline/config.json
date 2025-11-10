@@ -7,8 +7,8 @@
   "pinned": true,
   "baseImage": {
     "src": "../../images/script-screenshots/SPDeadline_1.0.2.png",
-    "width": 328,
-    "height": 612
+    "width": 183,
+    "height": 198
   },
   "overlays": []
 }

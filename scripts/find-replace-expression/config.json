@@ -7,8 +7,8 @@
   "pinned": false,
   "baseImage": {
     "src": "../../images/script-screenshots/FindAndReplaceInExpression.png",
-    "width": 328,
-    "height": 612
+    "width": 370,
+    "height": 171
   },
   "overlays": []
 }
