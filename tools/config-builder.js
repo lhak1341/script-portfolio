@@ -381,13 +381,16 @@ class ConfigurationBuilder {
     }
 
     setupPropertyListeners() {
-        const inputs = [
+        // Coordinate and numeric inputs - need throttling for performance during continuous adjustments
+        const throttledInputs = [
             'hotspot-id', 'hotspot-x', 'hotspot-y', 'hotspot-width', 'hotspot-height',
-            'horizontal-distance', 'vertical-distance', 'turning-point',
-            'description-text'
+            'horizontal-distance', 'vertical-distance', 'turning-point'
         ];
 
-        // Throttle function to limit update frequency
+        // Description textarea - no throttling needed, only update on blur/change
+        const descriptionInput = document.getElementById('description-text');
+
+        // Throttle function to limit update frequency for coordinate inputs
         let updateTimeout;
         const throttledUpdate = () => {
             clearTimeout(updateTimeout);
@@ -396,7 +399,8 @@ class ConfigurationBuilder {
             }, 100); // Update after 100ms of no input (10 updates/second max)
         };
 
-        inputs.forEach(id => {
+        // Setup throttled inputs (coordinates, numeric fields)
+        throttledInputs.forEach(id => {
             const element = document.getElementById(id);
             if (element) {
                 // Use throttled update for continuous input
@@ -405,6 +409,12 @@ class ConfigurationBuilder {
                 element.addEventListener('change', this.updateCurrentHotspot.bind(this));
             }
         });
+
+        // Setup description textarea - only update on blur/change for responsive typing
+        if (descriptionInput) {
+            descriptionInput.addEventListener('blur', this.updateCurrentHotspot.bind(this));
+            descriptionInput.addEventListener('change', this.updateCurrentHotspot.bind(this));
+        }
 
         // Special listener for vertical distance to enable/disable turning point
         const verticalDistanceInput = document.getElementById('vertical-distance');
@@ -1356,18 +1366,26 @@ class ConfigurationBuilder {
     }
 
     deleteHotspot(index) {
+        const hotspot = this.hotspots[index];
+        if (!hotspot) return;
+
+        // Confirm deletion
+        const confirmed = confirm(`Delete hotspot "${hotspot.id}"?\n\nThis action cannot be undone.`);
+        if (!confirmed) return;
+
         this.hotspots.splice(index, 1);
-        if (this.selectedHotspot === this.hotspots[index]) {
+        if (this.selectedHotspot === hotspot) {
             this.selectedHotspot = null;
         }
         this.updateHotspotList();
         this.updatePropertiesPanel();
         this.renderHotspots();
+        this.showStatus(`Deleted hotspot "${hotspot.id}"`, 'success', 3000);
     }
 
     deleteCurrentHotspot() {
         if (!this.selectedHotspot) return;
-        
+
         const index = this.hotspots.indexOf(this.selectedHotspot);
         if (index !== -1) {
             this.deleteHotspot(index);
