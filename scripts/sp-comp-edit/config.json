@@ -46,13 +46,13 @@
         "segments": [
           {
             "type": "horizontal",
-            "length": 120
+            "length": 70
           }
         ],
         "thickness": 2
       },
       "description": {
-        "content": "Add description here with **bold** and _italic_ formatting"
+        "content": "Insert pass `ID_DOF` of the selected object"
       }
     },
     {
@@ -68,7 +68,15 @@
         "segments": [
           {
             "type": "horizontal",
-            "length": -63
+            "length": -31
+          },
+          {
+            "type": "vertical",
+            "length": 11
+          },
+          {
+            "type": "horizontal",
+            "length": -32
           }
         ],
         "thickness": 2
@@ -90,13 +98,13 @@
         "segments": [
           {
             "type": "horizontal",
-            "length": -120
+            "length": 66
           }
         ],
         "thickness": 2
       },
       "description": {
-        "content": "Add description here with **bold** and _italic_ formatting"
+        "content": "**Click** to insert pass _comp_</br>\n**Shift-click** to insert pass _footage_</br>\n`MatID` and `RenID` will be automatically applied the keying effects"
       }
     },
     {
@@ -112,13 +120,13 @@
         "segments": [
           {
             "type": "horizontal",
-            "length": -120
+            "length": -68
           }
         ],
         "thickness": 2
       },
       "description": {
-        "content": "Add description here with **bold** and _italic_ formatting"
+        "content": "Copy layers from master shot to a new shot, then click this button to **replace the selected comps/footage with those from the new shot**"
       }
     },
     {
@@ -134,13 +142,13 @@
         "segments": [
           {
             "type": "horizontal",
-            "length": 120
+            "length": 69
           }
         ],
         "thickness": 2
       },
       "description": {
-        "content": "Add description here with **bold** and _italic_ formatting"
+        "content": "Nothing needed to be selected — Show a dialog to **update footage of the imported shots**"
       }
     }
   ]

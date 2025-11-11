@@ -10,5 +10,160 @@
     "width": 495,
     "height": 727
   },
-  "overlays": []
+  "overlays": [
+    {
+      "id": "comp-setting",
+      "coordinates": {
+        "x": 10,
+        "y": 54,
+        "width": 233,
+        "height": 88
+      },
+      "color": "green",
+      "line": {
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": -45
+          }
+        ],
+        "thickness": 2
+      },
+      "description": {
+        "content": "FPS/width/height of the to-be created caption comp"
+      }
+    },
+    {
+      "id": "preset-dropdown",
+      "coordinates": {
+        "x": 14,
+        "y": 168,
+        "width": 395,
+        "height": 27
+      },
+      "color": "cyan",
+      "line": {
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": -48
+          }
+        ],
+        "thickness": 2
+      },
+      "description": {
+        "content": "Choose from **predefined presets**"
+      }
+    },
+    {
+      "id": "lock-check",
+      "coordinates": {
+        "x": 411,
+        "y": 169,
+        "width": 57,
+        "height": 26
+      },
+      "color": "orange",
+      "line": {
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": 60
+          }
+        ],
+        "thickness": 2
+      },
+      "description": {
+        "content": "Unlock to **adjust settings manually**"
+      }
+    },
+    {
+      "id": "caption-setting",
+      "coordinates": {
+        "x": 14,
+        "y": 199,
+        "width": 454,
+        "height": 381
+      },
+      "color": "green",
+      "line": {
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": -48
+          }
+        ],
+        "thickness": 2
+      },
+      "description": {
+        "content": "Caption settings of Text, Drop Shadow, and Background"
+      }
+    },
+    {
+      "id": "caption-create",
+      "coordinates": {
+        "x": 134,
+        "y": 603,
+        "width": 225,
+        "height": 29
+      },
+      "color": "cyan",
+      "line": {
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": -168
+          }
+        ],
+        "thickness": 2
+      },
+      "description": {
+        "content": "Click to **select the .srt** to create caption comps"
+      }
+    },
+    {
+      "id": "caption-apply",
+      "coordinates": {
+        "x": 134,
+        "y": 636,
+        "width": 225,
+        "height": 29
+      },
+      "color": "purple",
+      "line": {
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": 170
+          }
+        ],
+        "thickness": 2
+      },
+      "description": {
+        "content": "**Change caption style** in the _active comp_ to the selected preset"
+      }
+    },
+    {
+      "id": "caption-export",
+      "coordinates": {
+        "x": 134,
+        "y": 669,
+        "width": 225,
+        "height": 29
+      },
+      "color": "purple",
+      "line": {
+        "segments": [
+          {
+            "type": "horizontal",
+            "length": -168
+          }
+        ],
+        "thickness": 2
+      },
+      "description": {
+        "content": "**Export** the _selected caption layer_ to **.srt**"
+      }
+    }
+  ]
 }
