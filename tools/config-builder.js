@@ -31,7 +31,7 @@ class ConfigurationBuilder {
         this.selectionRect = null;
         this.selectedColor = 'green'; // Default color
         this.markdownCache = new Map(); // Cache processed markdown
-        this.maxCacheSize = 50; // Limit cache to prevent unbounded growth
+        this.maxCacheSize = 20; // Limit cache to prevent unbounded growth (reduced from 50 for safety)
         
         // Script metadata mapping
         this.scriptData = {
@@ -803,12 +803,21 @@ class ConfigurationBuilder {
         const img = canvas.querySelector('.workspace-image');
         if (!img) return;
 
-        // Remove only this hotspot's preview elements
+        // Remove only this hotspot's preview elements with thorough cleanup
         const hotspotId = hotspot.id;
         const existingElements = canvas.querySelectorAll(`[data-hotspot-id="${hotspotId}"]`);
         existingElements.forEach(el => {
-            if (el.innerHTML) el.innerHTML = '';
-            if (el.parentNode) el.parentNode.removeChild(el);
+            // Remove all child nodes to break circular references
+            while (el.firstChild) {
+                el.removeChild(el.firstChild);
+            }
+            // Clone node without event listeners (cleaner approach)
+            const clone = el.cloneNode(false);
+            // Remove the original element
+            if (el.parentNode) {
+                el.parentNode.replaceChild(clone, el);
+                clone.parentNode.removeChild(clone);
+            }
         });
 
         // Calculate scale
