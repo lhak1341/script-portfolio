@@ -677,37 +677,38 @@
             }
         });
         
-        // Re-initialize icons when content is dynamically added
-        // Throttled to prevent memory leak from excessive calls
-        let iconRefreshTimeout;
-        function refreshIcons() {
-            if (typeof lucide !== 'undefined') {
-                // Clear pending refresh to prevent accumulation
-                clearTimeout(iconRefreshTimeout);
-                // Throttle to once per 500ms to prevent memory leak
-                iconRefreshTimeout = setTimeout(() => {
-                    lucide.createIcons();
-                }, 500);
+        // Initialize icon observer on builder instance
+        // This allows proper cleanup to prevent memory leaks
+        function initializeIconObserver() {
+            if (!builder) {
+                console.warn('Builder not initialized yet');
+                return;
+            }
+
+            // Disconnect any existing observer first
+            if (builder.iconObserver) {
+                builder.iconObserver.disconnect();
+            }
+
+            const hotspotListContainer = document.getElementById('hotspot-list');
+            if (hotspotListContainer) {
+                builder.iconObserver = new MutationObserver(function(mutations) {
+                    // Only refresh if actual nodes were added (not just attribute changes)
+                    const hasNewNodes = mutations.some(m => m.type === 'childList' && m.addedNodes.length > 0);
+                    if (hasNewNodes && builder) {
+                        builder.refreshIcons();
+                    }
+                });
+
+                builder.iconObserver.observe(hotspotListContainer, {
+                    childList: true,
+                    subtree: false  // Don't watch descendants to limit scope
+                });
             }
         }
 
-        // Observe ONLY the hotspot list container for dynamic content changes
-        // Watching entire document.body causes passive memory leak!
-        const hotspotListContainer = document.getElementById('hotspot-list');
-        if (hotspotListContainer) {
-            const observer = new MutationObserver(function(mutations) {
-                // Only refresh if actual nodes were added (not just attribute changes)
-                const hasNewNodes = mutations.some(m => m.type === 'childList' && m.addedNodes.length > 0);
-                if (hasNewNodes) {
-                    refreshIcons();
-                }
-            });
-
-            observer.observe(hotspotListContainer, {
-                childList: true,
-                subtree: false  // Don't watch descendants to limit scope
-            });
-        }
+        // Wait for builder to be initialized before setting up observer
+        setTimeout(initializeIconObserver, 100);
     </script>
 </body>
 </html>

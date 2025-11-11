@@ -35,7 +35,20 @@ class ConfigurationBuilder {
 
         // Cache MediaQueryList to prevent creating new objects repeatedly (memory leak fix)
         this.darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        
+
+        // Timeout references for proper cleanup
+        this.updateTimeout = null;
+        this.turningPointTimeout = null;
+        this.iconRefreshTimeout = null;
+
+        // Bound method references for event listener cleanup
+        this.boundThrottledUpdate = null;
+        this.boundImmediateUpdate = null;
+        this.boundTurningPointUpdate = null;
+
+        // Observer reference for cleanup
+        this.iconObserver = null;
+
         // Script metadata mapping
         this.scriptData = {
     'effect-usage-analyzer': {
@@ -298,8 +311,8 @@ class ConfigurationBuilder {
     async loadSelectedScript() {
         const scriptId = document.getElementById('script-selector').value;
 
-        // Clear cache when switching scripts to prevent memory buildup
-        this.clearCache();
+        // Full cleanup when switching scripts to prevent memory leaks
+        this.cleanup();
 
         if (!scriptId) {
             // Clear everything when no script selected
@@ -416,6 +429,32 @@ class ConfigurationBuilder {
         return `"overlays": ${JSON.stringify(this.hotspots, null, 2)}`;
     }
 
+    /**
+     * Throttled update for coordinate inputs - instance method to avoid closure leaks
+     */
+    throttledUpdate() {
+        if (this.updateTimeout) {
+            clearTimeout(this.updateTimeout);
+        }
+        this.updateTimeout = setTimeout(() => {
+            this.updateCurrentHotspot();
+            this.updateTimeout = null;
+        }, 100);
+    }
+
+    /**
+     * Throttled turning point state update - instance method to avoid closure leaks
+     */
+    throttledTurningPointUpdate() {
+        if (this.turningPointTimeout) {
+            clearTimeout(this.turningPointTimeout);
+        }
+        this.turningPointTimeout = setTimeout(() => {
+            this.updateTurningPointState();
+            this.turningPointTimeout = null;
+        }, 50);
+    }
+
     setupPropertyListeners() {
         // Coordinate and numeric inputs - need throttling for performance during continuous adjustments
         const throttledInputs = [
@@ -426,43 +465,41 @@ class ConfigurationBuilder {
         // Description textarea - no throttling needed, only update on blur/change
         const descriptionInput = document.getElementById('description-text');
 
-        // Throttle function to limit update frequency for coordinate inputs
-        let updateTimeout;
-        const throttledUpdate = () => {
-            clearTimeout(updateTimeout);
-            updateTimeout = setTimeout(() => {
-                this.updateCurrentHotspot();
-            }, 100); // Update after 100ms of no input (10 updates/second max)
-        };
+        // Create bound methods once for consistent reference (enables cleanup)
+        if (!this.boundThrottledUpdate) {
+            this.boundThrottledUpdate = this.throttledUpdate.bind(this);
+            this.boundImmediateUpdate = this.updateCurrentHotspot.bind(this);
+            this.boundTurningPointUpdate = this.throttledTurningPointUpdate.bind(this);
+        }
 
-        // Setup throttled inputs (coordinates, numeric fields)
+        // Setup throttled inputs - REMOVE old listeners first to prevent accumulation
         throttledInputs.forEach(id => {
             const element = document.getElementById(id);
             if (element) {
-                // Use throttled update for continuous input
-                element.addEventListener('input', throttledUpdate);
-                // Immediate update on blur/change
-                element.addEventListener('change', this.updateCurrentHotspot.bind(this));
+                // Remove potentially existing listeners (important when switching scripts)
+                element.removeEventListener('input', this.boundThrottledUpdate);
+                element.removeEventListener('change', this.boundImmediateUpdate);
+
+                // Add fresh listeners
+                element.addEventListener('input', this.boundThrottledUpdate);
+                element.addEventListener('change', this.boundImmediateUpdate);
             }
         });
 
-        // Setup description textarea - only update on blur/change for responsive typing
+        // Setup description textarea - REMOVE old listeners first
         if (descriptionInput) {
-            descriptionInput.addEventListener('blur', this.updateCurrentHotspot.bind(this));
-            descriptionInput.addEventListener('change', this.updateCurrentHotspot.bind(this));
+            descriptionInput.removeEventListener('blur', this.boundImmediateUpdate);
+            descriptionInput.removeEventListener('change', this.boundImmediateUpdate);
+
+            descriptionInput.addEventListener('blur', this.boundImmediateUpdate);
+            descriptionInput.addEventListener('change', this.boundImmediateUpdate);
         }
 
-        // Special listener for vertical distance to enable/disable turning point
-        // Throttled to avoid excessive DOM updates
+        // Special listener for vertical distance - REMOVE old listener first
         const verticalDistanceInput = document.getElementById('vertical-distance');
         if (verticalDistanceInput) {
-            let turningPointTimeout;
-            verticalDistanceInput.addEventListener('input', () => {
-                clearTimeout(turningPointTimeout);
-                turningPointTimeout = setTimeout(() => {
-                    this.updateTurningPointState();
-                }, 50); // Faster than main throttle (50ms) for UI feedback
-            });
+            verticalDistanceInput.removeEventListener('input', this.boundTurningPointUpdate);
+            verticalDistanceInput.addEventListener('input', this.boundTurningPointUpdate);
         }
     }
 
@@ -1526,6 +1563,60 @@ class ConfigurationBuilder {
         console.log('Cache cleared');
     }
 
+    /**
+     * Refresh Lucide icons with throttling to prevent memory leak
+     */
+    refreshIcons() {
+        if (typeof lucide === 'undefined') return;
+
+        // Clear pending refresh to prevent accumulation
+        if (this.iconRefreshTimeout) {
+            clearTimeout(this.iconRefreshTimeout);
+        }
+
+        // Throttle to once per 500ms to prevent memory leak
+        this.iconRefreshTimeout = setTimeout(() => {
+            lucide.createIcons();
+            this.iconRefreshTimeout = null;
+        }, 500);
+    }
+
+    /**
+     * Cleanup method to prevent memory leaks
+     * Call before switching scripts or on page unload
+     */
+    cleanup() {
+        // Clear all pending timeouts
+        if (this.updateTimeout) {
+            clearTimeout(this.updateTimeout);
+            this.updateTimeout = null;
+        }
+        if (this.turningPointTimeout) {
+            clearTimeout(this.turningPointTimeout);
+            this.turningPointTimeout = null;
+        }
+        if (this.iconRefreshTimeout) {
+            clearTimeout(this.iconRefreshTimeout);
+            this.iconRefreshTimeout = null;
+        }
+
+        // Disconnect mutation observer
+        if (this.iconObserver) {
+            this.iconObserver.disconnect();
+            this.iconObserver = null;
+        }
+
+        // Clear cache
+        this.clearCache();
+
+        // Clear DOM references
+        this.currentImage = null;
+        this.selectedHotspot = null;
+        this.selectionRect = null;
+
+        console.log('Cleanup complete');
+    }
+
 }
 
 // Initialize the builder
@@ -1533,6 +1624,13 @@ let builder;
 
 document.addEventListener('DOMContentLoaded', function() {
     builder = new ConfigurationBuilder();
+});
+
+// Cleanup on page unload to prevent memory leaks
+window.addEventListener('beforeunload', function() {
+    if (builder && builder.cleanup) {
+        builder.cleanup();
+    }
 });
 
 // Global functions for button clicks
