@@ -417,10 +417,15 @@ class ConfigurationBuilder {
         }
 
         // Special listener for vertical distance to enable/disable turning point
+        // Throttled to avoid excessive DOM updates
         const verticalDistanceInput = document.getElementById('vertical-distance');
         if (verticalDistanceInput) {
+            let turningPointTimeout;
             verticalDistanceInput.addEventListener('input', () => {
-                this.updateTurningPointState();
+                clearTimeout(turningPointTimeout);
+                turningPointTimeout = setTimeout(() => {
+                    this.updateTurningPointState();
+                }, 50); // Faster than main throttle (50ms) for UI feedback
             });
         }
     }
