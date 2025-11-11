@@ -168,8 +168,40 @@ class ConfigurationBuilder {
         canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
         canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
 
+        // Event delegation for hotspot/tooltip selection - ONE listener for all hotspots
+        canvas.addEventListener('click', this.handleCanvasClick.bind(this));
+
         // Property inputs
         this.setupPropertyListeners();
+    }
+
+    /**
+     * Handle canvas click - event delegation for hotspot/tooltip selection
+     * This eliminates the need for individual event listeners on each element
+     */
+    handleCanvasClick(e) {
+        // Find if click was on a hotspot or tooltip
+        let target = e.target;
+        let hotspotId = null;
+
+        // Walk up the DOM tree to find an element with data-hotspot-id
+        while (target && target !== e.currentTarget) {
+            hotspotId = target.getAttribute('data-hotspot-id');
+            if (hotspotId) break;
+            target = target.parentElement;
+        }
+
+        if (hotspotId) {
+            // Find the hotspot object with this ID
+            const hotspot = this.hotspots.find(h => h.id === hotspotId);
+            if (hotspot) {
+                e.stopPropagation();
+                this.selectedHotspot = hotspot;
+                this.updateHotspotList();
+                this.updatePropertiesPanel();
+                this.updateSelectionVisuals();
+            }
+        }
     }
 
     /**
@@ -795,6 +827,7 @@ class ConfigurationBuilder {
     /**
      * Selective re-render: only update the selected hotspot
      * Much faster than full re-render for continuous adjustments
+     * No event listener cleanup needed - using event delegation
      */
     renderSingleHotspot(hotspot) {
         if (!this.currentImage || !hotspot) return;
@@ -803,22 +836,17 @@ class ConfigurationBuilder {
         const img = canvas.querySelector('.workspace-image');
         if (!img) return;
 
-        // Remove only this hotspot's preview elements with thorough cleanup
+        // Remove only this hotspot's preview elements - simple removal since no individual listeners
         const hotspotId = hotspot.id;
         const existingElements = canvas.querySelectorAll(`[data-hotspot-id="${hotspotId}"]`);
         existingElements.forEach(el => {
-            // Remove all child nodes to break circular references
-            while (el.firstChild) {
-                el.removeChild(el.firstChild);
-            }
-            // Clone node without event listeners (cleaner approach)
-            const clone = el.cloneNode(false);
-            // Remove the original element
             if (el.parentNode) {
-                el.parentNode.replaceChild(clone, el);
-                clone.parentNode.removeChild(clone);
+                el.parentNode.removeChild(el);
             }
         });
+
+        // Force DOM flush to ensure removals complete before adding new elements
+        void canvas.offsetHeight;
 
         // Calculate scale
         const scaleX = img.offsetWidth / this.currentImage.width;
@@ -864,16 +892,9 @@ class ConfigurationBuilder {
         hotspotContainer.style.height = `${hotspot.coordinates.height * scaleY}px`;
         hotspotContainer.style.zIndex = '10';
         hotspotContainer.style.cursor = 'pointer';
-        
-        // Add click handler to select this hotspot
-        hotspotContainer.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.selectedHotspot = hotspot;
-            this.updateHotspotList();
-            this.updatePropertiesPanel();
-            this.updateSelectionVisuals();
-        });
-        
+
+        // No individual event listener - using event delegation on canvas instead
+
         // Add selection border if this is the selected hotspot
         if (hotspot === this.selectedHotspot) {
             hotspotContainer.style.border = '2px dashed rgba(102, 126, 234, 0.8)';
@@ -909,17 +930,10 @@ class ConfigurationBuilder {
         // Create tooltip
         if (hotspot.description) {
             const tooltip = this.createPreviewTooltip(hotspot, scaleX, scaleY);
-            tooltip.setAttribute('data-hotspot-id', hotspot.id); // For selective removal
-            // Add click handler to tooltip as well
+            tooltip.setAttribute('data-hotspot-id', hotspot.id); // For selective removal and click detection
             tooltip.style.cursor = 'pointer';
             tooltip.style.pointerEvents = 'auto';
-            tooltip.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.selectedHotspot = hotspot;
-                this.updateHotspotList();
-                this.updatePropertiesPanel();
-                this.updateSelectionVisuals();
-            });
+            // No individual event listener - using event delegation on canvas instead
             canvas.appendChild(tooltip);
         }
 
@@ -1477,26 +1491,22 @@ class ConfigurationBuilder {
     }
 
     /**
-     * Clean up memory from previous render - remove elements and event listeners
+     * Clean up memory from previous render
+     * Simple removal since using event delegation (no individual listeners to clean)
      */
     cleanupPreviousRender() {
         const canvas = document.getElementById('image-canvas');
         const existingOverlays = canvas.querySelectorAll('.preview-element');
 
-        // Properly remove all preview elements with their children and event listeners
+        // Simple removal - no event listener cleanup needed with event delegation
         existingOverlays.forEach(overlay => {
-            // Remove all child nodes to break circular references
-            while (overlay.firstChild) {
-                overlay.removeChild(overlay.firstChild);
-            }
-            // Clone node without event listeners (cleaner approach)
-            const clone = overlay.cloneNode(false);
-            // Remove the original element
             if (overlay.parentNode) {
-                overlay.parentNode.replaceChild(clone, overlay);
-                clone.parentNode.removeChild(clone);
+                overlay.parentNode.removeChild(overlay);
             }
         });
+
+        // Force DOM flush
+        void canvas.offsetHeight;
 
         // Force garbage collection hint (browser decides if/when to run)
         if (window.gc) {
