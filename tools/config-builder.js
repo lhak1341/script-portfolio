@@ -32,6 +32,9 @@ class ConfigurationBuilder {
         this.selectedColor = 'green'; // Default color
         this.markdownCache = new Map(); // Cache processed markdown
         this.maxCacheSize = 20; // Limit cache to prevent unbounded growth (reduced from 50 for safety)
+
+        // Cache MediaQueryList to prevent creating new objects repeatedly (memory leak fix)
+        this.darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
         
         // Script metadata mapping
         this.scriptData = {
@@ -129,9 +132,10 @@ class ConfigurationBuilder {
 
     /**
      * Get color value based on current theme
+     * Uses cached MediaQueryList to prevent memory leak from repeated matchMedia() calls
      */
     getCurrentColorValue(colorName) {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark = this.darkModeQuery.matches;
         return OVERLAY_DEFAULTS.COLORS[colorName][isDark ? 'dark' : 'light'];
     }
 
