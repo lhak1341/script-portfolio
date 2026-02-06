@@ -40,7 +40,17 @@ class OverlayEngine {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            this.config = await response.json();
+
+            // Parse JSON with better error handling
+            const text = await response.text();
+            try {
+                this.config = JSON.parse(text);
+            } catch (jsonError) {
+                console.error('Invalid JSON in config file:', jsonError);
+                console.error('Response text:', text.substring(0, 200));
+                throw new Error(`Invalid JSON in config file: ${jsonError.message}`);
+            }
+
             console.log('Config loaded:', this.config);
             this.createOverlays();
             return true;
@@ -705,7 +715,7 @@ class OverlayEngine {
         marked.setOptions({
             gfm: true,          // GitHub Flavored Markdown
             breaks: false,      // Don't convert \n to <br>
-            sanitize: false,    // We trust our content
+            sanitize: true,     // Sanitize HTML for security
             smartypants: false  // Don't convert quotes to smart quotes
         });
         
@@ -1085,19 +1095,19 @@ function createScriptCard(script) {
 
     card.innerHTML = `
         <div class="script-thumbnail">
-            <img src="${script.thumbnail || script.screenshot}" alt="${script.name}" loading="lazy">
+            <img src="${script.thumbnail || script.screenshot}" alt="${sanitizeHTML(script.name)}" loading="lazy">
             ${script.pinned ? '<i data-lucide="pin" class="pin-icon"></i>' : ''}
         </div>
         <div class="script-info">
-            <h3 class="script-title">${script.name}</h3>
+            <h3 class="script-title">${sanitizeHTML(script.name)}</h3>
             <div class="script-meta">
-                <span class="script-version">v${script.version}</span>
-                <span class="script-category category-${script.category}" data-category="${script.category}">${getCategoryName(script.category)}</span>
+                <span class="script-version">v${sanitizeHTML(script.version)}</span>
+                <span class="script-category category-${script.category}" data-category="${script.category}">${sanitizeHTML(getCategoryName(script.category))}</span>
             </div>
-            <p class="script-description">${script.description}</p>
+            <p class="script-description">${sanitizeHTML(script.description)}</p>
             ${script.tags ? `
                 <div class="script-tags">
-                    ${[...script.tags].sort().map(tag => `<span class="tag" data-tag="${tag}">${tag}</span>`).join('')}
+                    ${[...script.tags].sort().map(tag => `<span class="tag" data-tag="${sanitizeHTML(tag)}">${sanitizeHTML(tag)}</span>`).join('')}
                 </div>
             ` : ''}
         </div>

@@ -1383,6 +1383,14 @@ class ConfigurationBuilder {
             return fallback;
         }
 
+        // Configure marked for consistent rendering
+        marked.setOptions({
+            gfm: true,          // GitHub Flavored Markdown
+            breaks: false,      // Don't convert \n to <br>
+            sanitize: true,     // Sanitize HTML for security
+            smartypants: false  // Don't convert quotes to smart quotes
+        });
+
         const result = marked.parse(text);
         this.markdownCache.set(text, result);
         return result;

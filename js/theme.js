@@ -66,6 +66,13 @@ function toggleTheme() {
 }
 
 function setupThemeDetection() {
+    // Guard: Ensure DOM is ready before accessing elements
+    if (document.readyState === 'loading') {
+        console.warn('setupThemeDetection called before DOM ready - deferring setup');
+        document.addEventListener('DOMContentLoaded', setupThemeDetection);
+        return;
+    }
+
     // Load saved preference
     const savedTheme = localStorage.getItem('theme-preference');
     if (savedTheme && ['auto', 'light', 'dark'].includes(savedTheme)) {
