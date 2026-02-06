@@ -7,7 +7,6 @@
       "category": "utility",
       "description": "What effects are being used and where to find them in active project",
       "thumbnail": "images/script-screenshots/EffectUsageAnalyzer_0.0.4.png",
-      "screenshot": "images/script-screenshots/EffectUsageAnalyzer_0.0.4.png",
       "pinned": false,
       "tags": [
         "effects"
@@ -20,7 +19,6 @@
       "category": "utility",
       "description": "What expressions are being used and where to find them in active project",
       "thumbnail": "images/script-screenshots/ExpressionUsageAnalyzer_0.0.1.png",
-      "screenshot": "images/script-screenshots/ExpressionUsageAnalyzer_0.0.1.png",
       "pinned": false,
       "tags": [
         "expressions"
@@ -33,7 +31,6 @@
       "category": "utility",
       "description": "Find and replace expressions across entire projects",
       "thumbnail": "images/script-screenshots/FindAndReplaceInExpression.png",
-      "screenshot": "images/script-screenshots/FindAndReplaceInExpression.png",
       "pinned": false,
       "tags": [
         "expressions"
@@ -46,7 +43,6 @@
       "category": "utility",
       "description": "Curated collection of Khoa’s useful script snippets",
       "thumbnail": "images/script-screenshots/KhoaSharingToolbar_1.0.2.png",
-      "screenshot": "images/script-screenshots/KhoaSharingToolbar_1.0.2.png",
       "pinned": false,
       "tags": [
         "expressions",
@@ -62,7 +58,6 @@
       "category": "workflow",
       "description": "Quick add 3D pass into AE comp, and update footage version",
       "thumbnail": "images/script-screenshots/SPCompEdit_1.1.3.png",
-      "screenshot": "images/script-screenshots/SPCompEdit_1.1.3.png",
       "pinned": true,
       "tags": [
         "compositing",
@@ -76,7 +71,6 @@
       "category": "workflow",
       "description": "Automate multipass comp setup, with auto-interpretation and custom template supported",
       "thumbnail": "images/script-screenshots/SPCompSetup_1.0.2.png",
-      "screenshot": "images/script-screenshots/SPCompSetup_1.0.2.png",
       "pinned": true,
       "tags": [
         "compositing",
@@ -91,7 +85,6 @@
       "category": "automation",
       "description": "Submit AE 2024 job to Deadline render farm",
       "thumbnail": "images/script-screenshots/SPDeadline_1.0.2.png",
-      "screenshot": "images/script-screenshots/SPDeadline_1.0.2.png",
       "pinned": true,
       "tags": [
         "deadline",
@@ -105,7 +98,6 @@
       "category": "automation",
       "description": "Import and export SRT subtitle to/from markered text layer",
       "thumbnail": "images/script-screenshots/SPSRTImporter_0.2.1.png",
-      "screenshot": "images/script-screenshots/SPSRTImporter_0.2.1.png",
       "pinned": false,
       "tags": [
         "subtitle",
@@ -119,7 +111,6 @@
       "category": "automation",
       "description": "Automate versioning from one master to multiple language versions",
       "thumbnail": "images/script-screenshots/SPVersioningCSV_0.1.0.png",
-      "screenshot": "images/script-screenshots/SPVersioningCSV_0.1.0.png",
       "pinned": false,
       "tags": [
         "csv",
@@ -135,7 +126,6 @@
       "category": "workflow",
       "description": "Setup master project for CSV versioning workflow",
       "thumbnail": "images/script-screenshots/SPVersioningSetupToolkit_0.2.3.png",
-      "screenshot": "images/script-screenshots/SPVersioningSetupToolkit_0.2.3.png",
       "pinned": false,
       "tags": [
         "versioning",

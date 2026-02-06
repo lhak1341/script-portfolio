@@ -1,23 +1,7 @@
 /**
  * Visual Configuration Builder for Overlay System
+ * Requires: OVERLAY_DEFAULTS (from overlay-defaults.js)
  */
-
-// Default configuration constants - must match overlay-engine.js
-const OVERLAY_DEFAULTS = {
-    BORDER_RADIUS: 4,    // px - default border radius for highlights
-    LINE_THICKNESS: 2,   // px - default line thickness
-    
-    // Predefined color palette - optimized for light/dark themes
-    COLORS: {
-        red: { light: '#ef4444', dark: '#f87171' },      // Red 500/400
-        orange: { light: '#f97316', dark: '#fb923c' },   // Orange 500/400
-        yellow: { light: '#eab308', dark: '#facc15' },   // Yellow 500/400
-        green: { light: '#22c55e', dark: '#4ade80' },    // Green 500/400
-        cyan: { light: '#06b6d4', dark: '#22d3ee' },     // Cyan 500/400
-        purple: { light: '#a855f7', dark: '#c084fc' },   // Purple 500/400
-        pink: { light: '#ec4899', dark: '#f472b6' }      // Pink 500/400
-    }
-};
 
 class ConfigurationBuilder {
     constructor() {
@@ -525,28 +509,6 @@ class ConfigurationBuilder {
         }
     }
 
-    handleDragOver(e) {
-        e.preventDefault();
-        e.currentTarget.classList.add('dragover');
-    }
-
-    handleDrop(e) {
-        e.preventDefault();
-        e.currentTarget.classList.remove('dragover');
-        
-        const files = e.dataTransfer.files;
-        if (files.length > 0 && files[0].type.startsWith('image/')) {
-            this.loadImage(files[0]);
-        }
-    }
-
-    handleFileSelect(e) {
-        const file = e.target.files[0];
-        if (file && file.type.startsWith('image/')) {
-            this.loadImage(file);
-        }
-    }
-
     async loadImage(file) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -765,7 +727,7 @@ class ConfigurationBuilder {
             item.innerHTML = `
                 <div style="flex: 1;">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <strong style="color: var(--text-primary);">${hotspot.id}</strong>
+                        <strong style="color: var(--text-primary);">${sanitizeHTML(hotspot.id)}</strong>
                         <span style="font-size: 0.9rem;">${directionIcon}</span>
                         <div style="width: 12px; height: 12px; background: ${this.getCurrentColorValue(hotspot.color)}; border-radius: 2px; border: 1px solid var(--border-color);"></div>
                     </div>
@@ -1421,14 +1383,6 @@ class ConfigurationBuilder {
             return fallback;
         }
 
-        // Configure marked for consistent rendering
-        marked.setOptions({
-            gfm: true,          // GitHub Flavored Markdown
-            breaks: false,      // Don't convert \n to <br>
-            sanitize: false,    // We trust our content
-            smartypants: false  // Don't convert quotes to smart quotes
-        });
-
         const result = marked.parse(text);
         this.markdownCache.set(text, result);
         return result;
@@ -1487,22 +1441,6 @@ class ConfigurationBuilder {
 
         // Also trigger download
         this.downloadJSON(config, `${scriptName.replace(/\s+/g, '-').toLowerCase()}-config.json`);
-    }
-
-    downloadJSON(config, filename) {
-        const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
-    importConfiguration() {
-        document.getElementById('import-input').click();
     }
 
     handleImportFile(e) {
@@ -1646,12 +1584,9 @@ function saveConfiguration() {
     builder.saveConfiguration();
 }
 
-function exportConfiguration() {
-    builder.exportConfiguration();
-}
 
 
-function copyToClipboard() {
+function copyConfigToClipboard() {
     const jsonOutput = document.getElementById('json-output');
     navigator.clipboard.writeText(jsonOutput.textContent).then(() => {
         const btn = document.getElementById('copy-btn');

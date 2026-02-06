@@ -25,8 +25,15 @@ function createScript(scriptId, scriptName, version, description, category, tags
     console.log(`📁 Created directory: ${scriptDir}`);
     
     // Determine screenshot filename
-    const imageFilename = screenshotFilename || `${scriptName.replace(/\s+/g, '')}\_${version}.png`;
+    const imageFilename = screenshotFilename || `${scriptName.replace(/\s+/g, '')}_${version}.png`;
     
+    // Validate category
+    const validCategories = ['utility', 'workflow', 'automation'];
+    if (!validCategories.includes(category)) {
+        console.error(`❌ Invalid category '${category}'. Must be one of: ${validCategories.join(', ')}`);
+        return false;
+    }
+
     // Create config.json
     const config = {
         scriptName: scriptName,
@@ -144,10 +151,12 @@ Simply run the script from your After Effects Scripts menu. No additional setup 
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 After Effects Scripts Portfolio</p>
+            <p>&copy; 2025 After Effects Scripts Portfolio</p>
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="../../js/theme.js"></script>
     <script src="../../js/utils.js"></script>
     <script src="../../js/overlay-engine.js"></script>
     <script>

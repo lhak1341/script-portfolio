@@ -18,15 +18,22 @@ function updateConfigBuilderData() {
         process.exit(1);
     }
     
-    const scriptsList = JSON.parse(fs.readFileSync(scriptsListPath, 'utf8'));
+    let scriptsList;
+    try {
+        scriptsList = JSON.parse(fs.readFileSync(scriptsListPath, 'utf8'));
+    } catch (e) {
+        console.error('Failed to parse scripts-list.json:', e.message);
+        process.exit(1);
+    }
     
     // Generate the script data object for config-builder.js
+    const esc = s => String(s).replace(/'/g, "\\'");
     const scriptDataEntries = scriptsList.scripts.map(script => {
-        return `    '${script.id}': {
-        name: '${script.name}',
-        version: '${script.version}',
-        description: '${script.description}',
-        image: '${path.basename(script.thumbnail)}'
+        return `    '${esc(script.id)}': {
+        name: '${esc(script.name)}',
+        version: '${esc(script.version)}',
+        description: '${esc(script.description)}',
+        image: '${esc(path.basename(script.thumbnail))}'
     }`;
     });
     

@@ -131,17 +131,6 @@ function loadImage(src) {
 }
 
 /**
- * Format file size
- */
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-/**
  * Copy text to clipboard
  */
 async function copyToClipboard(text) {
@@ -174,14 +163,6 @@ async function copyToClipboard(text) {
  */
 function generateUniqueId(prefix = 'id') {
     return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-}
-
-/**
- * Validate email address
- */
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
 }
 
 /**
@@ -242,30 +223,6 @@ function deepClone(obj) {
 }
 
 /**
- * Convert coordinates from absolute to percentage
- */
-function coordsToPercentage(coords, containerWidth, containerHeight) {
-    return {
-        x: (coords.x / containerWidth) * 100,
-        y: (coords.y / containerHeight) * 100,
-        width: (coords.width / containerWidth) * 100,
-        height: (coords.height / containerHeight) * 100
-    };
-}
-
-/**
- * Convert coordinates from percentage to absolute
- */
-function coordsToAbsolute(coords, containerWidth, containerHeight) {
-    return {
-        x: (coords.x / 100) * containerWidth,
-        y: (coords.y / 100) * containerHeight,
-        width: (coords.width / 100) * containerWidth,
-        height: (coords.height / 100) * containerHeight
-    };
-}
-
-/**
  * Check if point is inside rectangle
  */
 function pointInRect(point, rect) {
@@ -276,61 +233,6 @@ function pointInRect(point, rect) {
         point.y <= rect.y + rect.height
     );
 }
-
-/**
- * Show toast notification
- */
-function showToast(message, type = 'info', duration = 3000) {
-    const toast = createElement('div', {
-        className: `toast toast-${type}`,
-        style: `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: ${type === 'error' ? '#e74c3c' : type === 'success' ? '#2ecc71' : '#3498db'};
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 10000;
-            animation: slideInRight 0.3s ease;
-        `
-    }, message);
-
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-        toast.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    }, duration);
-}
-
-/**
- * Add CSS animations if not already present
- */
-function addToastAnimations() {
-    if (document.getElementById('toast-animations')) return;
-
-    const style = createElement('style', { id: 'toast-animations' }, `
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOutRight {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-    `);
-
-    document.head.appendChild(style);
-}
-
-// Add toast animations on load
-document.addEventListener('DOMContentLoaded', addToastAnimations);
 
 /**
  * Local storage helpers
@@ -381,9 +283,8 @@ const storage = {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         debounce, throttle, getElementPosition, isInViewport, smoothScrollTo,
-        createElement, loadImage, formatFileSize, copyToClipboard, generateUniqueId,
-        isValidEmail, sanitizeHTML, getURLParams, setURLParam, removeURLParam,
-        deepClone, coordsToPercentage, coordsToAbsolute, pointInRect, showToast,
-        storage
+        createElement, loadImage, copyToClipboard, generateUniqueId,
+        sanitizeHTML, getURLParams, setURLParam, removeURLParam,
+        deepClone, pointInRect, storage
     };
 }

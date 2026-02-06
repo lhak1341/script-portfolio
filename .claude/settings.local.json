@@ -8,7 +8,9 @@
       "Bash(cat:*)",
       "Bash(node build-system.js)",
       "Bash(node generate-system.js)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(xxd:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

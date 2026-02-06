@@ -135,25 +135,7 @@
             cursor: pointer;
         }
 
-        .btn {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 0.875rem;
-            font-family: var(--font-sans);
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s ease;
-            text-decoration: none;
-            text-align: center;
-        }
 
-        .btn:hover {
-            background: var(--accent-hover);
-        }
 
         .btn-secondary {
             background: var(--text-secondary);
@@ -207,28 +189,7 @@
             margin-bottom: 1rem;
         }
 
-        .hotspot-item {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: background 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
 
-        .hotspot-item:hover {
-            background: var(--bg-tertiary);
-        }
-
-        .hotspot-item.active {
-            background: var(--bg-tertiary);
-            border-left: 3px solid var(--accent-color);
-        }
-
-        .hotspot-item:last-child {
-            border-bottom: none;
-        }
 
         .json-output {
             background: var(--bg-tertiary);
@@ -250,20 +211,11 @@
             padding: 0.75rem;
             border-radius: 4px;
             margin-bottom: 1rem;
-            font-size: 0.875rem;
             font-size: 0.85rem;
             line-height: 1.4;
-            border: 1px solid var(--border-color);
         }
 
-        .section-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin: 1rem 0 0.5rem 0;
-            color: var(--text-primary);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.25rem;
-        }
+
 
         .mode-toggle {
             margin-bottom: 1rem;
@@ -320,12 +272,7 @@
         }
 
         /* Enhanced form styling */
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
+
 
         /* Enhanced section titles */
         .section-title {
@@ -662,11 +609,12 @@
             </button>
 
             <div id="json-output" class="json-output" style="display: none;"></div>
-            <button class="btn btn-full" onclick="copyToClipboard()" style="display: none;" id="copy-btn">Copy to Clipboard</button>
+            <button class="btn btn-full" onclick="copyConfigToClipboard()" style="display: none;" id="copy-btn">Copy to Clipboard</button>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="../js/overlay-defaults.js"></script>
     <script src="../js/utils.js"></script>
     <script src="config-builder.js"></script>
     <script>
