@@ -86,6 +86,50 @@ body.theme-dark {  /* Variables directly on body */
 **Reality**: Build system required to propagate changes
 **Fix**: Always run `node build-system.js` after config edits
 
+### ❌ marked.js `sanitize: true` Does Nothing
+
+**WRONG** (silently ignored in marked v8+, which is what the CDN serves):
+```javascript
+marked.setOptions({ sanitize: true });
+return marked.parse(text);
+```
+
+**RIGHT** — use DOMPurify on output:
+```javascript
+const html = marked.parse(text);
+return typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : html;
+```
+
+**Impact**: Live XSS if `sanitize: true` is relied on — the option was removed in marked v8
+
+### ❌ Reading Theme State With `window.matchMedia()` Directly
+
+**WRONG** — ignores manual theme toggle (`currentTheme` override in theme.js):
+```javascript
+const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+```
+
+**RIGHT** — respects auto/light/dark user override:
+```javascript
+const isDark = typeof getEffectiveTheme !== 'undefined'
+    ? getEffectiveTheme() === 'dark'
+    : window.matchMedia('(prefers-color-scheme: dark)').matches;
+```
+
+### ❌ URL Params into innerHTML Without Sanitization
+
+**WRONG**:
+```javascript
+element.innerHTML = `Showing "${urlParams.get('tag')}"`;
+```
+
+**RIGHT**:
+```javascript
+element.innerHTML = `Showing "${sanitizeHTML(urlParams.get('tag'))}"`;
+```
+
+**Impact**: XSS via crafted URL (e.g. `?tag=<img src=x onerror=alert(1)>`)
+
 ---
 
 ## Architecture Gotchas
@@ -150,6 +194,15 @@ python -m http.server 8000  # To run site locally
 node add-script.js ...    # To create new script (then run build)
 ```
 
+### New Script Page Checklist
+
+When creating a new `scripts/{id}/index.html`, the script block **must** load DOMPurify before marked:
+```html
+<script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+```
+DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
+
 ### ⚠️ CAREFUL - Directory Operations
 
 **DON'T**:
@@ -211,3 +264,7 @@ node add-script.js ...    # To create new script (then run build)
 5. **Don't move directories**: `scripts/`, `tools/`, `images/` paths are hardcoded
 6. **Check before deleting**: "Dead code" might be class methods (happened with OverlayEngine)
 7. **Hard refresh after changes**: Ctrl+Shift+R to bypass cache
+8. **marked.js `sanitize: true` is a no-op**: Use `DOMPurify.sanitize(marked.parse(text))` instead
+9. **New script pages need DOMPurify**: Load `dompurify/dist/purify.min.js` before marked.js
+10. **Theme state**: Use `getEffectiveTheme()` from theme.js, not `window.matchMedia()` directly
+11. **URL params → innerHTML**: Always wrap with `sanitizeHTML()` first

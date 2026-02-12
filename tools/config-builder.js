@@ -1387,11 +1387,12 @@ class ConfigurationBuilder {
         marked.setOptions({
             gfm: true,          // GitHub Flavored Markdown
             breaks: false,      // Don't convert \n to <br>
-            sanitize: true,     // Sanitize HTML for security
             smartypants: false  // Don't convert quotes to smart quotes
         });
 
-        const result = marked.parse(text);
+        const html = marked.parse(text);
+        // Sanitize output with DOMPurify (marked v8+ removed built-in sanitization)
+        const result = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : html;
         this.markdownCache.set(text, result);
         return result;
     }

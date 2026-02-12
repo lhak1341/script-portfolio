@@ -21,8 +21,11 @@ class OverlayEngine {
         if (colorName.startsWith('#')) {
             return colorName;
         }
-        // Handle new color system
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        // Handle new color system — use manual theme override if available
+        const effectiveTheme = typeof getEffectiveTheme !== 'undefined'
+            ? getEffectiveTheme()
+            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        const isDark = effectiveTheme === 'dark';
         return OVERLAY_DEFAULTS.COLORS[colorName] ? 
             OVERLAY_DEFAULTS.COLORS[colorName][isDark ? 'dark' : 'light'] : 
             colorName;
@@ -60,8 +63,8 @@ class OverlayEngine {
             if (this.container) {
                 this.container.innerHTML = `<div style="padding: 2rem; text-align: center; color: #666;">
                     <p>Failed to load overlay configuration.</p>
-                    <p>Config path: ${configPath}</p>
-                    <p>Error: ${error.message}</p>
+                    <p>Config path: ${sanitizeHTML(configPath)}</p>
+                    <p>Error: ${sanitizeHTML(error.message)}</p>
                 </div>`;
             }
             return false;
@@ -119,7 +122,7 @@ class OverlayEngine {
         img.onerror = () => {
             console.error('Failed to load image:', this.config.baseImage.src);
             imageContainer.innerHTML = `<div style="padding: 2rem; text-align: center; color: #666;">
-                <p>Failed to load image: ${this.config.baseImage.src}</p>
+                <p>Failed to load image: ${sanitizeHTML(this.config.baseImage.src)}</p>
                 <p>Please check the image path.</p>
             </div>`;
         };
@@ -710,16 +713,17 @@ class OverlayEngine {
             console.warn('Marked.js not loaded, falling back to plain text');
             return `<p>${text}</p>`;
         }
-        
+
         // Configure marked for consistent rendering
         marked.setOptions({
             gfm: true,          // GitHub Flavored Markdown
             breaks: false,      // Don't convert \n to <br>
-            sanitize: true,     // Sanitize HTML for security
             smartypants: false  // Don't convert quotes to smart quotes
         });
-        
-        return marked.parse(text);
+
+        const html = marked.parse(text);
+        // Sanitize output with DOMPurify (marked v8+ removed built-in sanitization)
+        return typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : html;
     }
 
     /**
@@ -787,8 +791,8 @@ class OverlayEngine {
             }
             
             if (tagsContainer) {
-                tagsContainer.innerHTML = [...config.tags].sort().map(tag => 
-                    `<a href="../../index.html?tag=${encodeURIComponent(tag)}" class="tag">${tag}</a>`
+                tagsContainer.innerHTML = [...config.tags].sort().map(tag =>
+                    `<a href="../../index.html?tag=${encodeURIComponent(tag)}" class="tag">${sanitizeHTML(tag)}</a>`
                 ).join(' ');
             }
         }
@@ -959,15 +963,24 @@ function initializeOverlayEngine(containerId, configPath) {
 }
 
 /**
+ * Cached scripts list data — avoids re-fetching on every search keystroke
+ */
+let _scriptsListCache = null;
+
+/**
  * Load scripts list for main page
  */
 async function loadScriptsList() {
+    if (_scriptsListCache) {
+        return _scriptsListCache;
+    }
     try {
         const response = await fetch('data/scripts-list.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
+        _scriptsListCache = data;
         // Sort scripts with pinned at top before rendering
         const sortedScripts = [...data.scripts].sort((a, b) => {
             if (a.pinned && !b.pinned) return -1;
@@ -1213,7 +1226,7 @@ function setupFilters() {
     const sortFilter = document.getElementById('sort-filter');
 
     if (searchInput) {
-        searchInput.addEventListener('input', handleFiltering);
+        searchInput.addEventListener('input', debounce(handleFiltering, 150));
     }
     if (categoryFilter) {
         categoryFilter.addEventListener('change', function() {
