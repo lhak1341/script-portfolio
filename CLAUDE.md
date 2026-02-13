@@ -233,6 +233,17 @@ css/
 node build-system.js      # After ANY config.json change
 python -m http.server 8000  # To run site locally
 node add-script.js ...    # To create new script (then run build)
+npm run lint              # Check JS quality (ESLint)
+```
+
+### npm Scripts (package.json)
+
+Shortcuts for common commands:
+```bash
+npm run build       # alias for: node build-system.js
+npm run serve       # alias for: python -m http.server 8000
+npm run new-script  # alias for: node add-script.js
+npm run lint        # alias for: eslint js/ tools/config-builder.js *.js
 ```
 
 ### New Script Page Checklist
@@ -253,6 +264,7 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 
 ### 🚫 NEVER
 
+- Commit without running `npm run lint` — aim for 0 errors (warnings are pre-existing debt)
 - Commit without running `node build-system.js` after config changes
 - Edit `data/scripts-list.json` directly (it's generated)
 - Use `git add -A` without checking for `*.bak` and `test*.html` files
@@ -315,3 +327,5 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 15. **OverlayEngine queries**: Use `this.container.querySelectorAll()` not `document.querySelectorAll()` inside class methods
 16. **Tooltip tracking**: Push tooltips to `this.tooltips[]` on creation so `clearOverlays()` can remove them
 17. **config-builder.html dark styles**: Use `body.theme-dark .selector` not `@media (prefers-color-scheme: dark)` — two blocks need this (color swatches, status messages)
+18. **ESLint is configured**: Run `npm run lint` to check. When adding new shared globals to `js/`, register them in `eslint.config.js` under `projectBrowserGlobals`.
+19. **HTML-callable functions**: Add `/* exported funcName */` before functions only called from HTML `onclick` handlers — prevents false "unused variable" ESLint warnings.

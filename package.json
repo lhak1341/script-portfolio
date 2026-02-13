@@ -1,0 +1,20 @@
+{
+  "name": "script-portfolio",
+  "version": "1.0.0",
+  "description": "After Effects Scripts Portfolio",
+  "private": true,
+  "scripts": {
+    "build": "node build-system.js",
+    "new-script": "node add-script.js",
+    "serve": "python -m http.server 8000",
+    "lint": "eslint js/ tools/config-builder.js *.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0"
+  }
+}

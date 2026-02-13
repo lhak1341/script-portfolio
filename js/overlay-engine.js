@@ -1235,6 +1235,7 @@ function getCategoryName(categoryId) {
 /**
  * Setup filters and search
  */
+/* exported setupFilters */
 function setupFilters() {
     const searchInput = document.getElementById('search-input');
     const categoryFilter = document.getElementById('category-filter');
@@ -1341,6 +1342,7 @@ async function handleFiltering() {
 /**
  * Show loading error
  */
+/* exported showLoadingError */
 function showLoadingError() {
     const grid = document.getElementById('scripts-grid');
     if (grid) {

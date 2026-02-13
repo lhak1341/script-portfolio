@@ -1583,7 +1583,8 @@ window.addEventListener('beforeunload', function() {
     }
 });
 
-// Global functions for button clicks
+// Global functions for button clicks (called from HTML onclick handlers)
+/* exported loadSelectedScript, deleteCurrentHotspot, saveConfiguration, copyConfigToClipboard */
 function loadSelectedScript() {
     builder.loadSelectedScript();
 }

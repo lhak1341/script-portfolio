@@ -2,6 +2,7 @@
  * Shared overlay configuration defaults
  * Used by both overlay-engine.js and config-builder.js
  */
+/* exported OVERLAY_DEFAULTS */
 const OVERLAY_DEFAULTS = {
     BORDER_RADIUS: 4,    // px - default border radius for highlights
     LINE_THICKNESS: 2,   // px - default line thickness

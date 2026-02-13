@@ -65,6 +65,7 @@ function toggleTheme() {
     applyTheme();
 }
 
+/* exported setupThemeDetection */
 function setupThemeDetection() {
     // Guard: Ensure DOM is ready before accessing elements
     if (document.readyState === 'loading') {
