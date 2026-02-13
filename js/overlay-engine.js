@@ -217,12 +217,14 @@ class OverlayEngine {
             const hoverTooltip = this.createSimpleTooltipAbsolute(overlay, scaleX, scaleY, imageContainer);
             hoverTooltip.classList.add('hover-tooltip');
             imageContainer.appendChild(hoverTooltip);
+            this.tooltips.push(hoverTooltip);
 
             // Complex tooltip for show-all mode (positioned at end of multi-segment line)
             const showAllTooltip = this.createTooltipAbsolute(overlay, scaleX, scaleY, imageContainer);
             showAllTooltip.classList.add('show-all-tooltip');
             showAllTooltip.style.display = 'none'; // Hidden by default
             imageContainer.appendChild(showAllTooltip);
+            this.tooltips.push(showAllTooltip);
 
             // Link tooltips to hotspot for hover behavior
             hotspot.addEventListener('mouseenter', () => {
@@ -711,7 +713,7 @@ class OverlayEngine {
     processMarkdown(text) {
         if (typeof marked === 'undefined') {
             console.warn('Marked.js not loaded, falling back to plain text');
-            return `<p>${text}</p>`;
+            return `<p>${sanitizeHTML(text)}</p>`;
         }
 
         // Configure marked for consistent rendering
@@ -841,6 +843,12 @@ class OverlayEngine {
             }
         });
         this.overlays = [];
+        this.tooltips.forEach(tooltip => {
+            if (tooltip.parentNode) {
+                tooltip.parentNode.removeChild(tooltip);
+            }
+        });
+        this.tooltips = [];
     }
 
     /**
@@ -875,8 +883,8 @@ class OverlayEngine {
                 const highlights = overlay.querySelectorAll('.highlight');
                 const hoverLines = overlay.querySelectorAll('.hover-line');
                 const showAllLines = overlay.querySelectorAll('.show-all-line');
-                const hoverTooltips = document.querySelectorAll('.hover-tooltip');
-                const showAllTooltips = document.querySelectorAll('.show-all-tooltip');
+                const hoverTooltips = this.container.querySelectorAll('.hover-tooltip');
+                const showAllTooltips = this.container.querySelectorAll('.show-all-tooltip');
 
                 highlights.forEach(h => h.style.opacity = '1');
                 // Hide simple hover lines and tooltips
@@ -898,8 +906,8 @@ class OverlayEngine {
                 const highlights = overlay.querySelectorAll('.highlight');
                 const hoverLines = overlay.querySelectorAll('.hover-line');
                 const showAllLines = overlay.querySelectorAll('.show-all-line');
-                const hoverTooltips = document.querySelectorAll('.hover-tooltip');
-                const showAllTooltips = document.querySelectorAll('.show-all-tooltip');
+                const hoverTooltips = this.container.querySelectorAll('.hover-tooltip');
+                const showAllTooltips = this.container.querySelectorAll('.show-all-tooltip');
 
                 highlights.forEach(h => h.style.opacity = '');
                 // Show simple hover lines and tooltips

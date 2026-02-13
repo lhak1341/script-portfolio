@@ -123,6 +123,40 @@ const isDark = typeof getEffectiveTheme !== 'undefined'
 **Impact**: Next `node add-script.js` regenerates the vulnerability
 **Fix**: Always apply the same fix to `add-script.js` line ~290 when fixing script page templates
 
+### ❌ `document.querySelectorAll` Inside OverlayEngine Methods
+
+**WRONG** — affects all engines if multiple exist on the page:
+```javascript
+const hoverTooltips = document.querySelectorAll('.hover-tooltip');
+```
+
+**RIGHT** — scope to the instance's container:
+```javascript
+const hoverTooltips = this.container.querySelectorAll('.hover-tooltip');
+```
+
+**Impact**: Wrong engine's tooltips toggled; always use `this.container.querySelectorAll` inside OverlayEngine methods
+
+### ❌ Forgetting to Populate `this.tooltips[]` When Appending Tooltips
+
+**Mistake**: Tooltips appended to `imageContainer` but not pushed to `this.tooltips[]`
+**Impact**: `clearOverlays()` can't remove them → duplicate tooltip nodes accumulate on every resize
+**Fix**: Always `this.tooltips.push(tooltip)` after `imageContainer.appendChild(tooltip)`
+
+### ❌ `@media (prefers-color-scheme: dark)` in config-builder.html
+
+**WRONG** — ignores manual theme toggle (two blocks: color swatches ~line 432, status messages ~line 364):
+```css
+@media (prefers-color-scheme: dark) { .color-swatch.red { ... } }
+```
+
+**RIGHT** — matches the rest of the codebase:
+```css
+body.theme-dark .color-swatch.red { ... }
+```
+
+**Impact**: Swatches and status colors don't update when user manually toggles theme
+
 ### ❌ URL Params into innerHTML Without Sanitization
 
 **WRONG**:
@@ -278,3 +312,6 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 12. **`config-builder.html` needs `theme.js`**: Load `../js/theme.js` before `config-builder.js` so `getEffectiveTheme()` is available
 13. **Fix generator too**: When fixing `scripts/*/index.html` templates, also fix `add-script.js` (the generator template at line ~290)
 14. **DOMPurify fallback = plain text**: Use `sanitizeHTML(text)` not raw `html` when DOMPurify is unavailable
+15. **OverlayEngine queries**: Use `this.container.querySelectorAll()` not `document.querySelectorAll()` inside class methods
+16. **Tooltip tracking**: Push tooltips to `this.tooltips[]` on creation so `clearOverlays()` can remove them
+17. **config-builder.html dark styles**: Use `body.theme-dark .selector` not `@media (prefers-color-scheme: dark)` — two blocks need this (color swatches, status messages)
