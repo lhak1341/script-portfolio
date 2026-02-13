@@ -94,10 +94,11 @@ marked.setOptions({ sanitize: true });
 return marked.parse(text);
 ```
 
-**RIGHT** — use DOMPurify on output:
+**RIGHT** — use DOMPurify on output, fall back to plain text (never raw HTML):
 ```javascript
 const html = marked.parse(text);
-return typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : html;
+// DOMPurify unavailable: fall back to plain text, NOT raw html
+return typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : sanitizeHTML(text);
 ```
 
 **Impact**: Live XSS if `sanitize: true` is relied on — the option was removed in marked v8
@@ -115,6 +116,12 @@ const isDark = typeof getEffectiveTheme !== 'undefined'
     ? getEffectiveTheme() === 'dark'
     : window.matchMedia('(prefers-color-scheme: dark)').matches;
 ```
+
+### ❌ Fixing Script Pages Without Fixing the Generator
+
+**Mistake**: Fix a pattern in `scripts/*/index.html` but forget `add-script.js` (the template)
+**Impact**: Next `node add-script.js` regenerates the vulnerability
+**Fix**: Always apply the same fix to `add-script.js` line ~290 when fixing script page templates
 
 ### ❌ URL Params into innerHTML Without Sanitization
 
@@ -268,3 +275,6 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 9. **New script pages need DOMPurify**: Load `dompurify/dist/purify.min.js` before marked.js
 10. **Theme state**: Use `getEffectiveTheme()` from theme.js, not `window.matchMedia()` directly
 11. **URL params → innerHTML**: Always wrap with `sanitizeHTML()` first
+12. **`config-builder.html` needs `theme.js`**: Load `../js/theme.js` before `config-builder.js` so `getEffectiveTheme()` is available
+13. **Fix generator too**: When fixing `scripts/*/index.html` templates, also fix `add-script.js` (the generator template at line ~290)
+14. **DOMPurify fallback = plain text**: Use `sanitizeHTML(text)` not raw `html` when DOMPurify is unavailable

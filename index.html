@@ -85,14 +85,14 @@
     <script src="js/overlay-engine.js"></script>
     <script>
       // Initialize the main page
-      document.addEventListener('DOMContentLoaded', function () {
+      document.addEventListener('DOMContentLoaded', async function () {
         // Initialize Lucide icons
         if (typeof lucide !== 'undefined') {
           lucide.createIcons();
         }
 
         setupThemeDetection();
-        loadScriptsList();
+        await loadScriptsList();
         setupFilters();
 
         // Handle tag filtering from URL parameters
@@ -108,10 +108,8 @@
           // Show a message that we filtered by tag
           showTagFilterMessage(tagFilter);
 
-          // Trigger the filtering
-          setTimeout(() => {
-            handleFiltering();
-          }, 100);
+          // Cards are already rendered — apply filtering immediately (no timeout needed)
+          handleFiltering();
         }
       });
 

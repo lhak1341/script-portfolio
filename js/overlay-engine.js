@@ -723,7 +723,11 @@ class OverlayEngine {
 
         const html = marked.parse(text);
         // Sanitize output with DOMPurify (marked v8+ removed built-in sanitization)
-        return typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : html;
+        if (typeof DOMPurify !== 'undefined') {
+            return DOMPurify.sanitize(html);
+        }
+        // DOMPurify unavailable: fall back to escaped plain text to prevent XSS
+        return sanitizeHTML(text);
     }
 
     /**
@@ -759,8 +763,8 @@ class OverlayEngine {
         const badgeContainer = header.querySelector('[style*="margin-top"]');
         if (badgeContainer) {
             badgeContainer.innerHTML = `
-                <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem;">v${config.version}</span>
-                <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; margin-left: 0.5rem;">${config.category}</span>
+                <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem;">v${sanitizeHTML(config.version)}</span>
+                <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; margin-left: 0.5rem;">${sanitizeHTML(config.category)}</span>
             `;
         }
 
@@ -933,6 +937,10 @@ class OverlayEngine {
      */
     destroy() {
         this.clearOverlays();
+        if (this._resizeHandler) {
+            window.removeEventListener('resize', this._resizeHandler);
+            this._resizeHandler = null;
+        }
         this.config = null;
         this.container = null;
     }
@@ -954,10 +962,9 @@ function initializeOverlayEngine(containerId, configPath) {
         engine.loadConfig(configPath);
     }
 
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        engine.handleResize();
-    });
+    // Handle window resize — store reference so destroy() can remove it
+    engine._resizeHandler = () => engine.handleResize();
+    window.addEventListener('resize', engine._resizeHandler);
 
     return engine;
 }
@@ -1108,14 +1115,14 @@ function createScriptCard(script) {
 
     card.innerHTML = `
         <div class="script-thumbnail">
-            <img src="${script.thumbnail || script.screenshot}" alt="${sanitizeHTML(script.name)}" loading="lazy">
+            <img src="${sanitizeHTML(script.thumbnail || script.screenshot)}" alt="${sanitizeHTML(script.name)}" loading="lazy">
             ${script.pinned ? '<i data-lucide="pin" class="pin-icon"></i>' : ''}
         </div>
         <div class="script-info">
             <h3 class="script-title">${sanitizeHTML(script.name)}</h3>
             <div class="script-meta">
                 <span class="script-version">v${sanitizeHTML(script.version)}</span>
-                <span class="script-category category-${script.category}" data-category="${script.category}">${sanitizeHTML(getCategoryName(script.category))}</span>
+                <span class="script-category category-${sanitizeHTML(script.category)}" data-category="${sanitizeHTML(script.category)}">${sanitizeHTML(getCategoryName(script.category))}</span>
             </div>
             <p class="script-description">${sanitizeHTML(script.description)}</p>
             ${script.tags ? `

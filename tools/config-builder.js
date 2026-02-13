@@ -129,10 +129,12 @@ class ConfigurationBuilder {
 
     /**
      * Get color value based on current theme
-     * Uses cached MediaQueryList to prevent memory leak from repeated matchMedia() calls
+     * Uses getEffectiveTheme() to respect manual theme overrides
      */
     getCurrentColorValue(colorName) {
-        const isDark = this.darkModeQuery.matches;
+        const isDark = typeof getEffectiveTheme !== 'undefined'
+            ? getEffectiveTheme() === 'dark'
+            : this.darkModeQuery.matches;
         return OVERLAY_DEFAULTS.COLORS[colorName][isDark ? 'dark' : 'light'];
     }
 
@@ -1392,7 +1394,8 @@ class ConfigurationBuilder {
 
         const html = marked.parse(text);
         // Sanitize output with DOMPurify (marked v8+ removed built-in sanitization)
-        const result = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : html;
+        // Fall back to escaped plain text if DOMPurify unavailable to prevent XSS
+        const result = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : sanitizeHTML(text);
         this.markdownCache.set(text, result);
         return result;
     }
