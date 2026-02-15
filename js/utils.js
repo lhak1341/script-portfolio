@@ -223,6 +223,17 @@ function deepClone(obj) {
 }
 
 /**
+ * Compare two semver strings numerically.
+ * Returns negative if a < b, positive if a > b, 0 if equal.
+ */
+function compareSemver(a, b) {
+    const parse = v => String(v).split('.').map(n => parseInt(n, 10) || 0);
+    const [aMaj, aMin, aPatch] = parse(a);
+    const [bMaj, bMin, bPatch] = parse(b);
+    return (aMaj - bMaj) || (aMin - bMin) || (aPatch - bPatch);
+}
+
+/**
  * Check if point is inside rectangle
  */
 function pointInRect(point, rect) {
@@ -285,6 +296,6 @@ if (typeof module !== 'undefined' && module.exports) {
         debounce, throttle, getElementPosition, isInViewport, smoothScrollTo,
         createElement, loadImage, copyToClipboard, generateUniqueId,
         sanitizeHTML, getURLParams, setURLParam, removeURLParam,
-        deepClone, pointInRect, storage
+        deepClone, pointInRect, storage, compareSemver
     };
 }

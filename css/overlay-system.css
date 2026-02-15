@@ -207,31 +207,29 @@
 }
 
 /* Dark mode colors for markdown elements */
-@media (prefers-color-scheme: dark) {
-  .description-tooltip strong,
-  .description-tooltip b {
-    color: #fb923c; /* Orange in dark mode */
-  }
+body.theme-dark .description-tooltip strong,
+body.theme-dark .description-tooltip b {
+  color: #fb923c; /* Orange in dark mode */
+}
 
-  .description-tooltip em,
-  .description-tooltip i {
-    color: #22d3ee; /* Cyan in dark mode */
-    opacity: 1;
-  }
+body.theme-dark .description-tooltip em,
+body.theme-dark .description-tooltip i {
+  color: #22d3ee; /* Cyan in dark mode */
+  opacity: 1;
+}
 
-  .description-tooltip code,
-  .script-content code {
-    background: #2d2d2d;
-    color: #e5e5e5;
-    border-color: #404040;
-  }
+body.theme-dark .description-tooltip code,
+body.theme-dark .script-content code {
+  background: #2d2d2d;
+  color: #e5e5e5;
+  border-color: #404040;
+}
 
-  .description-tooltip blockquote,
-  .script-content blockquote {
-    background: #1a1a1a;
-    border-left-color: #3b82f6; /* Accent blue for dark mode */
-    color: #a1a1aa;
-  }
+body.theme-dark .description-tooltip blockquote,
+body.theme-dark .script-content blockquote {
+  background: #1a1a1a;
+  border-left-color: #3b82f6; /* Accent blue for dark mode */
+  color: #a1a1aa;
 }
 
 /* Segmented Line Hover States */

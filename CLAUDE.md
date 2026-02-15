@@ -29,7 +29,7 @@ node build-system.js  # REQUIRED
 ### Running Locally
 
 ```bash
-python -m http.server 8000  # HTTP server REQUIRED (not file://)
+python3 -m http.server 8000  # HTTP server REQUIRED (not file://)
 ```
 
 **Why**: Browser CORS blocks `fetch()` to `file://` URLs
@@ -157,6 +157,24 @@ body.theme-dark .color-swatch.red { ... }
 
 **Impact**: Swatches and status colors don't update when user manually toggles theme
 
+### ❌ Pinning CDN Versions Without Verifying File Paths
+
+**marked v17+ moved the browser file** — `marked.min.js` no longer exists at the package root:
+
+**WRONG** (404 in marked v17+):
+```html
+<script src="https://cdn.jsdelivr.net/npm/marked@17.x.x/marked.min.js"></script>
+```
+
+**RIGHT** — UMD browser build:
+```html
+<script src="https://cdn.jsdelivr.net/npm/marked@17.x.x/lib/marked.umd.js"></script>
+```
+
+**Impact**: `marked` is undefined → `processMarkdown` falls back to `sanitizeHTML(text)` → raw markdown renders as plain text on all script pages
+
+**Note**: jsDelivr `@latest` can lag behind npm's actual latest. Always verify the file path exists for the pinned version by browsing `https://cdn.jsdelivr.net/npm/<package>@<version>/`.
+
 ### ❌ URL Params into innerHTML Without Sanitization
 
 **WRONG**:
@@ -185,7 +203,7 @@ Screenshots display at variable sizes. Coordinates stored at original screenshot
 
 ### Why HTTP Server Is Required
 
-CORS policy blocks `fetch()` to `file://` URLs. Must use HTTP server (`python -m http.server 8000`) to load JSON configs.
+CORS policy blocks `fetch()` to `file://` URLs. Must use HTTP server (`python3 -m http.server 8000`) to load JSON configs.
 
 ### Why Build System Exists
 
@@ -231,7 +249,7 @@ css/
 
 ```bash
 node build-system.js      # After ANY config.json change
-python -m http.server 8000  # To run site locally
+python3 -m http.server 8000  # To run site locally
 node add-script.js ...    # To create new script (then run build)
 npm run lint              # Check JS quality (ESLint)
 ```
@@ -241,7 +259,7 @@ npm run lint              # Check JS quality (ESLint)
 Shortcuts for common commands:
 ```bash
 npm run build       # alias for: node build-system.js
-npm run serve       # alias for: python -m http.server 8000
+npm run serve       # alias for: python3 -m http.server 8000
 npm run new-script  # alias for: node add-script.js
 npm run lint        # alias for: eslint js/ tools/config-builder.js *.js
 ```
@@ -313,7 +331,7 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 1. **After config.json changes**: Run `node build-system.js` (REQUIRED)
 2. **Avoid `*/` in comments**: Closes multiline comment (syntax error)
 3. **CSS theme syntax**: `body.theme-dark` NOT `body.theme-dark :root`
-4. **HTTP server required**: Use `python -m http.server 8000`, NOT `file://`
+4. **HTTP server required**: Use `python3 -m http.server 8000`, NOT `file://`
 5. **Don't move directories**: `scripts/`, `tools/`, `images/` paths are hardcoded
 6. **Check before deleting**: "Dead code" might be class methods (happened with OverlayEngine)
 7. **Hard refresh after changes**: Ctrl+Shift+R to bypass cache
@@ -329,3 +347,5 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 17. **config-builder.html dark styles**: Use `body.theme-dark .selector` not `@media (prefers-color-scheme: dark)` — two blocks need this (color swatches, status messages)
 18. **ESLint is configured**: Run `npm run lint` to check. When adding new shared globals to `js/`, register them in `eslint.config.js` under `projectBrowserGlobals`.
 19. **HTML-callable functions**: Add `/* exported funcName */` before functions only called from HTML `onclick` handlers — prevents false "unused variable" ESLint warnings.
+20. **marked CDN path changed in v17**: Use `lib/marked.umd.js` — `marked.min.js` at the package root 404s in v17+, leaving `marked` undefined and markdown rendering broken
+21. **`python3` not `python`**: This system uses `python3 -m http.server 8000`

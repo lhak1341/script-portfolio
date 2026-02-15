@@ -660,7 +660,8 @@ class ConfigurationBuilder {
 
     createHotspot(x, y, width, height) {
         // Convert to image coordinates
-        const img = document.querySelector('.workspace-image');
+        const canvas = document.getElementById('image-canvas');
+        const img = canvas.querySelector('.workspace-image');
         const scaleX = this.currentImage.width / img.offsetWidth;
         const scaleY = this.currentImage.height / img.offsetHeight;
 
@@ -1380,7 +1381,7 @@ class ConfigurationBuilder {
 
         if (typeof marked === 'undefined') {
             console.warn('Marked.js not loaded, falling back to plain text');
-            const fallback = `<p>${text}</p>`;
+            const fallback = `<p>${sanitizeHTML(text)}</p>`;
             this.markdownCache.set(text, fallback);
             return fallback;
         }

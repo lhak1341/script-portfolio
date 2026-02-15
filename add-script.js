@@ -105,7 +105,7 @@ Simply run the script from your After Effects Scripts menu. No additional setup 
     <title>${scriptName} - After Effects Scripts Portfolio</title>
     <link rel="stylesheet" href="../../css/main.css">
     <link rel="stylesheet" href="../../css/overlay-system.css">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://unpkg.com/lucide@0.564.0/dist/umd/lucide.js"></script>
 </head>
 <body>
     <header class="header">
@@ -155,10 +155,11 @@ Simply run the script from your After Effects Scripts menu. No additional setup 
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.1/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@17.0.2/lib/marked.umd.js"></script>
     <script src="../../js/theme.js"></script>
     <script src="../../js/utils.js"></script>
+    <script src="../../js/overlay-defaults.js"></script>
     <script src="../../js/overlay-engine.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async function() {

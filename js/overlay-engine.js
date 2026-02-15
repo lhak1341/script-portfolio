@@ -129,6 +129,7 @@ class OverlayEngine {
 
         if (img.complete && img.naturalWidth > 0) {
             console.log('Image already loaded');
+            img.onload = null;
             this.createOverlayElements(imageContainer);
             imageContainer.classList.add('loaded');
         }
@@ -879,12 +880,12 @@ class OverlayEngine {
     updateOverlayVisibility() {
         if (this.showAllMode) {
             // Show all overlays permanently with complex multi-segment lines
+            const hoverTooltips = this.container.querySelectorAll('.hover-tooltip');
+            const showAllTooltips = this.container.querySelectorAll('.show-all-tooltip');
             this.overlays.forEach(overlay => {
                 const highlights = overlay.querySelectorAll('.highlight');
                 const hoverLines = overlay.querySelectorAll('.hover-line');
                 const showAllLines = overlay.querySelectorAll('.show-all-line');
-                const hoverTooltips = this.container.querySelectorAll('.hover-tooltip');
-                const showAllTooltips = this.container.querySelectorAll('.show-all-tooltip');
 
                 highlights.forEach(h => h.style.opacity = '1');
                 // Hide simple hover lines and tooltips
@@ -902,12 +903,12 @@ class OverlayEngine {
             });
         } else {
             // Return to hover-only mode with simple horizontal lines
+            const hoverTooltips = this.container.querySelectorAll('.hover-tooltip');
+            const showAllTooltips = this.container.querySelectorAll('.show-all-tooltip');
             this.overlays.forEach(overlay => {
                 const highlights = overlay.querySelectorAll('.highlight');
                 const hoverLines = overlay.querySelectorAll('.hover-line');
                 const showAllLines = overlay.querySelectorAll('.show-all-line');
-                const hoverTooltips = this.container.querySelectorAll('.hover-tooltip');
-                const showAllTooltips = this.container.querySelectorAll('.show-all-tooltip');
 
                 highlights.forEach(h => h.style.opacity = '');
                 // Show simple hover lines and tooltips
@@ -1328,7 +1329,7 @@ async function handleFiltering() {
             case 'name':
                 return a.name.localeCompare(b.name);
             case 'newest':
-                return b.version.localeCompare(a.version);
+                return compareSemver(b.version, a.version);
             case 'category':
                 return a.category.localeCompare(b.category);
             default:

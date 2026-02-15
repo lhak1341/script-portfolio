@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node build-system.js",
     "new-script": "node add-script.js",
-    "serve": "python -m http.server 8000",
+    "serve": "python3 -m http.server 8000",
     "lint": "eslint js/ tools/config-builder.js *.js"
   },
   "engines": {

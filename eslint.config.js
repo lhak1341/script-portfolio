@@ -10,6 +10,7 @@ const projectBrowserGlobals = {
     sanitizeHTML: 'readonly',
     debounce: 'readonly',
     throttle: 'readonly',
+    compareSemver: 'readonly',
     // js/overlay-defaults.js
     OVERLAY_DEFAULTS: 'readonly',
     // js/overlay-engine.js
