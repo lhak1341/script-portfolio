@@ -460,6 +460,10 @@
 <body>
     <header class="header">
         <div class="container">
+            <div style="position: absolute; top: 1rem; right: 2rem; opacity: 0.7; font-size: 0.8rem; color: var(--header-subtitle); display: flex; align-items: center; gap: 0.3rem; cursor: pointer; transition: opacity 0.2s ease;" id="theme-indicator" title="Click to toggle theme">
+                <i data-lucide="moon" style="width: 14px; height: 14px;"></i>
+                Dark Mode
+            </div>
             <h1 class="site-title">Overlay Configuration Builder</h1>
             <p class="site-subtitle">Create interactive overlay configurations for your After Effects scripts</p>
         </div>
@@ -616,11 +620,12 @@
     <script src="../js/theme.js"></script>
     <script src="config-builder.js"></script>
     <script>
-        // Initialize Lucide icons
+        // Initialize Lucide icons and theme
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
+            setupThemeDetection();
         });
         
         // Initialize icon observer on builder instance

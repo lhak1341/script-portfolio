@@ -763,6 +763,7 @@ class OverlayEngine {
 
         // Update version and category badges
         const header = document.querySelector('.header .container');
+        if (!header) return;
         const badgeContainer = header.querySelector('[style*="margin-top"]');
         if (badgeContainer) {
             badgeContainer.innerHTML = `
@@ -971,8 +972,8 @@ function initializeOverlayEngine(containerId, configPath) {
         engine.loadConfig(configPath);
     }
 
-    // Handle window resize — store reference so destroy() can remove it
-    engine._resizeHandler = () => engine.handleResize();
+    // Handle window resize — debounced to avoid thrashing createOverlays() on every pixel
+    engine._resizeHandler = debounce(() => engine.handleResize(), 150);
     window.addEventListener('resize', engine._resizeHandler);
 
     return engine;

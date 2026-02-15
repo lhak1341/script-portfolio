@@ -137,6 +137,25 @@ const hoverTooltips = this.container.querySelectorAll('.hover-tooltip');
 
 **Impact**: Wrong engine's tooltips toggled; always use `this.container.querySelectorAll` inside OverlayEngine methods
 
+### ❌ Scoping `#overlay-toggle` to `this.container`
+
+**Mistake**: Using `this.container.querySelector('#overlay-toggle')` in `setupToggleButton()` / `toggleShowAll()`
+**Reality**: `#overlay-toggle` lives *above* the engine container in the DOM (it's a sibling, not a child) — must use `document.getElementById('overlay-toggle')`
+**Impact**: Toggle silently stops working — querySelector returns null, no error thrown
+**Rule**: The `this.container` scoping rule applies to class selectors (`.hover-tooltip` etc.), not to the toggle which is outside the container
+
+### ❌ Using `== null` in null guards (ESLint `eqeqeq` rule)
+
+**WRONG** (fails lint):
+```javascript
+if (str == null) return '';
+```
+
+**RIGHT**:
+```javascript
+if (str === null || str === undefined) return '';
+```
+
 ### ❌ Forgetting to Populate `this.tooltips[]` When Appending Tooltips
 
 **Mistake**: Tooltips appended to `imageContainer` but not pushed to `this.tooltips[]`
@@ -349,3 +368,6 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 19. **HTML-callable functions**: Add `/* exported funcName */` before functions only called from HTML `onclick` handlers — prevents false "unused variable" ESLint warnings.
 20. **marked CDN path changed in v17**: Use `lib/marked.umd.js` — `marked.min.js` at the package root 404s in v17+, leaving `marked` undefined and markdown rendering broken
 21. **`python3` not `python`**: This system uses `python3 -m http.server 8000`
+22. **`#overlay-toggle` is outside `this.container`**: Use `document.getElementById('overlay-toggle')` in `setupToggleButton()` / `toggleShowAll()` — scoping to the container silently breaks the toggle
+23. **`== null` fails ESLint**: Write `=== null || === undefined` instead — `eqeqeq` rule bans loose equality
+24. **`debounce()` and `throttle()` already exist**: Both are in `js/utils.js` and available globally on all pages — no need to add new ones

@@ -12,6 +12,14 @@
 const fs = require('fs');
 const path = require('path');
 
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
 function createScript(scriptId, scriptName, version, description, category, tags = [], screenshotFilename = null) {
     const scriptDir = path.join('scripts', scriptId);
     
@@ -102,7 +110,7 @@ Simply run the script from your After Effects Scripts menu. No additional setup 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${scriptName} - After Effects Scripts Portfolio</title>
+    <title>${escapeHtml(scriptName)} - After Effects Scripts Portfolio</title>
     <link rel="stylesheet" href="../../css/main.css">
     <link rel="stylesheet" href="../../css/overlay-system.css">
     <script src="https://unpkg.com/lucide@0.564.0/dist/umd/lucide.js"></script>
@@ -117,11 +125,11 @@ Simply run the script from your After Effects Scripts menu. No additional setup 
             <nav style="margin-bottom: 1rem;">
                 <a href="../../index.html" style="color: var(--header-subtitle); text-decoration: none; font-size: 0.9rem;">&larr; Back to Scripts</a>
             </nav>
-            <h1 class="site-title">${scriptName}</h1>
-            <p class="site-subtitle">${description}</p>
+            <h1 class="site-title">${escapeHtml(scriptName)}</h1>
+            <p class="site-subtitle">${escapeHtml(description)}</p>
             <div style="margin-top: 1rem;">
-                <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem;">v${version}</span>
-                <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; margin-left: 0.5rem;">${category.charAt(0).toUpperCase() + category.slice(1)}</span>
+                <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem;">v${escapeHtml(version)}</span>
+                <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; margin-left: 0.5rem;">${escapeHtml(category.charAt(0).toUpperCase() + category.slice(1))}</span>
             </div>
         </div>
     </header>

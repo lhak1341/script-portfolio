@@ -169,8 +169,9 @@ function generateUniqueId(prefix = 'id') {
  * Sanitize HTML content
  */
 function sanitizeHTML(str) {
+    if (str === null || str === undefined) return '';
     const temp = document.createElement('div');
-    temp.textContent = str;
+    temp.textContent = String(str);
     return temp.innerHTML;
 }
 

@@ -29,7 +29,7 @@ try {
     console.log('• Config builder synced with current scripts');
     
     console.log('\n🎯 Next steps:');
-    console.log('• Run: python -m http.server 8000');
+    console.log('• Run: python3 -m http.server 8000');
     console.log('• Visit: http://localhost:8000');
     console.log('• Configure: http://localhost:8000/tools/config-builder.html');
     console.log('• Edit individual config files as needed');
