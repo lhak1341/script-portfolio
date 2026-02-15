@@ -208,6 +208,55 @@ element.innerHTML = `Showing "${sanitizeHTML(urlParams.get('tag'))}"`;
 
 **Impact**: XSS via crafted URL (e.g. `?tag=<img src=x onerror=alert(1)>`)
 
+### ❌ Setting `img.src` Before `onload`/`onerror`
+
+**WRONG** — handler may not be registered before cached images fire synchronously:
+```javascript
+img.src = url;
+img.onload = () => { ... };  // Too late for cached images
+```
+
+**RIGHT** — always register handlers before assigning `src`:
+```javascript
+img.onload = () => { ... };
+img.onerror = () => { ... };
+img.src = url;  // Set LAST
+```
+
+**Impact**: Overlays silently fail to render on repeat page visits (cache hit)
+
+### ❌ Async Event Listeners Without `.catch()`
+
+**WRONG** — errors silently become unhandled promise rejections:
+```javascript
+input.addEventListener('input', debounce(handleFiltering, 150));
+sortFilter.addEventListener('change', handleFiltering);
+```
+
+**RIGHT**:
+```javascript
+input.addEventListener('input', debounce(() => handleFiltering().catch(console.error), 150));
+sortFilter.addEventListener('change', () => handleFiltering().catch(console.error));
+```
+
+**Impact**: Fetch errors after initial load are invisible; debugging becomes impossible
+
+### ❌ Dynamic `onclick` Using Array Index Instead of Entity ID
+
+**WRONG** — index is captured at render time and goes stale after deletions:
+```javascript
+item.innerHTML = `<button onclick="builder.deleteHotspot(${index})">`;
+```
+
+**RIGHT** — look up current index at click time using a stable ID:
+```javascript
+item.innerHTML = `<button onclick="builder.deleteHotspotById('${sanitizeHTML(hotspot.id)}')">`;
+// Then in the class:
+deleteHotspotById(id) { const i = this.hotspots.findIndex(h => h.id === id); ... }
+```
+
+**Impact**: Deletes wrong hotspot or silently no-ops after any prior deletion
+
 ---
 
 ## Architecture Gotchas
@@ -371,3 +420,6 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 22. **`#overlay-toggle` is outside `this.container`**: Use `document.getElementById('overlay-toggle')` in `setupToggleButton()` / `toggleShowAll()` — scoping to the container silently breaks the toggle
 23. **`== null` fails ESLint**: Write `=== null || === undefined` instead — `eqeqeq` rule bans loose equality
 24. **`debounce()` and `throttle()` already exist**: Both are in `js/utils.js` and available globally on all pages — no need to add new ones
+25. **`img.src` last**: Set `img.onload`/`img.onerror` *before* `img.src` — cached images fire synchronously, skipping handlers registered after
+26. **Async event listeners need `.catch()`**: `el.addEventListener('change', asyncFn)` swallows rejections — use `() => asyncFn().catch(console.error)` instead
+27. **Dynamic `onclick` → use ID, not index**: Array indices go stale after deletions; capture a stable `hotspot.id` and look up index with `findIndex` at click time

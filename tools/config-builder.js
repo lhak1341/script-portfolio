@@ -714,7 +714,7 @@ class ConfigurationBuilder {
         }
 
         list.innerHTML = '';
-        this.hotspots.forEach((hotspot, index) => {
+        this.hotspots.forEach((hotspot) => {
             const item = document.createElement('div');
             item.className = `hotspot-item ${hotspot === this.selectedHotspot ? 'active' : ''}`;
             
@@ -736,7 +736,7 @@ class ConfigurationBuilder {
                     </div>
                 </div>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
-                    <button class="btn btn-danger btn-small" onclick="builder.deleteHotspot(${index})" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                    <button class="btn btn-danger btn-small" onclick="builder.deleteHotspotById('${sanitizeHTML(hotspot.id)}')" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
                         <i data-lucide="trash-2" style="width: 12px; height: 12px;"></i>
                     </button>
                 </div>
@@ -1417,6 +1417,13 @@ class ConfigurationBuilder {
         this.updatePropertiesPanel();
         this.renderHotspots();
         this.showStatus(`Deleted hotspot "${hotspot.id}"`, 'success', 3000);
+    }
+
+    deleteHotspotById(id) {
+        const index = this.hotspots.findIndex(h => h.id === id);
+        if (index !== -1) {
+            this.deleteHotspot(index);
+        }
     }
 
     deleteCurrentHotspot() {

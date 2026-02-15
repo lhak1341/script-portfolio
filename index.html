@@ -92,24 +92,23 @@
         }
 
         setupThemeDetection();
-        await loadScriptsList();
-        setupFilters();
 
-        // Handle tag filtering from URL parameters
+        // Check for tag filter before initial render to avoid double-render flash
         const urlParams = new URLSearchParams(window.location.search);
         const tagFilter = urlParams.get('tag');
+
         if (tagFilter) {
-          // Clear the search input since we're filtering by exact tag, not searching
+          // Skip the unfiltered render — handleFiltering fetches data and renders filtered in one pass
+          setupFilters();
           const searchInput = document.getElementById('search-input');
           if (searchInput) {
             searchInput.value = '';
           }
-
-          // Show a message that we filtered by tag
           showTagFilterMessage(tagFilter);
-
-          // Cards are already rendered — apply filtering immediately (no timeout needed)
-          handleFiltering();
+          await handleFiltering();
+        } else {
+          await loadScriptsList();
+          setupFilters();
         }
       });
 
@@ -233,7 +232,7 @@
         }
 
         // Trigger filtering to update results
-        handleFiltering();
+        handleFiltering().catch(console.error);
       }
     </script>
   </body>

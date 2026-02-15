@@ -109,10 +109,9 @@ class OverlayEngine {
         }
 
         console.log('Loading image:', this.config.baseImage.src);
-        img.src = this.config.baseImage.src;
         img.alt = this.config.scriptName || 'Script Screenshot';
 
-        // Wait for image to load before creating overlays
+        // Set handlers before src so cached images don't fire before handlers are registered
         img.onload = () => {
             console.log('Image loaded successfully');
             this.createOverlayElements(imageContainer);
@@ -127,12 +126,7 @@ class OverlayEngine {
             </div>`;
         };
 
-        if (img.complete && img.naturalWidth > 0) {
-            console.log('Image already loaded');
-            img.onload = null;
-            this.createOverlayElements(imageContainer);
-            imageContainer.classList.add('loaded');
-        }
+        img.src = this.config.baseImage.src;
     }
 
     /**
@@ -1163,8 +1157,8 @@ function createScriptCard(script) {
             }
             
             // Trigger filtering
-            handleFiltering();
-            
+            handleFiltering().catch(console.error);
+
             // Show tag filter message
             if (typeof showTagFilterMessage === 'function') {
                 showTagFilterMessage(tag);
@@ -1198,8 +1192,8 @@ function createScriptCard(script) {
             window.history.pushState({}, '', url);
             
             // Trigger filtering
-            handleFiltering();
-            
+            handleFiltering().catch(console.error);
+
             // Hide tag filter message if it exists
             const tagFilterMessage = document.querySelector('.tag-filter-message');
             if (tagFilterMessage) {
@@ -1244,7 +1238,7 @@ function setupFilters() {
     const sortFilter = document.getElementById('sort-filter');
 
     if (searchInput) {
-        searchInput.addEventListener('input', debounce(handleFiltering, 150));
+        searchInput.addEventListener('input', debounce(() => handleFiltering().catch(console.error), 150));
     }
     if (categoryFilter) {
         categoryFilter.addEventListener('change', function() {
@@ -1262,8 +1256,8 @@ function setupFilters() {
             }
             
             // Trigger filtering
-            handleFiltering();
-            
+            handleFiltering().catch(console.error);
+
             // Show category filter message if a category is selected
             if (selectedCategory && typeof showCategoryFilterMessage === 'function') {
                 const categoryName = getCategoryName(selectedCategory);
@@ -1278,7 +1272,7 @@ function setupFilters() {
         });
     }
     if (sortFilter) {
-        sortFilter.addEventListener('change', handleFiltering);
+        sortFilter.addEventListener('change', () => handleFiltering().catch(console.error));
     }
 }
 

@@ -102,6 +102,8 @@ function createElement(tag, attributes = {}, content = '') {
             Object.entries(value).forEach(([dataKey, dataValue]) => {
                 element.dataset[dataKey] = dataValue;
             });
+        } else if (/^on/i.test(key)) {
+            console.warn(`createElement: blocked unsafe attribute "${key}"`);
         } else {
             element.setAttribute(key, value);
         }
@@ -109,7 +111,7 @@ function createElement(tag, attributes = {}, content = '') {
 
     if (content) {
         if (typeof content === 'string') {
-            element.innerHTML = content;
+            element.textContent = content;
         } else {
             element.appendChild(content);
         }
