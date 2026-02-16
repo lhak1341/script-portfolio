@@ -52,7 +52,8 @@
   border-radius: 4px;
 }
 
-.hotspot:hover .highlight {
+.hotspot:hover .highlight,
+.hotspot:focus-within .highlight {
   opacity: 1;
   border-color: var(--accent-color);
 }
@@ -261,20 +262,10 @@ body.theme-dark .script-content blockquote {
     padding: 1rem;
   }
 
-  /* Adjust tooltip positioning for mobile */
+  /* Adjust tooltip size for mobile — keep position: absolute to stay near hotspot */
   .line-left .description-tooltip,
   .line-right .description-tooltip {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    right: 20px;
-    max-width: none;
-    transform: none;
-  }
-
-  .hotspot:hover .line-left .description-tooltip,
-  .hotspot:hover .line-right .description-tooltip {
-    transform: none;
+    max-width: min(240px, calc(100vw - 40px));
   }
 }
 

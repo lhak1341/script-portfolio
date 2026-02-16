@@ -460,10 +460,10 @@
 <body>
     <header class="header">
         <div class="container">
-            <div style="position: absolute; top: 1rem; right: 2rem; opacity: 0.7; font-size: 0.8rem; color: var(--header-subtitle); display: flex; align-items: center; gap: 0.3rem; cursor: pointer; transition: opacity 0.2s ease;" id="theme-indicator" title="Click to toggle theme">
+            <button style="position: absolute; top: 1rem; right: 2rem; opacity: 0.7; font-size: 0.8rem; color: var(--header-subtitle); display: flex; align-items: center; gap: 0.3rem; cursor: pointer; transition: opacity 0.2s ease; background: none; border: none; padding: 0; font-family: inherit; line-height: inherit;" id="theme-indicator" aria-label="Current theme: Dark Mode. Click to change.">
                 <i data-lucide="moon" style="width: 14px; height: 14px;"></i>
                 Dark Mode
-            </div>
+            </button>
             <h1 class="site-title">Overlay Configuration Builder</h1>
             <p class="site-subtitle">Create interactive overlay configurations for your After Effects scripts</p>
         </div>
@@ -542,28 +542,28 @@
                 </div>
 
                 <div class="form-group">
-                    <div class="color-palette" id="color-palette">
-                        <div class="color-option" data-color="red">
+                    <div class="color-palette" id="color-palette" role="radiogroup" aria-label="Hotspot color">
+                        <button type="button" class="color-option" data-color="red" role="radio" aria-checked="false" aria-label="Red">
                             <div class="color-swatch red"></div>
-                        </div>
-                        <div class="color-option" data-color="orange">
+                        </button>
+                        <button type="button" class="color-option" data-color="orange" role="radio" aria-checked="false" aria-label="Orange">
                             <div class="color-swatch orange"></div>
-                        </div>
-                        <div class="color-option" data-color="yellow">
+                        </button>
+                        <button type="button" class="color-option" data-color="yellow" role="radio" aria-checked="false" aria-label="Yellow">
                             <div class="color-swatch yellow"></div>
-                        </div>
-                        <div class="color-option active" data-color="green">
+                        </button>
+                        <button type="button" class="color-option active" data-color="green" role="radio" aria-checked="true" aria-label="Green">
                             <div class="color-swatch green"></div>
-                        </div>
-                        <div class="color-option" data-color="cyan">
+                        </button>
+                        <button type="button" class="color-option" data-color="cyan" role="radio" aria-checked="false" aria-label="Cyan">
                             <div class="color-swatch cyan"></div>
-                        </div>
-                        <div class="color-option" data-color="purple">
+                        </button>
+                        <button type="button" class="color-option" data-color="purple" role="radio" aria-checked="false" aria-label="Purple">
                             <div class="color-swatch purple"></div>
-                        </div>
-                        <div class="color-option" data-color="pink">
+                        </button>
+                        <button type="button" class="color-option" data-color="pink" role="radio" aria-checked="false" aria-label="Pink">
                             <div class="color-swatch pink"></div>
-                        </div>
+                        </button>
                     </div>
                 </div>
 
@@ -595,7 +595,7 @@
                     <textarea id="description-text" rows="3" placeholder="Brief tooltip description with **bold**, _italic_, and `code` markdown support"></textarea>
                 </div>
 
-                <button class="btn btn-danger btn-small btn-full" onclick="deleteCurrentHotspot()">Delete Hotspot</button>
+                <button class="btn btn-danger btn-small btn-full" onclick="if(confirm('Delete this hotspot? This cannot be undone.')) deleteCurrentHotspot()">Delete Hotspot</button>
             </div>
 
             <div class="section-title">

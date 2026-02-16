@@ -118,10 +118,10 @@ Simply run the script from your After Effects Scripts menu. No additional setup 
 <body>
     <header class="header">
         <div class="container">
-            <div style="position: absolute; top: 1rem; right: 2rem; opacity: 0.7; font-size: 0.8rem; color: var(--header-subtitle); display: flex; align-items: center; gap: 0.3rem; cursor: pointer; transition: opacity 0.2s ease;" id="theme-indicator" title="Click to toggle theme">
+            <button style="position: absolute; top: 1rem; right: 2rem; opacity: 0.7; font-size: 0.8rem; color: var(--header-subtitle); display: flex; align-items: center; gap: 0.3rem; cursor: pointer; transition: opacity 0.2s ease; background: none; border: none; padding: 0; font-family: inherit; line-height: inherit;" id="theme-indicator" aria-label="Current theme: Dark Mode. Click to change.">
                 <i data-lucide="moon" style="width: 14px; height: 14px;"></i>
                 Dark Mode
-            </div>
+            </button>
             <nav style="margin-bottom: 1rem;">
                 <a href="../../index.html" style="color: var(--header-subtitle); text-decoration: none; font-size: 0.9rem;">&larr; Back to Scripts</a>
             </nav>
@@ -170,7 +170,8 @@ Simply run the script from your After Effects Scripts menu. No additional setup 
     <script src="../../js/overlay-defaults.js"></script>
     <script src="../../js/overlay-engine.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            (async function() {
             // Initialize Lucide icons
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
@@ -219,6 +220,7 @@ Simply run the script from your After Effects Scripts menu. No additional setup 
             } else {
                 console.error('Failed to load config.json for ${scriptName}');
             }
+            })().catch(err => console.error('Init failed:', err));
         });
     </script>
 </body>

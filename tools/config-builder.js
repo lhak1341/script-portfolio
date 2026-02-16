@@ -148,9 +148,13 @@ class ConfigurationBuilder {
         colorOptions.forEach(option => {
             option.addEventListener('click', () => {
                 // Remove active class from all options
-                colorOptions.forEach(opt => opt.classList.remove('active'));
+                colorOptions.forEach(opt => {
+                    opt.classList.remove('active');
+                    opt.setAttribute('aria-checked', 'false');
+                });
                 // Add active class to clicked option
                 option.classList.add('active');
+                option.setAttribute('aria-checked', 'true');
                 // Update selected color
                 this.selectedColor = option.dataset.color;
                 // Update current hotspot if selected
@@ -774,10 +778,14 @@ class ConfigurationBuilder {
 
         // Update color palette selection
         const colorOptions = document.querySelectorAll('.color-option');
-        colorOptions.forEach(opt => opt.classList.remove('active'));
+        colorOptions.forEach(opt => {
+            opt.classList.remove('active');
+            opt.setAttribute('aria-checked', 'false');
+        });
         const activeColor = document.querySelector(`[data-color="${this.selectedHotspot.color}"]`);
         if (activeColor) {
             activeColor.classList.add('active');
+            activeColor.setAttribute('aria-checked', 'true');
             this.selectedColor = this.selectedHotspot.color;
         }
 

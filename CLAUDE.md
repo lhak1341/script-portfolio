@@ -335,6 +335,20 @@ deleteHotspotById(id) {
 
 **Impact**: ID-safe method becomes unsafe if `deleteHotspot(index)` is ever called directly with a stale index; extends rule #27
 
+### ❌ Reverting `#theme-indicator` to a `<div>`
+
+**Mistake**: Changing `<button id="theme-indicator">` back to `<div>` during refactoring or "cleanup"
+**Reality**: The indicator is a `<button>` in all HTML pages and the `add-script.js` template — this is intentional for keyboard and screen reader accessibility
+**Impact**: Theme toggle unreachable by keyboard; not announced by screen readers
+**Rule**: `#theme-indicator` must always be a `<button>` with `aria-label`; `theme.js` updates the label dynamically via `updateThemeIndicator()`
+
+### ❌ Script Cards as `<div>` + Click Handler Instead of `<a>`
+
+**Mistake**: Using `document.createElement('div')` with `addEventListener('click', () => window.location.href = ...)` for script cards
+**Reality**: `createScriptCard()` returns an `<a href="scripts/${id}/index.html">` element — this provides keyboard navigation, right-click "Open in new tab", and correct screen reader semantics for free
+**Impact**: Cards unreachable by Tab key; can't be opened in a new tab; not announced as links
+**Rule**: Script cards must be `<a>` elements; `css/main.css` has the `a.script-card` rule to reset link defaults (`display: block; text-decoration: none; color: inherit`)
+
 ---
 
 ## Architecture Gotchas
@@ -511,3 +525,5 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 35. **`async` DOMContentLoaded needs `.catch()`**: Use `(async function(){...})().catch(console.error)` — a raw `async` DOMContentLoaded callback swallows rejections silently
 36. **Style attributes need `sanitizeHTML()` too**: `style="background: ${sanitizeHTML(val)}"` — CSS injection via inline styles; `getCurrentColorValue` returns raw `colorName` verbatim for unknown colors
 37. **ID-based methods must not delegate to index-based methods**: If `deleteHotspotById` calls `deleteHotspot(index)`, the stale-index risk is reintroduced for direct external callers — inline the logic
+38. **`#theme-indicator` is a `<button>`**: All pages and `add-script.js` use `<button id="theme-indicator">` — never revert to `<div>` (breaks keyboard and screen reader access); `theme.js` updates its `aria-label` dynamically
+39. **Script cards are `<a href>` links**: `createScriptCard()` returns `<a href="scripts/${id}/index.html">` — never revert to `<div>` + click handler; `a.script-card` in `main.css` resets link defaults

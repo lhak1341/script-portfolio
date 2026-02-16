@@ -169,6 +169,12 @@ class OverlayEngine {
         const hotspot = document.createElement('div');
         hotspot.className = 'hotspot';
         hotspot.id = `hotspot-${overlay.id || index}`;
+        hotspot.setAttribute('tabindex', '0');
+        hotspot.setAttribute('role', 'button');
+        const hotspotLabel = (overlay.description && overlay.description.content)
+            ? overlay.description.content
+            : (overlay.id || `Hotspot ${index + 1}`);
+        hotspot.setAttribute('aria-label', hotspotLabel);
 
         // Get coordinates (support both old and new format)
         const coords = this.getOverlayCoordinates(overlay);
@@ -224,18 +230,21 @@ class OverlayEngine {
             imageContainer.appendChild(showAllTooltip);
             this.tooltips.push(showAllTooltip);
 
-            // Link tooltips to hotspot for hover behavior
-            hotspot.addEventListener('mouseenter', () => {
+            // Link tooltips to hotspot for hover and keyboard focus behavior
+            const showHoverTooltip = () => {
                 if (!this.showAllMode) {
                     hoverTooltip.style.opacity = '1';
                 }
-            });
-            hotspot.addEventListener('mouseleave', () => {
-                // Only hide tooltip if not in "show all" mode
+            };
+            const hideHoverTooltip = () => {
                 if (!this.showAllMode) {
                     hoverTooltip.style.opacity = '0';
                 }
-            });
+            };
+            hotspot.addEventListener('mouseenter', showHoverTooltip);
+            hotspot.addEventListener('mouseleave', hideHoverTooltip);
+            hotspot.addEventListener('focusin', showHoverTooltip);
+            hotspot.addEventListener('focusout', hideHoverTooltip);
         }
 
         return hotspot;
@@ -987,6 +996,10 @@ async function loadScriptsList() {
     if (_scriptsListCache) {
         return _scriptsListCache;
     }
+    const grid = document.getElementById('scripts-grid');
+    if (grid) {
+        grid.innerHTML = '<div class="loading" style="grid-column: 1/-1;">Loading scripts</div>';
+    }
     try {
         const response = await fetch('data/scripts-list.json');
         if (!response.ok) {
@@ -1091,11 +1104,21 @@ function renderScriptCards(scripts) {
 
     grid.innerHTML = '';
 
+    if (scripts.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
+                <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">No scripts found</p>
+                <p style="font-size: 0.9rem;">Try adjusting your search or clearing the filters.</p>
+            </div>`;
+        grid.classList.remove('two-cards');
+        return;
+    }
+
     scripts.forEach(script => {
         const card = createScriptCard(script);
         grid.appendChild(card);
     });
-    
+
     // Add class for two-card layout to constrain width
     if (scripts.length === 2) {
         grid.classList.add('two-cards');
@@ -1113,11 +1136,9 @@ function renderScriptCards(scripts) {
  * Create individual script card
  */
 function createScriptCard(script) {
-    const card = document.createElement('div');
+    const card = document.createElement('a');
+    card.href = `scripts/${script.id}/index.html`;
     card.className = `script-card ${script.pinned ? 'pinned' : ''}`;
-    card.addEventListener('click', () => {
-        window.location.href = `scripts/${script.id}/index.html`;
-    });
 
     card.innerHTML = `
         <div class="script-thumbnail">

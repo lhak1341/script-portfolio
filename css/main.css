@@ -316,13 +316,13 @@ h2 {
 
 .category-automation {
   background: #f0fdf4;
-  color: #15803d;
+  color: #14532d;
   border-color: #bbf7d0;
 }
 
 .category-workflow {
   background: #fffbeb;
-  color: #d97706;
+  color: #92400e;
   border-color: #fed7aa;
 }
 
@@ -642,6 +642,34 @@ body.theme-light .toggle-switch-input:checked + .toggle-switch-slider {
 /* Add hover effect */
 .toggle-switch-container:hover .toggle-switch-slider::before {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Visually hidden utility — accessible to screen readers, invisible to sighted users */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus indicators for keyboard navigation */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Script cards as links — reset anchor defaults */
+a.script-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
 }
 
 /* Responsive Design */
