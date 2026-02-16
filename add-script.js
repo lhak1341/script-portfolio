@@ -181,7 +181,11 @@ Simply run the script from your After Effects Scripts menu. No additional setup 
             
             // Initialize overlay engine for this script
             const engine = initializeOverlayEngine('overlay-container');
-            
+            if (!engine) {
+                console.error('Failed to initialize overlay engine');
+                return;
+            }
+
             // Load the configuration from config.json
             const success = await engine.loadConfig('config.json');
             

@@ -97,7 +97,11 @@
             
             // Initialize overlay engine for this script
             const engine = initializeOverlayEngine('overlay-container');
-            
+            if (!engine) {
+                console.error('Failed to initialize overlay engine');
+                return;
+            }
+
             // Load the configuration from config.json
             const success = await engine.loadConfig('config.json');
             

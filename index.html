@@ -85,31 +85,35 @@
     <script src="js/overlay-engine.js"></script>
     <script>
       // Initialize the main page
-      document.addEventListener('DOMContentLoaded', async function () {
-        // Initialize Lucide icons
-        if (typeof lucide !== 'undefined') {
-          lucide.createIcons();
-        }
-
-        setupThemeDetection();
-
-        // Check for tag filter before initial render to avoid double-render flash
-        const urlParams = new URLSearchParams(window.location.search);
-        const tagFilter = urlParams.get('tag');
-
-        if (tagFilter) {
-          // Skip the unfiltered render — handleFiltering fetches data and renders filtered in one pass
-          setupFilters();
-          const searchInput = document.getElementById('search-input');
-          if (searchInput) {
-            searchInput.value = '';
+      document.addEventListener('DOMContentLoaded', function () {
+        (async function () {
+          // Initialize Lucide icons
+          if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
           }
-          showTagFilterMessage(tagFilter);
-          await handleFiltering();
-        } else {
-          await loadScriptsList();
-          setupFilters();
-        }
+
+          setupThemeDetection();
+
+          // Check for tag filter before initial render to avoid double-render flash
+          const urlParams = new URLSearchParams(window.location.search);
+          const tagFilter = urlParams.get('tag');
+
+          if (tagFilter) {
+            // Skip the unfiltered render — handleFiltering fetches data and renders filtered in one pass
+            setupFilters();
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+              searchInput.value = '';
+            }
+            showTagFilterMessage(tagFilter);
+            await handleFiltering();
+          } else {
+            await loadScriptsList();
+            setupFilters();
+          }
+        })().catch(err => {
+          console.error('Page initialization failed:', err);
+        });
       });
 
       /**

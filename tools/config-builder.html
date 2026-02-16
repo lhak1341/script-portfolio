@@ -632,11 +632,6 @@
         // Initialize icon observer on builder instance
         // This allows proper cleanup to prevent memory leaks
         function initializeIconObserver() {
-            if (!builder) {
-                console.warn('Builder not initialized yet');
-                return;
-            }
-
             // Disconnect any existing observer first
             if (builder.iconObserver) {
                 builder.iconObserver.disconnect();

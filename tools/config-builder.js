@@ -734,7 +734,7 @@ class ConfigurationBuilder {
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <strong style="color: var(--text-primary);">${sanitizeHTML(hotspot.id)}</strong>
                         <span style="font-size: 0.9rem;">${directionIcon}</span>
-                        <div style="width: 12px; height: 12px; background: ${this.getCurrentColorValue(hotspot.color)}; border-radius: 2px; border: 1px solid var(--border-color);"></div>
+                        <div style="width: 12px; height: 12px; background: ${sanitizeHTML(this.getCurrentColorValue(hotspot.color))}; border-radius: 2px; border: 1px solid var(--border-color);"></div>
                     </div>
                 </div>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
@@ -1423,9 +1423,20 @@ class ConfigurationBuilder {
 
     deleteHotspotById(id) {
         const index = this.hotspots.findIndex(h => h.id === id);
-        if (index !== -1) {
-            this.deleteHotspot(index);
+        if (index === -1) return;
+
+        const hotspot = this.hotspots[index];
+        const confirmed = confirm(`Delete hotspot "${hotspot.id}"?\n\nThis action cannot be undone.`);
+        if (!confirmed) return;
+
+        this.hotspots.splice(index, 1);
+        if (this.selectedHotspot === hotspot) {
+            this.selectedHotspot = null;
         }
+        this.updateHotspotList();
+        this.updatePropertiesPanel();
+        this.renderHotspots();
+        this.showStatus(`Deleted hotspot "${hotspot.id}"`, 'success', 3000);
     }
 
     deleteCurrentHotspot() {

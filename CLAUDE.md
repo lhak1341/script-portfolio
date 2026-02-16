@@ -263,6 +263,78 @@ deleteHotspotById(id) { const i = this.hotspots.findIndex(h => h.id === id); ...
 **Impact**: Silent divergence — builder crashes on edge cases that the engine handles correctly
 **Fix**: When patching either file, grep for the same method name in the other file and apply the same fix
 
+### ❌ Calling engine methods without null-guarding `initializeOverlayEngine()`
+
+**WRONG** — `initializeOverlayEngine()` returns `null` when the container element is missing:
+```javascript
+const engine = initializeOverlayEngine('overlay-container');
+const success = await engine.loadConfig('config.json');  // TypeError if engine is null
+```
+
+**RIGHT**:
+```javascript
+const engine = initializeOverlayEngine('overlay-container');
+if (!engine) { console.error('Failed to initialize overlay engine'); return; }
+const success = await engine.loadConfig('config.json');
+```
+
+**Impact**: TypeError on every script page if the container element is missing or renamed. Fix must also be applied to `add-script.js` (the generator template).
+
+### ❌ `async` DOMContentLoaded Without Error Handling
+
+**WRONG** — `addEventListener` ignores the returned Promise, so rejections are silently swallowed:
+```javascript
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadScriptsList();  // If this rejects, nothing catches it
+});
+```
+
+**RIGHT** — wrap body in an IIFE with `.catch()`:
+```javascript
+document.addEventListener('DOMContentLoaded', function() {
+    (async function() {
+        await loadScriptsList();
+    })().catch(err => console.error('Init failed:', err));
+});
+```
+
+**Impact**: Fetch failures on page load are invisible. This is the DOMContentLoaded variant of rule #26.
+
+### ❌ User-Controlled Content Injected Into Inline Style Attributes
+
+**WRONG** — `sanitizeHTML()` rule applies to style attributes, not just innerHTML:
+```javascript
+item.innerHTML = `<div style="background: ${colorValue};">`;
+```
+
+**RIGHT**:
+```javascript
+item.innerHTML = `<div style="background: ${sanitizeHTML(colorValue)};">`;
+```
+
+**Impact**: CSS injection via crafted config.json color values (e.g. `getCurrentColorValue` returns raw `colorName` verbatim when not found in `OVERLAY_DEFAULTS.COLORS`)
+
+### ❌ ID-Based Deletion Methods Delegating Back to Index-Based Methods
+
+**WRONG** — `deleteHotspotById` calling `deleteHotspot(index)` reintroduces stale-index risk for any external direct callers of `deleteHotspot`:
+```javascript
+deleteHotspotById(id) {
+    const index = this.hotspots.findIndex(h => h.id === id);
+    if (index !== -1) this.deleteHotspot(index);  // round-trips through index-based method
+}
+```
+
+**RIGHT** — inline the deletion logic in the ID-based method:
+```javascript
+deleteHotspotById(id) {
+    const index = this.hotspots.findIndex(h => h.id === id);
+    if (index === -1) return;
+    // ... inline splice/update logic directly ...
+}
+```
+
+**Impact**: ID-safe method becomes unsafe if `deleteHotspot(index)` is ever called directly with a stale index; extends rule #27
+
 ---
 
 ## Architecture Gotchas
@@ -435,3 +507,7 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 31. **`lucide.createIcons()` once per render, not per card**: Call it once after `renderScriptCards` finishes; per-card `setTimeout(() => lucide.createIcons(), 0)` inside `createScriptCard` causes N redundant full-DOM scans
 32. **No `setTimeout` for init waits**: Don't use `setTimeout(fn, N)` to wait for a class instance to be ready — move the call into the same `DOMContentLoaded` listener that creates the instance (blocking scripts guarantee the instance exists before the listener fires)
 33. **Mirror fixes across both engines**: `overlay-engine.js` and `config-builder.js` share parallel method implementations — when fixing a guard in one, check the same method in the other
+34. **`initializeOverlayEngine()` can return null**: Always guard — `if (!engine) { return; }` before calling any engine methods; fix the generator too (`add-script.js`)
+35. **`async` DOMContentLoaded needs `.catch()`**: Use `(async function(){...})().catch(console.error)` — a raw `async` DOMContentLoaded callback swallows rejections silently
+36. **Style attributes need `sanitizeHTML()` too**: `style="background: ${sanitizeHTML(val)}"` — CSS injection via inline styles; `getCurrentColorValue` returns raw `colorName` verbatim for unknown colors
+37. **ID-based methods must not delegate to index-based methods**: If `deleteHotspotById` calls `deleteHotspot(index)`, the stale-index risk is reintroduced for direct external callers — inline the logic
