@@ -257,6 +257,12 @@ deleteHotspotById(id) { const i = this.hotspots.findIndex(h => h.id === id); ...
 
 **Impact**: Deletes wrong hotspot or silently no-ops after any prior deletion
 
+### ❌ Parallel Implementations in overlay-engine.js vs config-builder.js
+
+**Mistake**: Fixing or guarding a method in `overlay-engine.js` but forgetting the mirrored method in `config-builder.js` (e.g. `getCurrentColorValue`, `processMarkdown`)
+**Impact**: Silent divergence — builder crashes on edge cases that the engine handles correctly
+**Fix**: When patching either file, grep for the same method name in the other file and apply the same fix
+
 ---
 
 ## Architecture Gotchas
@@ -428,3 +434,4 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 30. **Async functions called without `.catch()`**: Any `async` function call that returns a Promise must have `.catch()` attached — e.g. `engine.loadConfig(path).catch(console.error)` — unhandled rejections are invisible
 31. **`lucide.createIcons()` once per render, not per card**: Call it once after `renderScriptCards` finishes; per-card `setTimeout(() => lucide.createIcons(), 0)` inside `createScriptCard` causes N redundant full-DOM scans
 32. **No `setTimeout` for init waits**: Don't use `setTimeout(fn, N)` to wait for a class instance to be ready — move the call into the same `DOMContentLoaded` listener that creates the instance (blocking scripts guarantee the instance exists before the listener fires)
+33. **Mirror fixes across both engines**: `overlay-engine.js` and `config-builder.js` share parallel method implementations — when fixing a guard in one, check the same method in the other

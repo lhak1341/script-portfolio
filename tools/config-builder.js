@@ -135,7 +135,9 @@ class ConfigurationBuilder {
         const isDark = typeof getEffectiveTheme !== 'undefined'
             ? getEffectiveTheme() === 'dark'
             : this.darkModeQuery.matches;
-        return OVERLAY_DEFAULTS.COLORS[colorName][isDark ? 'dark' : 'light'];
+        return OVERLAY_DEFAULTS.COLORS[colorName]
+            ? OVERLAY_DEFAULTS.COLORS[colorName][isDark ? 'dark' : 'light']
+            : colorName;
     }
 
     /**
@@ -1594,7 +1596,7 @@ window.addEventListener('beforeunload', function() {
 // Global functions for button clicks (called from HTML onclick handlers)
 /* exported loadSelectedScript, deleteCurrentHotspot, saveConfiguration, copyConfigToClipboard */
 function loadSelectedScript() {
-    builder.loadSelectedScript();
+    builder.loadSelectedScript().catch(console.error);
 }
 
 function deleteCurrentHotspot() {
@@ -1602,10 +1604,8 @@ function deleteCurrentHotspot() {
 }
 
 function saveConfiguration() {
-    builder.saveConfiguration();
+    builder.saveConfiguration().catch(console.error);
 }
-
-
 
 function copyConfigToClipboard() {
     const jsonOutput = document.getElementById('json-output');
@@ -1616,6 +1616,9 @@ function copyConfigToClipboard() {
         setTimeout(() => {
             btn.textContent = originalText;
         }, 2000);
+    }).catch(err => {
+        console.error('Clipboard write failed:', err);
+        alert('Copy failed. Please select and copy the text manually.');
     });
 }
 
