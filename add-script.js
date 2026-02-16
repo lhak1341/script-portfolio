@@ -165,8 +165,8 @@ Simply run the script from your After Effects Scripts menu. No additional setup 
 
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.1/dist/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked@17.0.2/lib/marked.umd.js"></script>
-    <script src="../../js/theme.js"></script>
     <script src="../../js/utils.js"></script>
+    <script src="../../js/theme.js"></script>
     <script src="../../js/overlay-defaults.js"></script>
     <script src="../../js/overlay-engine.js"></script>
     <script>

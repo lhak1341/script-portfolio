@@ -124,6 +124,9 @@ class OverlayEngine {
                 <p>Failed to load image: ${sanitizeHTML(this.config.baseImage.src)}</p>
                 <p>Please check the image path.</p>
             </div>`;
+            // Reset internal state — the innerHTML wipe orphaned all overlay/tooltip nodes
+            this.overlays = [];
+            this.tooltips = [];
         };
 
         img.src = this.config.baseImage.src;
@@ -292,7 +295,6 @@ class OverlayEngine {
         });
 
         // Create single horizontal segment
-        const scale = Math.min(scaleX, scaleY);
         const simpleSegments = [{type: 'horizontal', length: totalHorizontal}];
 
         this.createSegmentedLine(container, simpleSegments, lineColor, thickness, scaleX, scaleY);
@@ -963,7 +965,7 @@ function initializeOverlayEngine(containerId, configPath) {
     const engine = new OverlayEngine(container);
     
     if (configPath) {
-        engine.loadConfig(configPath);
+        engine.loadConfig(configPath).catch(err => console.error('loadConfig failed:', err));
     }
 
     // Handle window resize — debounced to avoid thrashing createOverlays() on every pixel
@@ -1207,11 +1209,6 @@ function createScriptCard(script) {
             }
         });
     });
-
-    // Initialize Lucide icons for the new card
-    if (typeof lucide !== 'undefined') {
-        setTimeout(() => lucide.createIcons(), 0);
-    }
 
     return card;
 }

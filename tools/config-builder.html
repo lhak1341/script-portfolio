@@ -620,14 +620,15 @@
     <script src="../js/theme.js"></script>
     <script src="config-builder.js"></script>
     <script>
-        // Initialize Lucide icons and theme
+        // Initialize Lucide icons, theme, and icon observer after builder is ready
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
             setupThemeDetection();
+            initializeIconObserver();
         });
-        
+
         // Initialize icon observer on builder instance
         // This allows proper cleanup to prevent memory leaks
         function initializeIconObserver() {
@@ -657,9 +658,6 @@
                 });
             }
         }
-
-        // Wait for builder to be initialized before setting up observer
-        setTimeout(initializeIconObserver, 100);
     </script>
 </body>
 </html>

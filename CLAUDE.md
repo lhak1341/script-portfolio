@@ -336,8 +336,8 @@ npm run lint        # alias for: eslint js/ tools/config-builder.js *.js
 
 When creating a new `scripts/{id}/index.html`, the script block **must** load DOMPurify before marked:
 ```html
-<script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.1/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@17.0.2/lib/marked.umd.js"></script>
 ```
 DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 
@@ -423,3 +423,8 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 25. **`img.src` last**: Set `img.onload`/`img.onerror` *before* `img.src` — cached images fire synchronously, skipping handlers registered after
 26. **Async event listeners need `.catch()`**: `el.addEventListener('change', asyncFn)` swallows rejections — use `() => asyncFn().catch(console.error)` instead
 27. **Dynamic `onclick` → use ID, not index**: Array indices go stale after deletions; capture a stable `hotspot.id` and look up index with `findIndex` at click time
+28. **`utils.js` before `theme.js`**: Load order in all HTML pages must be `utils.js` → `theme.js` → `overlay-defaults.js` → `overlay-engine.js` — if `theme.js` ever calls a utils global it would silently break with reversed order
+29. **`img.onerror` wipes container**: After `imageContainer.innerHTML = ...` in the onerror handler, reset `this.overlays = []; this.tooltips = [];` — the wipe orphans those nodes, leaving stale references
+30. **Async functions called without `.catch()`**: Any `async` function call that returns a Promise must have `.catch()` attached — e.g. `engine.loadConfig(path).catch(console.error)` — unhandled rejections are invisible
+31. **`lucide.createIcons()` once per render, not per card**: Call it once after `renderScriptCards` finishes; per-card `setTimeout(() => lucide.createIcons(), 0)` inside `createScriptCard` causes N redundant full-DOM scans
+32. **No `setTimeout` for init waits**: Don't use `setTimeout(fn, N)` to wait for a class instance to be ready — move the call into the same `DOMContentLoaded` listener that creates the instance (blocking scripts guarantee the instance exists before the listener fires)
