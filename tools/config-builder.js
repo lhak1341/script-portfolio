@@ -141,6 +141,22 @@ class ConfigurationBuilder {
     }
 
     /**
+     * Return a color value safe to inject into an inline style attribute string.
+     * getCurrentColorValue() passes through unknown color names verbatim, which
+     * allows CSS injection via a crafted config.json. This method validates the
+     * result is a hex color or rgb/rgba value before use in innerHTML style attrs.
+     */
+    getSafeColorValue(colorName) {
+        const value = this.getCurrentColorValue(colorName);
+        // Allow hex colors (#rgb, #rrggbb, #rrggbbaa) and rgb/rgba functions
+        if (/^#[0-9a-fA-F]{3,8}$/.test(value) || /^rgba?\(/.test(value)) {
+            return value;
+        }
+        // Unknown/unresolved color name — return a neutral fallback
+        return '#808080';
+    }
+
+    /**
      * Setup color palette event listeners
      */
     setupColorPalette() {
@@ -738,7 +754,7 @@ class ConfigurationBuilder {
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <strong style="color: var(--text-primary);">${sanitizeHTML(hotspot.id)}</strong>
                         <span style="font-size: 0.9rem;">${directionIcon}</span>
-                        <div style="width: 12px; height: 12px; background: ${sanitizeHTML(this.getCurrentColorValue(hotspot.color))}; border-radius: 2px; border: 1px solid var(--border-color);"></div>
+                        <div style="width: 12px; height: 12px; background: ${sanitizeHTML(this.getSafeColorValue(hotspot.color))}; border-radius: 2px; border: 1px solid var(--border-color);"></div>
                     </div>
                 </div>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
@@ -1450,10 +1466,19 @@ class ConfigurationBuilder {
     deleteCurrentHotspot() {
         if (!this.selectedHotspot) return;
 
-        const index = this.hotspots.indexOf(this.selectedHotspot);
-        if (index !== -1) {
-            this.deleteHotspot(index);
-        }
+        const hotspot = this.selectedHotspot;
+        const confirmed = confirm(`Delete hotspot "${hotspot.id}"?\n\nThis action cannot be undone.`);
+        if (!confirmed) return;
+
+        const index = this.hotspots.indexOf(hotspot);
+        if (index === -1) return;
+
+        this.hotspots.splice(index, 1);
+        this.selectedHotspot = null;
+        this.updateHotspotList();
+        this.updatePropertiesPanel();
+        this.renderHotspots();
+        this.showStatus(`Deleted hotspot "${hotspot.id}"`, 'success', 3000);
     }
 
     exportConfiguration() {

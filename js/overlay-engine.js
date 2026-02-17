@@ -36,7 +36,6 @@ class OverlayEngine {
      */
     async loadConfig(configPath) {
         try {
-            console.log('Loading config from:', configPath);
             // Add cache-busting parameter to avoid stale JSON
             const cacheBuster = Date.now();
             const response = await fetch(`${configPath}?v=${cacheBuster}`);
@@ -54,7 +53,6 @@ class OverlayEngine {
                 throw new Error(`Invalid JSON in config file: ${jsonError.message}`);
             }
 
-            console.log('Config loaded:', this.config);
             this.createOverlays();
             return true;
         } catch (error) {
@@ -108,12 +106,10 @@ class OverlayEngine {
             imageContainer.appendChild(img);
         }
 
-        console.log('Loading image:', this.config.baseImage.src);
         img.alt = this.config.scriptName || 'Script Screenshot';
 
         // Set handlers before src so cached images don't fire before handlers are registered
         img.onload = () => {
-            console.log('Image loaded successfully');
             this.createOverlayElements(imageContainer);
             imageContainer.classList.add('loaded');
         };
@@ -146,20 +142,11 @@ class OverlayEngine {
         const scaleX = img.offsetWidth / this.config.baseImage.width;
         const scaleY = img.offsetHeight / this.config.baseImage.height;
 
-        console.log('Scale factors:', { scaleX, scaleY });
-        console.log('Image dimensions:', { 
-            actual: { width: img.offsetWidth, height: img.offsetHeight },
-            config: { width: this.config.baseImage.width, height: this.config.baseImage.height }
-        });
-
         this.config.overlays.forEach((overlay, index) => {
-            console.log('Creating overlay:', overlay.id || index);
             const hotspot = this.createHotspot(overlay, scaleX, scaleY, index, imageContainer);
             imageContainer.appendChild(hotspot);
             this.overlays.push(hotspot);
         });
-
-        console.log(`Created ${this.overlays.length} overlays`);
     }
 
     /**
@@ -171,9 +158,19 @@ class OverlayEngine {
         hotspot.id = `hotspot-${overlay.id || index}`;
         hotspot.setAttribute('tabindex', '0');
         hotspot.setAttribute('role', 'button');
-        const hotspotLabel = (overlay.description && overlay.description.content)
+        const rawLabel = (overlay.description && overlay.description.content)
             ? overlay.description.content
             : (overlay.id || `Hotspot ${index + 1}`);
+        // Strip markdown syntax so screen readers don't announce raw asterisks, backticks, etc.
+        const hotspotLabel = rawLabel
+            .replace(/\*\*(.*?)\*\*/g, '$1')
+            .replace(/__(.*?)__/g, '$1')
+            .replace(/\*(.*?)\*/g, '$1')
+            .replace(/_(.*?)_/g, '$1')
+            .replace(/`([^`]+)`/g, '$1')
+            .replace(/#{1,6}\s/g, '')
+            .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+            .trim();
         hotspot.setAttribute('aria-label', hotspotLabel);
 
         // Get coordinates (support both old and new format)
@@ -189,8 +186,6 @@ class OverlayEngine {
         hotspot.style.top = `${top}px`;
         hotspot.style.width = `${width}px`;
         hotspot.style.height = `${height}px`;
-
-        console.log(`Hotspot ${overlay.id}:`, { left, top, width, height });
 
         // Store current overlay and scale factors for highlight creation
         this.currentOverlay = overlay;
@@ -245,6 +240,13 @@ class OverlayEngine {
             hotspot.addEventListener('mouseleave', hideHoverTooltip);
             hotspot.addEventListener('focusin', showHoverTooltip);
             hotspot.addEventListener('focusout', hideHoverTooltip);
+            // Enter/Space fulfill the ARIA button contract (activate = show tooltip)
+            hotspot.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    showHoverTooltip();
+                }
+            });
         }
 
         return hotspot;
@@ -464,15 +466,6 @@ class OverlayEngine {
         // Store final position for tooltip positioning
         container.setAttribute('data-end-x', currentX);
         container.setAttribute('data-end-y', currentY);
-
-        console.log('Multi-segment line created:', {
-            segments: segments.length,
-            endPosition: { x: currentX, y: currentY },
-            color: lineColor,
-            thickness,
-            scale,
-            startEdge: firstSegment.type === 'horizontal' ? (firstSegment.length > 0 ? 'right' : 'left') : (firstSegment.length > 0 ? 'bottom' : 'top')
-        });
     }
 
 
@@ -514,6 +507,14 @@ class OverlayEngine {
         const hotspotTop = coords.y * scaleY;
         const hotspotWidth = coords.width * scaleX;
         const hotspotHeight = coords.height * scaleY;
+
+        // If no line config, position tooltip directly adjacent to the hotspot
+        if (!overlay.line) {
+            tooltip.style.left = `${hotspotLeft + hotspotWidth + 8}px`;
+            tooltip.style.top = `${hotspotTop + hotspotHeight / 2}px`;
+            tooltip.style.transform = 'translateY(-50%)';
+            return tooltip;
+        }
 
         // Calculate total horizontal distance from segments
         const segments = overlay.line.segments;
@@ -577,6 +578,15 @@ class OverlayEngine {
      * Position tooltip for segmented line system
      */
     positionTooltipForSegmentedLine(tooltip, overlay, hotspotCenterX, hotspotCenterY, scaleX, scaleY, offset) {
+        // If no line config, position tooltip directly adjacent to the hotspot
+        if (!overlay.line) {
+            const coords = this.getOverlayCoordinates(overlay);
+            tooltip.style.left = `${(coords.x + coords.width) * scaleX + 8}px`;
+            tooltip.style.top = `${(coords.y + coords.height / 2) * scaleY}px`;
+            tooltip.style.transform = 'translateY(-50%)';
+            return;
+        }
+
         // Use simplified segments for positioning
         const segments = this.simplifyLineSegments(overlay.line.segments);
         const scale = Math.min(scaleX, scaleY);
@@ -590,13 +600,6 @@ class OverlayEngine {
         const hotspotTop = coords.y * scaleY;
         const hotspotWidth = coords.width * scaleX;
         const hotspotHeight = coords.height * scaleY;
-
-        // Also store these for debugging
-        console.log(`Hotspot bounds for ${overlay.id}:`, {
-            coords,
-            scaled: { left: hotspotLeft, top: hotspotTop, width: hotspotWidth, height: hotspotHeight },
-            scaleFactors: { scaleX, scaleY, scale }
-        });
 
         if (firstSegment.type === 'horizontal') {
             startY = hotspotTop + hotspotHeight / 2; // Middle of hotspot vertically
@@ -662,14 +665,6 @@ class OverlayEngine {
             // Clear other positioning
             tooltip.style.right = 'auto';
         }
-
-        console.log(`Segmented tooltip for ${overlay.id}:`, {
-            segments: segments.length,
-            startPosition: { x: startX, y: startY },
-            endPosition: { x: endX, y: endY },
-            lastSegment: lastSegment,
-            hotspotBounds: { left: hotspotLeft, top: hotspotTop, width: hotspotWidth, height: hotspotHeight }
-        });
     }
 
 

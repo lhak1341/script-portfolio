@@ -349,6 +349,56 @@ deleteHotspotById(id) {
 **Impact**: Cards unreachable by Tab key; can't be opened in a new tab; not announced as links
 **Rule**: Script cards must be `<a>` elements; `css/main.css` has the `a.script-card` rule to reset link defaults (`display: block; text-decoration: none; color: inherit`)
 
+### ❌ Accessing `overlay.line.segments` Without a Null Guard
+
+**WRONG** — `overlay.description` can exist without `overlay.line`:
+```javascript
+const segments = overlay.line.segments;  // TypeError if no line
+```
+
+**RIGHT** — guard before accessing:
+```javascript
+if (!overlay.line) {
+    // fall back: position tooltip adjacent to hotspot
+    return tooltip;
+}
+const segments = overlay.line.segments;
+```
+
+**Impact**: Crashes `createSimpleTooltipAbsolute` and `positionTooltipForSegmentedLine` for any overlay with `description` but no `line` config; all subsequent hotspots on the page silently fail to render
+
+### ❌ Using `getCurrentColorValue()` Directly in `innerHTML` Style Strings
+
+**WRONG** — `sanitizeHTML()` prevents HTML injection but not CSS injection; `getCurrentColorValue()` returns raw `colorName` verbatim for unknown colors:
+```javascript
+style="background: ${sanitizeHTML(this.getCurrentColorValue(hotspot.color))};"
+```
+
+**RIGHT** — use `getSafeColorValue()` in `config-builder.js` (validates hex/#rgb/rgba, falls back to `#808080`):
+```javascript
+style="background: ${sanitizeHTML(this.getSafeColorValue(hotspot.color))};"
+```
+
+**Impact**: CSS injection via crafted color values in config.json. Note: DOM property assignment (`.style.border = val`) is safe; this rule applies only to inline style strings inside `innerHTML`.
+
+### ❌ `role="button"` Elements Without `keydown` Enter/Space Handler
+
+**WRONG** — tooltip shows on `focusin` but `Enter`/`Space` do nothing, violating the ARIA button contract:
+```javascript
+hotspot.setAttribute('role', 'button');
+hotspot.addEventListener('focusin', showTooltip);
+// Missing keydown handler
+```
+
+**RIGHT** — add keyboard activation:
+```javascript
+hotspot.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showTooltip(); }
+});
+```
+
+**Impact**: Keyboard users focused via Tab see the tooltip on focus, but pressing Enter/Space (expected activation keys per ARIA spec) does nothing
+
 ---
 
 ## Architecture Gotchas
@@ -527,3 +577,6 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 37. **ID-based methods must not delegate to index-based methods**: If `deleteHotspotById` calls `deleteHotspot(index)`, the stale-index risk is reintroduced for direct external callers — inline the logic
 38. **`#theme-indicator` is a `<button>`**: All pages and `add-script.js` use `<button id="theme-indicator">` — never revert to `<div>` (breaks keyboard and screen reader access); `theme.js` updates its `aria-label` dynamically
 39. **Script cards are `<a href>` links**: `createScriptCard()` returns `<a href="scripts/${id}/index.html">` — never revert to `<div>` + click handler; `a.script-card` in `main.css` resets link defaults
+40. **`overlay.line` may be absent even when `overlay.description` is present**: Guard with `if (!overlay.line)` before accessing `.segments` in `createSimpleTooltipAbsolute` and `positionTooltipForSegmentedLine` — missing guard crashes all hotspot rendering
+41. **`getCurrentColorValue()` is unsafe in `innerHTML` style strings**: Use `getSafeColorValue()` in `config-builder.js` instead — it validates the result is hex or rgb/rgba and falls back to `#808080` for unknown colors (CSS injection risk)
+42. **`role="button"` needs `keydown` for Enter/Space**: Any element with `role="button"` must handle `keydown` Enter/Space to fulfill the ARIA button contract — `focusin` alone is insufficient
