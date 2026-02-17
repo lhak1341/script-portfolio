@@ -3,6 +3,9 @@
  * Requires: OVERLAY_DEFAULTS (from overlay-defaults.js)
  */
 
+// One-time flag so marked.setOptions() only mutates global state once per page load
+let _builderMarkedConfigured = false;
+
 class ConfigurationBuilder {
     constructor() {
         this.mode = 'select'; // 'select' or 'create'
@@ -904,7 +907,7 @@ class ConfigurationBuilder {
         const scaleY = img.offsetHeight / this.currentImage.height;
 
         // Render each hotspot with full preview
-        this.hotspots.forEach((hotspot, index) => {
+        this.hotspots.forEach(hotspot => {
             this.renderFullHotspotPreview(hotspot, scaleX, scaleY, canvas);
         });
     }
@@ -1412,12 +1415,14 @@ class ConfigurationBuilder {
             return fallback;
         }
 
-        // Configure marked for consistent rendering
-        marked.setOptions({
-            gfm: true,          // GitHub Flavored Markdown
-            breaks: false,      // Don't convert \n to <br>
-            smartypants: false  // Don't convert quotes to smart quotes
-        });
+        // Configure marked once per page load (setOptions mutates global state)
+        if (!_builderMarkedConfigured) {
+            marked.setOptions({
+                gfm: true,      // GitHub Flavored Markdown
+                breaks: false,  // Don't convert \n to <br>
+            });
+            _builderMarkedConfigured = true;
+        }
 
         const html = marked.parse(text);
         // Sanitize output with DOMPurify (marked v8+ removed built-in sanitization)
@@ -1427,7 +1432,7 @@ class ConfigurationBuilder {
         return result;
     }
 
-    deleteHotspot(index) {
+    _deleteHotspot(index) {
         const hotspot = this.hotspots[index];
         if (!hotspot) return;
 

@@ -399,6 +399,30 @@ hotspot.addEventListener('keydown', (e) => {
 
 **Impact**: Keyboard users focused via Tab see the tooltip on focus, but pressing Enter/Space (expected activation keys per ARIA spec) does nothing
 
+### ❌ Calling `marked.setOptions()` Inside a Per-Call Function
+
+**WRONG** — mutates global `marked.defaults` on every tooltip/markdown render:
+```javascript
+function processMarkdown(text) {
+    marked.setOptions({ gfm: true, breaks: false });  // runs N times
+    return marked.parse(text);
+}
+```
+
+**RIGHT** — use a module-level one-time flag:
+```javascript
+let _markedConfigured = false;
+function processMarkdown(text) {
+    if (!_markedConfigured) {
+        marked.setOptions({ gfm: true, breaks: false });
+        _markedConfigured = true;
+    }
+    return marked.parse(text);
+}
+```
+
+**Impact**: Global `marked.defaults` mutated on every hotspot render. Also note: `marked.setOptions` silently ignores unknown options (like removed `smartypants: false`) with no warning — remove stale option keys when spotted.
+
 ---
 
 ## Architecture Gotchas
@@ -580,3 +604,4 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 40. **`overlay.line` may be absent even when `overlay.description` is present**: Guard with `if (!overlay.line)` before accessing `.segments` in `createSimpleTooltipAbsolute` and `positionTooltipForSegmentedLine` — missing guard crashes all hotspot rendering
 41. **`getCurrentColorValue()` is unsafe in `innerHTML` style strings**: Use `getSafeColorValue()` in `config-builder.js` instead — it validates the result is hex or rgb/rgba and falls back to `#808080` for unknown colors (CSS injection risk)
 42. **`role="button"` needs `keydown` for Enter/Space**: Any element with `role="button"` must handle `keydown` Enter/Space to fulfill the ARIA button contract — `focusin` alone is insufficient
+43. **`marked.setOptions()` belongs outside per-call functions**: Use a module-level `_flag` boolean so it only runs once — calling it inside `processMarkdown()` mutates global defaults on every render; also remove stale options like `smartypants: false` (removed in marked v8)

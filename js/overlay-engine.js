@@ -3,6 +3,9 @@
  * Requires: OVERLAY_DEFAULTS (from overlay-defaults.js)
  */
 
+// One-time flag so marked.setOptions() only mutates global state once per page load
+let _markedConfigured = false;
+
 class OverlayEngine {
     constructor(container) {
         this.container = container;
@@ -717,12 +720,14 @@ class OverlayEngine {
             return `<p>${sanitizeHTML(text)}</p>`;
         }
 
-        // Configure marked for consistent rendering
-        marked.setOptions({
-            gfm: true,          // GitHub Flavored Markdown
-            breaks: false,      // Don't convert \n to <br>
-            smartypants: false  // Don't convert quotes to smart quotes
-        });
+        // Configure marked once per page load (setOptions mutates global state)
+        if (!_markedConfigured) {
+            marked.setOptions({
+                gfm: true,      // GitHub Flavored Markdown
+                breaks: false,  // Don't convert \n to <br>
+            });
+            _markedConfigured = true;
+        }
 
         const html = marked.parse(text);
         // Sanitize output with DOMPurify (marked v8+ removed built-in sanitization)

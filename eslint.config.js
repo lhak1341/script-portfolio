@@ -15,6 +15,14 @@ const projectBrowserGlobals = {
     OVERLAY_DEFAULTS: 'readonly',
     // js/overlay-engine.js
     OverlayEngine: 'readonly',
+    initializeOverlayEngine: 'readonly',
+    loadScriptsList: 'readonly',
+    renderScriptCards: 'readonly',
+    handleFiltering: 'readonly',
+    setupFilters: 'readonly',
+    showLoadingError: 'readonly',
+    getCategoryName: 'readonly',
+    getFallbackScriptsData: 'readonly',
     // js/theme.js
     getEffectiveTheme: 'readonly',
     setupThemeDetection: 'readonly',
