@@ -36,6 +36,9 @@ class ConfigurationBuilder {
         // Observer reference for cleanup
         this.iconObserver = null;
 
+        // Sequence counter to detect and discard stale async image loads
+        this._loadSeq = 0;
+
         // Script metadata mapping
         this.scriptData = {
     'effect-usage-analyzer': {
@@ -343,10 +346,15 @@ class ConfigurationBuilder {
         this.currentScript = scriptId;
         const scriptInfo = this.scriptData[scriptId];
 
+        // Capture load sequence to detect rapid script-switching (stale loads)
+        const loadSeq = ++this._loadSeq;
+
         // Load the screenshot
         const imagePath = `../images/script-screenshots/${scriptInfo.image}`;
         try {
-            await this.loadImageFromPath(imagePath);
+            await this.loadImageFromPath(imagePath, loadSeq);
+            // If the user selected a different script while this one was loading, abort
+            if (this._loadSeq !== loadSeq) return;
             
             // Try to load existing configuration
             const configPath = `../scripts/${scriptId}/config.json`;
@@ -377,12 +385,19 @@ class ConfigurationBuilder {
     }
 
     /**
-     * Load image from path instead of file upload
+     * Load image from path instead of file upload.
+     * @param {string} imagePath
+     * @param {number} [loadSeq] - Pass the caller's _loadSeq snapshot to skip stale loads
      */
-    async loadImageFromPath(imagePath) {
+    async loadImageFromPath(imagePath, loadSeq) {
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.onload = () => {
+                // If a newer load has started, discard this stale result
+                if (loadSeq !== undefined && this._loadSeq !== loadSeq) {
+                    resolve();
+                    return;
+                }
                 this.currentImage = {
                     element: img,
                     width: img.naturalWidth,
@@ -536,7 +551,7 @@ class ConfigurationBuilder {
         }
     }
 
-    async loadImage(file) {
+    loadImage(file) {
         const reader = new FileReader();
         reader.onload = (e) => {
             const img = new Image();
@@ -691,7 +706,7 @@ class ConfigurationBuilder {
         const scaleY = this.currentImage.height / img.offsetHeight;
 
         const hotspot = {
-            id: `hotspot-${this.hotspots.length + 1}`,
+            id: generateUniqueId('hotspot'),
             coordinates: {
                 x: Math.round(x * scaleX),
                 y: Math.round(y * scaleY),
@@ -789,7 +804,8 @@ class ConfigurationBuilder {
         document.getElementById('hotspot-width').value = this.selectedHotspot.coordinates.width;
         document.getElementById('hotspot-height').value = this.selectedHotspot.coordinates.height;
         // Update distance-based line configuration
-        const distances = this.convertSegmentsToDistances(this.selectedHotspot.line.segments);
+        const lineSegments = this.selectedHotspot.line ? this.selectedHotspot.line.segments : [];
+        const distances = this.convertSegmentsToDistances(lineSegments);
         document.getElementById('horizontal-distance').value = distances.horizontalDistance;
         document.getElementById('vertical-distance').value = distances.verticalDistance;
         document.getElementById('turning-point').value = distances.turningPoint;
@@ -1301,7 +1317,8 @@ class ConfigurationBuilder {
      * Position tooltip for segmented line preview - matches main engine positioning
      */
     positionTooltipForSegmentedLinePreview(tooltip, hotspot, scaleX, scaleY, offset) {
-        const segments = hotspot.line.segments;
+        const segments = hotspot.line ? (hotspot.line.segments || []) : [];
+        if (segments.length === 0) return;
         const scale = Math.min(scaleX, scaleY);
         const firstSegment = segments[0];
         const lastSegment = segments[segments.length - 1];
@@ -1430,24 +1447,6 @@ class ConfigurationBuilder {
         const result = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : sanitizeHTML(text);
         this.markdownCache.set(text, result);
         return result;
-    }
-
-    _deleteHotspot(index) {
-        const hotspot = this.hotspots[index];
-        if (!hotspot) return;
-
-        // Confirm deletion
-        const confirmed = confirm(`Delete hotspot "${hotspot.id}"?\n\nThis action cannot be undone.`);
-        if (!confirmed) return;
-
-        this.hotspots.splice(index, 1);
-        if (this.selectedHotspot === hotspot) {
-            this.selectedHotspot = null;
-        }
-        this.updateHotspotList();
-        this.updatePropertiesPanel();
-        this.renderHotspots();
-        this.showStatus(`Deleted hotspot "${hotspot.id}"`, 'success', 3000);
     }
 
     deleteHotspotById(id) {

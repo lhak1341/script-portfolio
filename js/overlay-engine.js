@@ -300,7 +300,7 @@ class OverlayEngine {
         const thickness = lineConfig.thickness || OVERLAY_DEFAULTS.LINE_THICKNESS;
 
         // Calculate total horizontal distance from segments
-        const segments = lineConfig.segments;
+        const segments = lineConfig.segments || [];
         let totalHorizontal = 0;
         segments.forEach(seg => {
             if (seg.type === 'horizontal') {
@@ -884,51 +884,39 @@ class OverlayEngine {
      * Update overlay visibility based on current mode
      */
     updateOverlayVisibility() {
+        // Query global tooltip sets once — applying them per-overlay is O(N²)
+        const hoverTooltips = this.container.querySelectorAll('.hover-tooltip');
+        const showAllTooltips = this.container.querySelectorAll('.show-all-tooltip');
+
         if (this.showAllMode) {
             // Show all overlays permanently with complex multi-segment lines
-            const hoverTooltips = this.container.querySelectorAll('.hover-tooltip');
-            const showAllTooltips = this.container.querySelectorAll('.show-all-tooltip');
+            hoverTooltips.forEach(t => t.style.display = 'none');
+            showAllTooltips.forEach(t => { t.style.display = ''; t.style.opacity = '1'; });
             this.overlays.forEach(overlay => {
                 const highlights = overlay.querySelectorAll('.highlight');
                 const hoverLines = overlay.querySelectorAll('.hover-line');
                 const showAllLines = overlay.querySelectorAll('.show-all-line');
 
                 highlights.forEach(h => h.style.opacity = '1');
-                // Hide simple hover lines and tooltips
+                // Hide simple hover lines
                 hoverLines.forEach(l => l.style.display = 'none');
-                hoverTooltips.forEach(t => t.style.display = 'none');
-                // Show complex lines and tooltips
-                showAllLines.forEach(l => {
-                    l.style.display = '';
-                    l.style.opacity = '1';
-                });
-                showAllTooltips.forEach(t => {
-                    t.style.display = '';
-                    t.style.opacity = '1';
-                });
+                // Show complex lines
+                showAllLines.forEach(l => { l.style.display = ''; l.style.opacity = '1'; });
             });
         } else {
             // Return to hover-only mode with simple horizontal lines
-            const hoverTooltips = this.container.querySelectorAll('.hover-tooltip');
-            const showAllTooltips = this.container.querySelectorAll('.show-all-tooltip');
+            hoverTooltips.forEach(t => { t.style.display = ''; t.style.opacity = ''; });
+            showAllTooltips.forEach(t => t.style.display = 'none');
             this.overlays.forEach(overlay => {
                 const highlights = overlay.querySelectorAll('.highlight');
                 const hoverLines = overlay.querySelectorAll('.hover-line');
                 const showAllLines = overlay.querySelectorAll('.show-all-line');
 
                 highlights.forEach(h => h.style.opacity = '');
-                // Show simple hover lines and tooltips
-                hoverLines.forEach(l => {
-                    l.style.display = '';
-                    l.style.opacity = '';
-                });
-                hoverTooltips.forEach(t => {
-                    t.style.display = '';
-                    t.style.opacity = '';
-                });
-                // Hide complex lines and tooltips
+                // Show simple hover lines
+                hoverLines.forEach(l => { l.style.display = ''; l.style.opacity = ''; });
+                // Hide complex lines
                 showAllLines.forEach(l => l.style.display = 'none');
-                showAllTooltips.forEach(t => t.style.display = 'none');
             });
         }
     }

@@ -11,6 +11,7 @@ const projectBrowserGlobals = {
     debounce: 'readonly',
     throttle: 'readonly',
     compareSemver: 'readonly',
+    generateUniqueId: 'readonly',
     // js/overlay-defaults.js
     OVERLAY_DEFAULTS: 'readonly',
     // js/overlay-engine.js
@@ -26,6 +27,9 @@ const projectBrowserGlobals = {
     // js/theme.js
     getEffectiveTheme: 'readonly',
     setupThemeDetection: 'readonly',
+    // index.html inline script (called from overlay-engine.js with typeof guards)
+    showTagFilterMessage: 'readonly',
+    showCategoryFilterMessage: 'readonly',
 };
 
 module.exports = [

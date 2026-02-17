@@ -17,7 +17,8 @@ function escapeHtml(str) {
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 function createScript(scriptId, scriptName, version, description, category, tags = [], screenshotFilename = null) {
@@ -213,7 +214,7 @@ Simply run the script from your After Effects Scripts menu. No additional setup 
                                     </div>
                                 </div>
                             \`;
-                            contentContainer.innerHTML += tagsHtml;
+                            contentContainer.insertAdjacentHTML('beforeend', tagsHtml);
                         }
                     }
                 }
