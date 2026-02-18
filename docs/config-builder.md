@@ -6,7 +6,7 @@
 
 ```bash
 # 1. Start server
-python -m http.server 8000
+python3 -m http.server 8000
 
 # 2. Open in browser
 http://localhost:8000/tools/config-builder.html

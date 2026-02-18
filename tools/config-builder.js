@@ -1026,64 +1026,6 @@ class ConfigurationBuilder {
     }
 
     /**
-     * Create simple horizontal line preview
-     */
-    createPreviewSimpleLine(hotspot, scaleX, scaleY, lineColor, thickness) {
-        const container = document.createElement('div');
-        container.className = 'preview-element overlay-line-container';
-        container.style.position = 'absolute';
-        container.style.pointerEvents = 'none';
-        container.style.zIndex = '15';
-
-        // Calculate total horizontal distance from segments
-        const segments = hotspot.line.segments;
-        let totalHorizontal = 0;
-        segments.forEach(seg => {
-            if (seg.type === 'horizontal') {
-                totalHorizontal += seg.length;
-            }
-        });
-
-        const scale = Math.min(scaleX, scaleY);
-        const scaledHorizontal = totalHorizontal * scale;
-
-        // Position based on horizontal direction
-        if (totalHorizontal >= 0) {
-            // Going right - start from right edge
-            container.style.left = '100%';
-            container.style.top = '50%';
-            container.style.transform = 'translateY(-50%)';
-        } else {
-            // Going left - start from left edge
-            container.style.left = '0%';
-            container.style.top = '50%';
-            container.style.transform = 'translateY(-50%)';
-        }
-
-        // Create single horizontal segment
-        const segmentEl = document.createElement('div');
-        segmentEl.className = 'preview-element line-segment segment-0';
-        segmentEl.style.position = 'absolute';
-        segmentEl.style.backgroundColor = lineColor;
-        segmentEl.style.opacity = '1';
-        segmentEl.style.zIndex = '30';
-
-        const width = Math.abs(scaledHorizontal);
-        segmentEl.style.width = `${width}px`;
-        segmentEl.style.height = `${thickness}px`;
-
-        if (scaledHorizontal >= 0) {
-            segmentEl.style.left = '0px';
-        } else {
-            segmentEl.style.left = `${-width}px`;
-        }
-        segmentEl.style.top = `${-thickness/2}px`;
-
-        container.appendChild(segmentEl);
-        return container;
-    }
-
-    /**
      * Convert legacy single-direction line format to multi-segment format
      */
     convertLegacyLineToSegments(legacyLine) {
@@ -1152,6 +1094,15 @@ class ConfigurationBuilder {
         container.style.opacity = '1'; // Always visible in preview
 
         const segments = hotspot.line.segments;
+
+        // Guard against legacy line format where segments may be absent
+        if (!segments) {
+            console.warn('Missing segments in line config for hotspot:', hotspot.id);
+            container.style.border = '2px solid orange';
+            container.style.padding = '4px';
+            container.innerHTML = '<span style="color: orange; font-size: 10px;">Legacy format</span>';
+            return container;
+        }
 
         // Validate pattern
         if (!this.isValidSegmentPattern(segments)) {
@@ -1272,46 +1223,6 @@ class ConfigurationBuilder {
 
         return tooltip;
     }
-
-    /**
-     * Position tooltip at end of simple horizontal line
-     */
-    positionTooltipForSimpleLine(tooltip, hotspot, scaleX, scaleY) {
-        const segments = hotspot.line.segments;
-        let totalHorizontal = 0;
-        segments.forEach(seg => {
-            if (seg.type === 'horizontal') {
-                totalHorizontal += seg.length;
-            }
-        });
-
-        const scale = Math.min(scaleX, scaleY);
-        const scaledHorizontal = totalHorizontal * scale;
-
-        const hotspotLeft = hotspot.coordinates.x * scaleX;
-        const hotspotTop = hotspot.coordinates.y * scaleY;
-        const hotspotWidth = hotspot.coordinates.width * scaleX;
-        const hotspotHeight = hotspot.coordinates.height * scaleY;
-
-        const offset = 15;
-
-        if (totalHorizontal >= 0) {
-            // Going right
-            const endX = hotspotLeft + hotspotWidth + scaledHorizontal + offset;
-            const endY = hotspotTop + hotspotHeight / 2;
-            tooltip.style.left = `${endX}px`;
-            tooltip.style.top = `${endY}px`;
-            tooltip.style.transform = 'translateY(-50%)';
-        } else {
-            // Going left
-            const endX = hotspotLeft + scaledHorizontal - offset;
-            const endY = hotspotTop + hotspotHeight / 2;
-            tooltip.style.right = `calc(100% - ${endX}px)`;
-            tooltip.style.top = `${endY}px`;
-            tooltip.style.transform = 'translateY(-50%)';
-        }
-    }
-
 
     /**
      * Position tooltip for segmented line preview - matches main engine positioning
@@ -1495,7 +1406,7 @@ class ConfigurationBuilder {
             version: version,
             description: description,
             baseImage: {
-                src: this.currentImage ? `path/to/${this.currentImage.file.name}` : 'screenshot.png',
+                src: this.currentImage ? (this.currentImage.path || `path/to/${this.currentImage.file?.name || 'screenshot.png'}`) : 'screenshot.png',
                 width: this.currentImage ? this.currentImage.width : 800,
                 height: this.currentImage ? this.currentImage.height : 600
             },

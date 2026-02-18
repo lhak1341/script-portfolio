@@ -423,6 +423,17 @@ function processMarkdown(text) {
 
 **Impact**: Global `marked.defaults` mutated on every hotspot render. Also note: `marked.setOptions` silently ignores unknown options (like removed `smartypants: false`) with no warning — remove stale option keys when spotted.
 
+### ❌ Assuming `this.currentImage` Has a Consistent Shape
+
+**Mistake**: Accessing `this.currentImage.file.name` in a method reachable via both image-loading paths
+**Reality**: Two paths set different properties on `this.currentImage`:
+- `loadImage(file)` (file upload): `{ element, width, height, file }` — `.file` is a `File` object
+- `loadImageFromPath(path)` (dropdown): `{ element, width, height, path }` — `.path` is a string
+
+**Fix**: `this.currentImage.path || this.currentImage.file?.name || 'screenshot.png'`
+
+**Impact**: `TypeError` in any method that assumes only one loading path was used (e.g. `exportConfiguration()`)
+
 ---
 
 ## Architecture Gotchas

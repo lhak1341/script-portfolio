@@ -153,7 +153,7 @@ function main() {
     console.log('\n✅ System generation complete!');
     console.log('\nNext steps:');
     console.log('1. Add new scripts with: node add-script.js <id> <name> <version> <description> <category>');
-    console.log('2. Run a local server: python -m http.server 8000');
+    console.log('2. Run a local server: python3 -m http.server 8000');
     console.log('3. Use the config builder at http://localhost:8000/tools/config-builder.html');
 }
 
