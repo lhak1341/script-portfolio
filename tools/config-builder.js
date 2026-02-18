@@ -765,7 +765,7 @@ class ConfigurationBuilder {
                 top: '<i data-lucide="arrow-up" style="width: 14px; height: 14px;"></i>', 
                 bottom: '<i data-lucide="arrow-down" style="width: 14px; height: 14px;"></i>' 
             };
-            const directionIcon = directionIcons[hotspot.line.direction] || '<i data-lucide="link" style="width: 14px; height: 14px;"></i>';
+            const directionIcon = (hotspot.line && directionIcons[hotspot.line.direction]) || '<i data-lucide="link" style="width: 14px; height: 14px;"></i>';
             
             item.innerHTML = `
                 <div style="flex: 1;">
@@ -809,7 +809,7 @@ class ConfigurationBuilder {
         document.getElementById('horizontal-distance').value = distances.horizontalDistance;
         document.getElementById('vertical-distance').value = distances.verticalDistance;
         document.getElementById('turning-point').value = distances.turningPoint;
-        document.getElementById('description-text').value = this.selectedHotspot.description.content;
+        document.getElementById('description-text').value = this.selectedHotspot.description?.content ?? '';
 
         // Update color palette selection
         const colorOptions = document.querySelectorAll('.color-option');
@@ -1508,9 +1508,6 @@ class ConfigurationBuilder {
         jsonOutput.textContent = JSON.stringify(config, null, 2);
         jsonOutput.style.display = 'block';
         copyBtn.style.display = 'block';
-
-        // Also trigger download
-        this.downloadJSON(config, `${scriptName.replace(/\s+/g, '-').toLowerCase()}-config.json`);
     }
 
     handleImportFile(e) {

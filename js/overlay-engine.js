@@ -20,6 +20,7 @@ class OverlayEngine {
      * Get color value based on current theme
      */
     getCurrentColorValue(colorName) {
+        if (!colorName || typeof colorName !== 'string') return '#808080';
         // Handle legacy hex colors
         if (colorName.startsWith('#')) {
             return colorName;
@@ -592,6 +593,7 @@ class OverlayEngine {
 
         // Use simplified segments for positioning
         const segments = this.simplifyLineSegments(overlay.line.segments);
+        if (segments.length === 0) return;
         const scale = Math.min(scaleX, scaleY);
         const firstSegment = segments[0];
         const lastSegment = segments[segments.length - 1];
