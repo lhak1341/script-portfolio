@@ -30,6 +30,8 @@ const projectBrowserGlobals = {
     // index.html inline script (called from overlay-engine.js with typeof guards)
     showTagFilterMessage: 'readonly',
     showCategoryFilterMessage: 'readonly',
+    clearTagFilter: 'readonly',
+    clearCategoryFilter: 'readonly',
 };
 
 module.exports = [

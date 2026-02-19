@@ -191,24 +191,19 @@ class OverlayEngine {
         hotspot.style.width = `${width}px`;
         hotspot.style.height = `${height}px`;
 
-        // Store current overlay and scale factors for highlight creation
-        this.currentOverlay = overlay;
-        this.currentScaleX = scaleX;
-        this.currentScaleY = scaleY;
-
         // Create highlight
-        const highlight = this.createHighlight(coords, overlay.style, scaleX, scaleY);
+        const highlight = this.createHighlight(coords, overlay.style, scaleX, scaleY, overlay);
         hotspot.appendChild(highlight);
 
         // Create two lines: one simple for hover, one complex for show-all mode
         if (overlay.line) {
             // Simple line for hover (always 1-segment horizontal)
-            const hoverLine = this.createSimpleLine(overlay.line, coords, scaleX, scaleY);
+            const hoverLine = this.createSimpleLine(overlay.line, coords, scaleX, scaleY, overlay);
             hoverLine.classList.add('hover-line');
             hotspot.appendChild(hoverLine);
 
             // Complex line for show-all mode (original multi-segment)
-            const showAllLine = this.createLine(overlay.line);
+            const showAllLine = this.createLine(overlay.line, overlay, scaleX, scaleY);
             showAllLine.classList.add('show-all-line');
             showAllLine.style.display = 'none'; // Hidden by default
             hotspot.appendChild(showAllLine);
@@ -259,7 +254,7 @@ class OverlayEngine {
     /**
      * Create highlight element
      */
-    createHighlight(coords, styleConfig, scaleX, scaleY) {
+    createHighlight(coords, styleConfig, scaleX, scaleY, overlay) {
         const highlight = document.createElement('div');
         highlight.className = 'highlight';
 
@@ -270,7 +265,7 @@ class OverlayEngine {
         highlight.style.height = `${coords.height * scaleY}px`;
 
         // Use color from overlay or line config (single source of truth)
-        const overlayColor = this.currentOverlay?.color || styleConfig?.color;
+        const overlayColor = overlay?.color || styleConfig?.color;
         if (overlayColor) {
             const colorValue = this.getCurrentColorValue(overlayColor);
             highlight.style.borderColor = colorValue;
@@ -291,12 +286,12 @@ class OverlayEngine {
     /**
      * Create simple single-segment horizontal line for hover state
      */
-    createSimpleLine(lineConfig, coords, scaleX, scaleY) {
+    createSimpleLine(lineConfig, coords, scaleX, scaleY, overlay) {
         const container = document.createElement('div');
         container.className = 'overlay-line-container';
 
         // Use color from overlay or line config
-        const overlayColor = this.currentOverlay?.color || lineConfig.color || 'cyan';
+        const overlayColor = overlay?.color || lineConfig.color || 'cyan';
         const lineColor = this.getCurrentColorValue(overlayColor);
         const thickness = lineConfig.thickness || OVERLAY_DEFAULTS.LINE_THICKNESS;
 
@@ -320,18 +315,18 @@ class OverlayEngine {
     /**
      * Create line element - supports both single direction lines and multi-segment connectors
      */
-    createLine(lineConfig) {
+    createLine(lineConfig, overlay, scaleX, scaleY) {
         const container = document.createElement('div');
         container.className = 'overlay-line-container';
 
         // Use color from overlay or line config (single source of truth)
-        const overlayColor = this.currentOverlay?.color || lineConfig.color || 'cyan';
+        const overlayColor = overlay?.color || lineConfig.color || 'cyan';
         const lineColor = this.getCurrentColorValue(overlayColor);
         const thickness = lineConfig.thickness || OVERLAY_DEFAULTS.LINE_THICKNESS;
 
-        // Use unified multi-segment system
-        const scaleX = this.currentScaleX || 1;
-        const scaleY = this.currentScaleY || 1;
+        // Use passed scale factors (fall back to 1 for safety)
+        scaleX = scaleX || 1;
+        scaleY = scaleY || 1;
 
         // Simplify segments: remove segments with zero length
         const simplifiedSegments = this.simplifyLineSegments(lineConfig.segments);
@@ -717,6 +712,7 @@ class OverlayEngine {
      * Process markdown using Marked.js library
      */
     processMarkdown(text) {
+        if (text === null || text === undefined) return '';
         if (typeof marked === 'undefined') {
             console.warn('Marked.js not loaded, falling back to plain text');
             return `<p>${sanitizeHTML(text)}</p>`;
@@ -830,16 +826,6 @@ class OverlayEngine {
      */
     getOverlayCoordinates(overlay) {
         return overlay.coordinates || { x: 0, y: 0, width: 0, height: 0 };
-    }
-
-    /**
-     * Get current hotspot being processed (utility method)
-     */
-    getCurrentHotspot() {
-        if (this.currentOverlay) {
-            return this.getOverlayCoordinates(this.currentOverlay);
-        }
-        return { x: 0, y: 0 };
     }
 
     /**

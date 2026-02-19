@@ -864,6 +864,9 @@ class ConfigurationBuilder {
             segments: segments,
             thickness: OVERLAY_DEFAULTS.LINE_THICKNESS
         };
+        if (!this.selectedHotspot.description) {
+            this.selectedHotspot.description = {};
+        }
         this.selectedHotspot.description.content = document.getElementById('description-text').value;
 
         this.updateHotspotList();
@@ -1219,7 +1222,16 @@ class ConfigurationBuilder {
         const offset = 15; // Same offset as real engine
 
         // Position at end of multi-segment line (like "Show All" mode)
-        this.positionTooltipForSegmentedLinePreview(tooltip, hotspot, scaleX, scaleY, offset);
+        if (!hotspot.line || !(hotspot.line.segments || []).length) {
+            // No line config: position tooltip to the right of the hotspot
+            const hotspotRight = (hotspot.coordinates.x + hotspot.coordinates.width) * scaleX;
+            const hotspotMidY = (hotspot.coordinates.y + hotspot.coordinates.height / 2) * scaleY;
+            tooltip.style.left = `${hotspotRight + offset}px`;
+            tooltip.style.top = `${hotspotMidY}px`;
+            tooltip.style.transform = 'translateY(-50%)';
+        } else {
+            this.positionTooltipForSegmentedLinePreview(tooltip, hotspot, scaleX, scaleY, offset);
+        }
 
         return tooltip;
     }
@@ -1324,6 +1336,7 @@ class ConfigurationBuilder {
      * Process markdown for tooltip preview using Marked.js
      */
     processMarkdown(text) {
+        if (text === null || text === undefined) return '';
         // Check cache first for performance
         if (this.markdownCache.has(text)) {
             return this.markdownCache.get(text);
@@ -1438,8 +1451,8 @@ class ConfigurationBuilder {
     }
 
     loadConfiguration(config) {
-        // Load hotspots
-        this.hotspots = config.overlays || [];
+        // Deep-clone to avoid mutating the originally-parsed JSON object
+        this.hotspots = JSON.parse(JSON.stringify(config.overlays || []));
         this.selectedHotspot = null;
         
         this.updateHotspotList();
