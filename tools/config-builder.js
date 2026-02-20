@@ -404,6 +404,8 @@ class ConfigurationBuilder {
                     height: img.naturalHeight,
                     path: imagePath
                 };
+                this.hotspots = [];
+                this.selectedHotspot = null;
                 this.displayImage();
                 resolve();
             };
@@ -562,6 +564,8 @@ class ConfigurationBuilder {
                     height: img.naturalHeight,
                     file: file
                 };
+                this.hotspots = [];
+                this.selectedHotspot = null;
                 this.displayImage();
             };
             img.src = e.target.result;
@@ -583,9 +587,6 @@ class ConfigurationBuilder {
         img.draggable = false;
         canvas.appendChild(img);
         
-        // Reset hotspots
-        this.hotspots = [];
-        this.selectedHotspot = null;
         this.updateHotspotList();
         this.updatePropertiesPanel();
     }
@@ -1096,16 +1097,20 @@ class ConfigurationBuilder {
         container.style.zIndex = '15';
         container.style.opacity = '1'; // Always visible in preview
 
-        const segments = hotspot.line.segments;
+        const rawSegments = hotspot.line.segments;
 
         // Guard against legacy line format where segments may be absent
-        if (!segments) {
+        if (!rawSegments) {
             console.warn('Missing segments in line config for hotspot:', hotspot.id);
             container.style.border = '2px solid orange';
             container.style.padding = '4px';
             container.innerHTML = '<span style="color: orange; font-size: 10px;">Legacy format</span>';
             return container;
         }
+
+        // Mirror engine behaviour: strip zero-length segments before pattern validation
+        const segments = rawSegments.filter(seg => Math.abs(seg.length) > 0.1);
+        if (segments.length === 0) return container;
 
         // Validate pattern
         if (!this.isValidSegmentPattern(segments)) {
@@ -1423,7 +1428,7 @@ class ConfigurationBuilder {
                 width: this.currentImage ? this.currentImage.width : 800,
                 height: this.currentImage ? this.currentImage.height : 600
             },
-            overlays: this.hotspots
+            overlays: JSON.parse(JSON.stringify(this.hotspots))
         };
 
         const jsonOutput = document.getElementById('json-output');

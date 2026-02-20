@@ -533,14 +533,18 @@ class OverlayEngine {
             const endX = hotspotLeft + hotspotWidth + scaledHorizontal;
             const endY = hotspotTop + hotspotHeight / 2;
             tooltip.style.left = `${endX}px`;
+            tooltip.style.right = 'auto';
             tooltip.style.top = `${endY}px`;
+            tooltip.style.bottom = 'auto';
             tooltip.style.transform = 'translateY(-50%)';
         } else {
             // Going left
             const endX = hotspotLeft + scaledHorizontal;
             const endY = hotspotTop + hotspotHeight / 2;
             tooltip.style.right = `calc(100% - ${endX}px)`;
+            tooltip.style.left = 'auto';
             tooltip.style.top = `${endY}px`;
+            tooltip.style.bottom = 'auto';
             tooltip.style.transform = 'translateY(-50%)';
         }
 
@@ -558,17 +562,10 @@ class OverlayEngine {
         const content = this.processMarkdown(overlay.description.content);
         tooltip.innerHTML = content;
 
-        // Get coordinates (support both old and new format)
-        const coords = this.getOverlayCoordinates(overlay);
-
-        // Calculate hotspot center position
-        const hotspotCenterX = (coords.x + coords.width / 2) * scaleX;
-        const hotspotCenterY = (coords.y + coords.height / 2) * scaleY;
-
         const offset = 15; // Space between line end and tooltip
 
         // Use unified multi-segment positioning
-        this.positionTooltipForSegmentedLine(tooltip, overlay, hotspotCenterX, hotspotCenterY, scaleX, scaleY, offset);
+        this.positionTooltipForSegmentedLine(tooltip, overlay, scaleX, scaleY, offset);
 
         return tooltip;
     }
@@ -576,12 +573,14 @@ class OverlayEngine {
     /**
      * Position tooltip for segmented line system
      */
-    positionTooltipForSegmentedLine(tooltip, overlay, hotspotCenterX, hotspotCenterY, scaleX, scaleY, offset) {
+    positionTooltipForSegmentedLine(tooltip, overlay, scaleX, scaleY, offset) {
         // If no line config, position tooltip directly adjacent to the hotspot
         if (!overlay.line) {
             const coords = this.getOverlayCoordinates(overlay);
-            tooltip.style.left = `${(coords.x + coords.width) * scaleX + 8}px`;
+            tooltip.style.left = `${(coords.x + coords.width) * scaleX + offset}px`;
+            tooltip.style.right = 'auto';
             tooltip.style.top = `${(coords.y + coords.height / 2) * scaleY}px`;
+            tooltip.style.bottom = 'auto';
             tooltip.style.transform = 'translateY(-50%)';
             return;
         }
@@ -633,36 +632,36 @@ class OverlayEngine {
             }
         });
 
-        // Position tooltip at end of segmented line with no gap
+        // Position tooltip at end of segmented line with offset gap
         if (lastSegment.type === 'horizontal') {
             // Last segment is horizontal - position tooltip left/right of end point
             if (lastSegment.length > 0) {
-                // Line ends going right, tooltip to the right (no gap)
-                tooltip.style.left = `${endX}px`;
+                // Line ends going right, tooltip to the right
+                tooltip.style.left = `${endX + offset}px`;
+                tooltip.style.right = 'auto';
                 tooltip.style.transform = 'translateY(-50%)';
             } else {
-                // Line ends going left, tooltip to the left (no gap)
-                tooltip.style.right = `calc(100% - ${endX}px)`;
+                // Line ends going left, tooltip to the left
+                tooltip.style.right = `calc(100% - ${endX - offset}px)`;
+                tooltip.style.left = 'auto';
                 tooltip.style.transform = 'translateY(-50%)';
             }
             tooltip.style.top = `${endY}px`;
-
-            // Clear other positioning
             tooltip.style.bottom = 'auto';
         } else {
             // Last segment is vertical - position tooltip above/below end point
             if (lastSegment.length > 0) {
-                // Line ends going down, tooltip below (no gap)
-                tooltip.style.top = `${endY}px`;
+                // Line ends going down, tooltip below
+                tooltip.style.top = `${endY + offset}px`;
+                tooltip.style.bottom = 'auto';
                 tooltip.style.transform = 'translateX(-50%)';
             } else {
-                // Line ends going up, tooltip above (no gap)
-                tooltip.style.bottom = `calc(100% - ${endY}px)`;
+                // Line ends going up, tooltip above
+                tooltip.style.bottom = `calc(100% - ${endY - offset}px)`;
+                tooltip.style.top = 'auto';
                 tooltip.style.transform = 'translateX(-50%)';
             }
             tooltip.style.left = `${endX}px`;
-
-            // Clear other positioning
             tooltip.style.right = 'auto';
         }
     }
