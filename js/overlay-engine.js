@@ -1112,7 +1112,7 @@ function renderScriptCards(scripts) {
  */
 function createScriptCard(script) {
     const card = document.createElement('a');
-    card.href = `scripts/${script.id}/index.html`;
+    card.href = `scripts/${encodeURIComponent(script.id)}/index.html`;
     card.className = `script-card ${script.pinned ? 'pinned' : ''}`;
 
     card.innerHTML = `

@@ -125,6 +125,23 @@
         });
       });
 
+      // Re-sync UI when the user navigates back/forward through tag-filtered URLs
+      window.addEventListener('popstate', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tag = urlParams.get('tag');
+
+        // Clear stale filter messages before re-rendering
+        const tagMsg = document.getElementById('tag-filter-message');
+        if (tagMsg) tagMsg.remove();
+        const categoryMsg = document.getElementById('category-filter-message');
+        if (categoryMsg) categoryMsg.remove();
+
+        if (tag) {
+          showTagFilterMessage(tag);
+        }
+        handleFiltering().catch(console.error);
+      });
+
       /**
        * Show message when filtering by tag
        */

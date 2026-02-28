@@ -568,6 +568,9 @@ class ConfigurationBuilder {
                 this.selectedHotspot = null;
                 this.displayImage();
             };
+            img.onerror = () => {
+                this.showStatus('Failed to load image file — file may be corrupt or unsupported', 'error');
+            };
             img.src = e.target.result;
         };
         reader.readAsDataURL(file);
@@ -1415,9 +1418,10 @@ class ConfigurationBuilder {
     }
 
     exportConfiguration() {
-        const scriptName = document.getElementById('script-name').value || 'Untitled Script';
-        const version = document.getElementById('script-version').value || '1.0.0';
-        const description = document.getElementById('script-description').value || 'Script description';
+        const scriptInfo = this.currentScript ? this.scriptData[this.currentScript] : null;
+        const scriptName = scriptInfo ? scriptInfo.name : 'Untitled Script';
+        const version = scriptInfo ? scriptInfo.version : '1.0.0';
+        const description = scriptInfo ? scriptInfo.description : 'Script description';
 
         const config = {
             scriptName: scriptName,

@@ -434,6 +434,41 @@ function processMarkdown(text) {
 
 **Impact**: `TypeError` in any method that assumes only one loading path was used (e.g. `exportConfiguration()`)
 
+### ❌ Using `sanitizeHTML()` for URL Path Segments Instead of `encodeURIComponent()`
+
+**WRONG** — `sanitizeHTML()` escapes HTML but does not encode URL path characters:
+```javascript
+card.href = `scripts/${script.id}/index.html`;
+card.href = `scripts/${sanitizeHTML(script.id)}/index.html`;  // still unsafe in href
+```
+
+**RIGHT** — use `encodeURIComponent` for any dynamic value placed in a URL path:
+```javascript
+card.href = `scripts/${encodeURIComponent(script.id)}/index.html`;
+```
+
+**Impact**: A crafted `id` (e.g. `javascript:alert(1)`) bypasses `sanitizeHTML` and executes via href; `encodeURIComponent` covers URL injection and `javascript:` protocol abuse
+
+### ❌ `window.history.pushState()` Without a Matching `popstate` Listener
+
+**WRONG** — updating the URL without handling browser Back/Forward:
+```javascript
+window.history.pushState({}, '', url);
+// Browser Back restores the URL — but displayed content is stale
+```
+
+**RIGHT** — pair every pushState usage with a popstate listener:
+```javascript
+window.addEventListener('popstate', function() {
+    const tag = new URLSearchParams(window.location.search).get('tag');
+    if (tag) showTagFilterMessage(tag);
+    else { document.getElementById('tag-filter-message')?.remove(); }
+    handleFiltering().catch(console.error);
+});
+```
+
+**Impact**: Back/Forward silently shows stale content — URL and rendered state diverge with no error
+
 ---
 
 ## Architecture Gotchas
@@ -633,3 +668,6 @@ DOMPurify MUST come before marked.js. Missing it leaves markdown XSS unfixed.
 58. **Audit existing script pages for stale placeholder content**: Pages created before the current template may contain `<h2>About This Script</h2>` or `<li>Professional After Effects integration</li>` — the `.script-content` div must be an empty container (with only a comment), populated dynamically from `description.md`
 59. **Clear opposite CSS axis when repositioning absolutely-positioned elements**: When setting `left`, also set `right:'auto'`; when setting `right`, set `left:'auto'`; same for `top`/`bottom` — stale values from a previous position silently conflict with newly-set opposite-axis values, causing invisible layout glitches when tooltips are toggled between show/hover modes
 60. **Verify function parameters are actually consumed in the body**: Parameters listed in a function signature but never read silently drop the caller's intent — e.g. an `offset = 15` passed by the caller becomes 0px with no error if the function body ignores it. After editing a function signature, search the body for each param name to confirm it's used
+61. **Dynamic IDs in `href` → `encodeURIComponent`**: `sanitizeHTML()` prevents HTML injection but not URL injection — use `encodeURIComponent(id)` for any dynamic value in an href path (e.g. `scripts/${encodeURIComponent(script.id)}/index.html`)
+62. **`pushState` needs a `popstate` listener**: Any `window.history.pushState()` must be paired with `window.addEventListener('popstate', ...)` — otherwise Back/Forward silently shows stale content
+63. **`lucide.createIcons({ nodes: [el] })` for targeted refresh**: When only one element's icons changed (e.g. after `innerHTML` update on `#theme-indicator`), pass `{ nodes: [el] }` to avoid a full DOM scan (extends rule #31)

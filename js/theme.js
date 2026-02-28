@@ -45,9 +45,9 @@ function updateThemeIndicator(effectiveTheme = null) {
     indicator.innerHTML = `<i data-lucide="${icon}" style="width: 14px; height: 14px;"></i> ${text}`;
     indicator.setAttribute('aria-label', `Current theme: ${text}. Click to change.`);
 
-    // Re-initialize Lucide icons
+    // Re-initialize Lucide icons scoped to indicator to avoid full DOM scan
     if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
+        lucide.createIcons({ nodes: [indicator] });
     }
 }
 
