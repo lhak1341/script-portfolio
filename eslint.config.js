@@ -14,6 +14,9 @@ const projectBrowserGlobals = {
     generateUniqueId: 'readonly',
     // js/overlay-defaults.js
     OVERLAY_DEFAULTS: 'readonly',
+    isValidSegmentPattern: 'readonly',
+    buildSegmentedLineSegments: 'readonly',
+    configureMarked: 'readonly',
     // js/overlay-engine.js
     OverlayEngine: 'readonly',
     initializeOverlayEngine: 'readonly',
@@ -23,7 +26,6 @@ const projectBrowserGlobals = {
     setupFilters: 'readonly',
     showLoadingError: 'readonly',
     getCategoryName: 'readonly',
-    getFallbackScriptsData: 'readonly',
     // js/theme.js
     getEffectiveTheme: 'readonly',
     setupThemeDetection: 'readonly',

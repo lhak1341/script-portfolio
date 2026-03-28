@@ -143,20 +143,19 @@
       });
 
       /**
-       * Show message when filtering by tag
+       * Shared helper: insert a filter banner after the navigation bar.
+       * @param {string} id           - element id (for deduplication and removal)
+       * @param {string} iconName     - lucide icon name
+       * @param {string} labelHTML    - inner HTML for the label span
+       * @param {string} clearFnName  - name of the JS function to call on "Clear"
+       * @param {string} [extraClass] - optional extra CSS class on the element
        */
-      function showTagFilterMessage(tag) {
-        const container = document.querySelector('.container');
-        const existingMessage = document.getElementById('tag-filter-message');
+      function showFilterMessage(id, iconName, labelHTML, clearFnName, extraClass) {
+        document.getElementById(id)?.remove();
 
-        // Remove existing message if any
-        if (existingMessage) {
-          existingMessage.remove();
-        }
-
-        // Create new message
         const message = document.createElement('div');
-        message.id = 'tag-filter-message';
+        message.id = id;
+        if (extraClass) message.className = extraClass;
         message.style.cssText = `
                 background: var(--bg-secondary);
                 border: 1px solid var(--border-color);
@@ -174,57 +173,11 @@
                 gap: 0.5rem;
             `;
         message.innerHTML = `
-                <i data-lucide="tag" style="width: 16px; height: 16px; color: var(--text-secondary);"></i>
-                <span>Showing scripts tagged with <strong style="color: var(--text-primary);">"${sanitizeHTML(tag)}"</strong></span>
-                <button onclick="clearTagFilter()" style="margin-left: 0.5rem; padding: 0.25rem 0.75rem; background: var(--accent-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: background 0.2s ease;" onmouseover="this.style.setProperty('background','var(--accent-hover)')" onmouseout="this.style.setProperty('background','var(--accent-color)')">Clear</button>
+                <i data-lucide="${iconName}" style="width: 16px; height: 16px; color: var(--text-secondary);"></i>
+                ${labelHTML}
+                <button onclick="${clearFnName}()" style="margin-left: 0.5rem; padding: 0.25rem 0.75rem; background: var(--accent-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: background 0.2s ease;" onmouseover="this.style.setProperty('background','var(--accent-hover)')" onmouseout="this.style.setProperty('background','var(--accent-color)')">Clear</button>
             `;
 
-        // Insert after navigation, then refresh icons once in the next frame
-        const nav = document.querySelector('.navigation');
-        nav.parentNode.insertBefore(message, nav.nextSibling);
-        if (typeof lucide !== 'undefined') {
-          requestAnimationFrame(() => lucide.createIcons());
-        }
-      }
-
-      function showCategoryFilterMessage(categoryId, categoryName) {
-        const container = document.querySelector('.container');
-        const existingMessage = document.getElementById(
-          'category-filter-message'
-        );
-
-        // Remove existing message if any
-        if (existingMessage) {
-          existingMessage.remove();
-        }
-
-        // Create new message
-        const message = document.createElement('div');
-        message.id = 'category-filter-message';
-        message.className = 'category-filter-message';
-        message.style.cssText = `
-                background: var(--bg-secondary);
-                border: 1px solid var(--border-color);
-                border-radius: 6px;
-                padding: 0.75rem 1rem;
-                margin: 1rem auto;
-                text-align: center;
-                max-width: 500px;
-                color: var(--text-secondary);
-                font-size: 0.875rem;
-                font-weight: 400;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 0.5rem;
-            `;
-        message.innerHTML = `
-                <i data-lucide="layers" style="width: 16px; height: 16px; color: var(--text-secondary);"></i>
-                <span>Showing scripts with the category of <strong style="color: var(--text-primary);">"${sanitizeHTML(categoryName)}"</strong></span>
-                <button onclick="clearCategoryFilter()" style="margin-left: 0.5rem; padding: 0.25rem 0.75rem; background: var(--accent-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: background 0.2s ease;" onmouseover="this.style.setProperty('background','var(--accent-hover)')" onmouseout="this.style.setProperty('background','var(--accent-color)')">Clear</button>
-            `;
-
-        // Insert after navigation, then refresh icons once in the next frame
         const nav = document.querySelector('.navigation');
         nav.parentNode.insertBefore(message, nav.nextSibling);
         if (typeof lucide !== 'undefined') {
@@ -233,10 +186,36 @@
       }
 
       /**
-       * Clear tag filter and reload page
+       * Show message when filtering by tag
+       */
+      function showTagFilterMessage(tag) {
+        showFilterMessage(
+          'tag-filter-message',
+          'tag',
+          `<span>Showing scripts tagged with <strong style="color: var(--text-primary);">"${sanitizeHTML(tag)}"</strong></span>`,
+          'clearTagFilter'
+        );
+      }
+
+      function showCategoryFilterMessage(categoryId, categoryName) {
+        showFilterMessage(
+          'category-filter-message',
+          'layers',
+          `<span>Showing scripts with the category of <strong style="color: var(--text-primary);">"${sanitizeHTML(categoryName)}"</strong></span>`,
+          'clearCategoryFilter',
+          'category-filter-message'
+        );
+      }
+
+      /**
+       * Clear tag filter without a full page reload
        */
       function clearTagFilter() {
-        window.location.href = window.location.pathname;
+        const url = new URL(window.location);
+        url.searchParams.delete('tag');
+        window.history.pushState({}, '', url);
+        document.getElementById('tag-filter-message')?.remove();
+        handleFiltering().catch(console.error);
       }
 
       /**

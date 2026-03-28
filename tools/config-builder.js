@@ -3,8 +3,9 @@
  * Requires: OVERLAY_DEFAULTS (from overlay-defaults.js)
  */
 
-// One-time flag so marked.setOptions() only mutates global state once per page load
-let _builderMarkedConfigured = false;
+// Selection highlight colors used in renderFullHotspotPreview and updateSelectionVisuals
+const BUILDER_SELECTION_BORDER = 'rgba(102, 126, 234, 0.8)';
+const BUILDER_SELECTION_BG = 'rgba(102, 126, 234, 0.1)';
 
 class ConfigurationBuilder {
     constructor() {
@@ -553,7 +554,7 @@ class ConfigurationBuilder {
         }
     }
 
-    loadImage(file) {
+    loadImageFromFile(file) {
         const reader = new FileReader();
         reader.onload = (e) => {
             const img = new Image();
@@ -955,8 +956,8 @@ class ConfigurationBuilder {
 
         // Add selection border if this is the selected hotspot
         if (hotspot === this.selectedHotspot) {
-            hotspotContainer.style.border = '2px dashed rgba(102, 126, 234, 0.8)';
-            hotspotContainer.style.backgroundColor = 'rgba(102, 126, 234, 0.1)';
+            hotspotContainer.style.border = `2px dashed ${BUILDER_SELECTION_BORDER}`;
+            hotspotContainer.style.backgroundColor = BUILDER_SELECTION_BG;
         }
 
         // Create highlight
@@ -1011,8 +1012,8 @@ class ConfigurationBuilder {
             const isSelected = this.selectedHotspot && this.selectedHotspot.id === hotspotId;
 
             if (isSelected) {
-                container.style.border = '2px dashed rgba(102, 126, 234, 0.8)';
-                container.style.backgroundColor = 'rgba(102, 126, 234, 0.1)';
+                container.style.border = `2px dashed ${BUILDER_SELECTION_BORDER}`;
+                container.style.backgroundColor = BUILDER_SELECTION_BG;
             } else {
                 container.style.border = 'none';
                 container.style.backgroundColor = 'transparent';
@@ -1074,22 +1075,6 @@ class ConfigurationBuilder {
     }
 
     /**
-     * Validate segment pattern matches required format
-     * Only [H] or [H, V, H] allowed
-     */
-    isValidSegmentPattern(segments) {
-        if (segments.length === 1) {
-            return segments[0].type === 'horizontal';
-        }
-        if (segments.length === 3) {
-            return segments[0].type === 'horizontal' &&
-                   segments[1].type === 'vertical' &&
-                   segments[2].type === 'horizontal';
-        }
-        return false;
-    }
-
-    /**
      * Create preview for multi-segment line (H-V-H system)
      */
     createPreviewSegmentedLine(hotspot, scaleX, scaleY, lineColor, thickness) {
@@ -1116,100 +1101,15 @@ class ConfigurationBuilder {
         if (segments.length === 0) return container;
 
         // Validate pattern
-        if (!this.isValidSegmentPattern(segments)) {
+        if (!isValidSegmentPattern(segments)) {
             console.warn('Invalid segment pattern in preview. Expected [H] or [H,V,H]. Got:', segments);
-            // Show error in preview
             container.style.border = '2px solid red';
             container.style.padding = '4px';
             container.innerHTML = '<span style="color: red; font-size: 10px;">Invalid pattern</span>';
             return container;
         }
 
-        const scale = Math.min(scaleX, scaleY);
-        const firstSegment = segments[0];
-
-        // Start from hotspot edge based on first segment direction
-        if (firstSegment.type === 'horizontal') {
-            if (firstSegment.length > 0) {
-                // Starting horizontal right - start from right edge
-                container.style.left = '100%';
-                container.style.top = '50%';
-                container.style.transform = 'translateY(-50%)';
-            } else {
-                // Starting horizontal left - start from left edge
-                container.style.left = '0%';
-                container.style.top = '50%';
-                container.style.transform = 'translateY(-50%)';
-            }
-        } else {
-            if (firstSegment.length > 0) {
-                // Starting vertical down - start from bottom edge
-                container.style.left = '50%';
-                container.style.top = '100%';
-                container.style.transform = 'translateX(-50%)';
-            } else {
-                // Starting vertical up - start from top edge
-                container.style.left = '50%';
-                container.style.top = '0%';
-                container.style.transform = 'translateX(-50%)';
-            }
-        }
-
-        // Create each segment
-        let currentX = 0;
-        let currentY = 0;
-
-        segments.forEach((segment, index) => {
-            const segmentEl = document.createElement('div');
-            segmentEl.className = `preview-element line-segment segment-${index}`;
-            segmentEl.style.position = 'absolute';
-            segmentEl.style.backgroundColor = lineColor;
-            segmentEl.style.opacity = '1';
-            segmentEl.style.zIndex = '30';
-
-            // Apply scaling to segment lengths
-            const scaledLength = segment.length * scale;
-
-            if (segment.type === 'horizontal') {
-                const width = Math.abs(scaledLength);
-                segmentEl.style.width = `${width}px`;
-                segmentEl.style.height = `${thickness}px`;
-
-                // Position segment
-                if (scaledLength >= 0) {
-                    // Going right
-                    segmentEl.style.left = `${currentX}px`;
-                } else {
-                    // Going left
-                    segmentEl.style.left = `${currentX - width}px`;
-                }
-                segmentEl.style.top = `${currentY - thickness/2}px`;
-
-                currentX += scaledLength;
-            } else { // vertical
-                const height = Math.abs(scaledLength);
-                segmentEl.style.width = `${thickness}px`;
-                segmentEl.style.height = `${height}px`;
-
-                // Position segment
-                segmentEl.style.left = `${currentX - thickness/2}px`;
-                if (scaledLength >= 0) {
-                    // Going down
-                    segmentEl.style.top = `${currentY}px`;
-                } else {
-                    // Going up
-                    segmentEl.style.top = `${currentY - height}px`;
-                }
-
-                currentY += scaledLength;
-            }
-
-            container.appendChild(segmentEl);
-        });
-
-        // Store final position for tooltip positioning
-        container.setAttribute('data-end-x', currentX);
-        container.setAttribute('data-end-y', currentY);
+        buildSegmentedLineSegments(container, segments, lineColor, thickness, scaleX, scaleY, 'preview-element');
 
         return container;
     }
@@ -1293,36 +1193,36 @@ class ConfigurationBuilder {
             }
         });
 
-        // Position tooltip at end of segmented line with no gap
+        // Position tooltip at end of segmented line with offset gap
         if (lastSegment.type === 'horizontal') {
             // Last segment is horizontal - position tooltip left/right of end point
             if (lastSegment.length > 0) {
-                // Line ends going right, tooltip to the right (no gap)
-                tooltip.style.left = `${endX}px`;
+                // Line ends going right, tooltip to the right
+                tooltip.style.left = `${endX + offset}px`;
+                tooltip.style.right = 'auto';
                 tooltip.style.transform = 'translateY(-50%)';
             } else {
-                // Line ends going left, tooltip to the left (no gap)
-                tooltip.style.right = `calc(100% - ${endX}px)`;
+                // Line ends going left, tooltip to the left
+                tooltip.style.right = `calc(100% - ${endX - offset}px)`;
+                tooltip.style.left = 'auto';
                 tooltip.style.transform = 'translateY(-50%)';
             }
             tooltip.style.top = `${endY}px`;
-
-            // Clear other positioning
             tooltip.style.bottom = 'auto';
         } else {
             // Last segment is vertical - position tooltip above/below end point
             if (lastSegment.length > 0) {
-                // Line ends going down, tooltip below (no gap)
-                tooltip.style.top = `${endY}px`;
+                // Line ends going down, tooltip below
+                tooltip.style.top = `${endY + offset}px`;
+                tooltip.style.bottom = 'auto';
                 tooltip.style.transform = 'translateX(-50%)';
             } else {
-                // Line ends going up, tooltip above (no gap)
-                tooltip.style.bottom = `calc(100% - ${endY}px)`;
+                // Line ends going up, tooltip above
+                tooltip.style.bottom = `calc(100% - ${endY - offset}px)`;
+                tooltip.style.top = 'auto';
                 tooltip.style.transform = 'translateX(-50%)';
             }
             tooltip.style.left = `${endX}px`;
-
-            // Clear other positioning
             tooltip.style.right = 'auto';
         }
     }
@@ -1364,15 +1264,7 @@ class ConfigurationBuilder {
             return fallback;
         }
 
-        // Configure marked once per page load (setOptions mutates global state)
-        if (!_builderMarkedConfigured) {
-            marked.setOptions({
-                gfm: true,      // GitHub Flavored Markdown
-                breaks: false,  // Don't convert \n to <br>
-            });
-            _builderMarkedConfigured = true;
-        }
-
+        configureMarked();
         const html = marked.parse(text);
         // Sanitize output with DOMPurify (marked v8+ removed built-in sanitization)
         // Fall back to escaped plain text if DOMPurify unavailable to prevent XSS
@@ -1401,20 +1293,7 @@ class ConfigurationBuilder {
 
     deleteCurrentHotspot() {
         if (!this.selectedHotspot) return;
-
-        const hotspot = this.selectedHotspot;
-        const confirmed = confirm(`Delete hotspot "${hotspot.id}"?\n\nThis action cannot be undone.`);
-        if (!confirmed) return;
-
-        const index = this.hotspots.indexOf(hotspot);
-        if (index === -1) return;
-
-        this.hotspots.splice(index, 1);
-        this.selectedHotspot = null;
-        this.updateHotspotList();
-        this.updatePropertiesPanel();
-        this.renderHotspots();
-        this.showStatus(`Deleted hotspot "${hotspot.id}"`, 'success', 3000);
+        this.deleteHotspotById(this.selectedHotspot.id);
     }
 
     exportConfiguration() {

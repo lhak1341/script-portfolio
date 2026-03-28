@@ -469,6 +469,23 @@ window.addEventListener('popstate', function() {
 
 **Impact**: Back/Forward silently shows stale content — URL and rendered state diverge with no error
 
+### ❌ `replace_all: true` Self-Corrupting Constant Declarations
+
+**WRONG** — if the old string also appears as the RHS of the constant you are introducing, `replace_all` will replace it there too:
+```javascript
+// You add:  const BUILDER_SELECTION_BG = 'rgba(102, 126, 234, 0.1)';
+// Then replace_all 'rgba(102, 126, 234, 0.1)' → BUILDER_SELECTION_BG
+// Result:   const BUILDER_SELECTION_BG = BUILDER_SELECTION_BG;  // ReferenceError!
+```
+
+**RIGHT** — do the constant declaration as a targeted (non-replace_all) edit first, *then* do `replace_all` for the usage sites:
+```javascript
+// Step 1 (targeted): add  const BUILDER_SELECTION_BG = 'rgba(102, 126, 234, 0.1)';
+// Step 2 (replace_all): 'rgba(102, 126, 234, 0.1)' → BUILDER_SELECTION_BG  (now safe)
+```
+
+**Impact**: Temporal-dead-zone `ReferenceError` crashes the entire script silently on load — empty dropdowns, no visible error in UI
+
 ---
 
 ## Architecture Gotchas

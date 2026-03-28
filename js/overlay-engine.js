@@ -3,9 +3,6 @@
  * Requires: OVERLAY_DEFAULTS (from overlay-defaults.js)
  */
 
-// One-time flag so marked.setOptions() only mutates global state once per page load
-let _markedConfigured = false;
-
 class OverlayEngine {
     constructor(container) {
         this.container = container;
@@ -351,7 +348,7 @@ class OverlayEngine {
         }
 
         // Validate pattern: must be [H] or [H,V,H]
-        if (!this.isValidSegmentPattern(filtered)) {
+        if (!isValidSegmentPattern(filtered)) {
             console.warn('Invalid segment pattern detected. Expected [H] or [H,V,H]. Got:', filtered);
             // Return a safe fallback
             return [{ type: 'horizontal', length: 100 }];
@@ -361,131 +358,12 @@ class OverlayEngine {
     }
 
     /**
-     * Validate that segments follow the required pattern:
-     * - 1 segment: [H]
-     * - 3 segments: [H, V, H]
-     */
-    isValidSegmentPattern(segments) {
-        if (segments.length === 1) {
-            return segments[0].type === 'horizontal';
-        }
-        if (segments.length === 3) {
-            return segments[0].type === 'horizontal' &&
-                   segments[1].type === 'vertical' &&
-                   segments[2].type === 'horizontal';
-        }
-        // Any other length is invalid
-        return false;
-    }
-
-    /**
      * Create multi-segment line (horizontal-vertical-horizontal)
      */
     createSegmentedLine(container, segments, lineColor, thickness, scaleX, scaleY) {
-        let currentX = 0;
-        let currentY = 0;
-        const scale = Math.min(scaleX, scaleY); // Use consistent scaling
-        const firstSegment = segments[0];
-
-        // Start from hotspot edge based on first segment direction
-        if (firstSegment.type === 'horizontal') {
-            if (firstSegment.length > 0) {
-                // Starting horizontal right - start from right edge
-                container.style.left = '100%';
-                container.style.top = '50%';
-                container.style.transform = 'translateY(-50%)';
-            } else {
-                // Starting horizontal left - start from left edge
-                container.style.left = '0%';
-                container.style.top = '50%';
-                container.style.transform = 'translateY(-50%)';
-            }
-        } else {
-            if (firstSegment.length > 0) {
-                // Starting vertical down - start from bottom edge
-                container.style.left = '50%';
-                container.style.top = '100%';
-                container.style.transform = 'translateX(-50%)';
-            } else {
-                // Starting vertical up - start from top edge
-                container.style.left = '50%';
-                container.style.top = '0%';
-                container.style.transform = 'translateX(-50%)';
-            }
-        }
-
-        // Create each segment
-        segments.forEach((segment, index) => {
-            const segmentEl = document.createElement('div');
-            segmentEl.className = `line-segment segment-${index}`;
-            segmentEl.style.position = 'absolute';
-            segmentEl.style.backgroundColor = lineColor;
-            segmentEl.style.opacity = '1'; // Ensure visibility
-
-            // Apply scaling to segment lengths
-            const scaledLength = segment.length * scale;
-
-            if (segment.type === 'horizontal') {
-                const width = Math.abs(scaledLength);
-                segmentEl.style.width = `${width}px`;
-                segmentEl.style.height = `${thickness}px`;
-
-                // Position segment
-                if (scaledLength >= 0) {
-                    // Going right
-                    segmentEl.style.left = `${currentX}px`;
-                } else {
-                    // Going left
-                    segmentEl.style.left = `${currentX - width}px`;
-                }
-                segmentEl.style.top = `${currentY - thickness/2}px`;
-
-                currentX += scaledLength;
-            } else { // vertical
-                const height = Math.abs(scaledLength);
-                segmentEl.style.width = `${thickness}px`;
-                segmentEl.style.height = `${height}px`;
-
-                // Position segment
-                segmentEl.style.left = `${currentX - thickness/2}px`;
-                if (scaledLength >= 0) {
-                    // Going down
-                    segmentEl.style.top = `${currentY}px`;
-                } else {
-                    // Going up
-                    segmentEl.style.top = `${currentY - height}px`;
-                }
-
-                currentY += scaledLength;
-            }
-
-            container.appendChild(segmentEl);
-        });
-
-        // Store final position for tooltip positioning
-        container.setAttribute('data-end-x', currentX);
-        container.setAttribute('data-end-y', currentY);
+        buildSegmentedLineSegments(container, segments, lineColor, thickness, scaleX, scaleY);
     }
 
-
-    /**
-     * Create description tooltip
-     */
-    createTooltip(descriptionConfig, lineConfig) {
-        const tooltip = document.createElement('div');
-        tooltip.className = 'description-tooltip';
-        
-        // Process markdown-like formatting
-        const content = this.processMarkdown(descriptionConfig.content);
-        tooltip.innerHTML = content;
-
-        // Position tooltip at the end of the line
-        if (lineConfig) {
-            this.positionTooltip(tooltip, lineConfig);
-        }
-
-        return tooltip;
-    }
 
     /**
      * Create simple tooltip positioned at end of horizontal line
@@ -668,46 +546,6 @@ class OverlayEngine {
 
 
     /**
-     * Position tooltip at the end of the line (legacy method)
-     */
-    positionTooltip(tooltip, lineConfig) {
-        const direction = lineConfig.direction;
-        const length = lineConfig.length;
-        const offset = 15; // Space between line end and tooltip
-
-        switch (direction) {
-            case 'left':
-                tooltip.style.right = `${length + offset}px`;
-                tooltip.style.top = '50%';
-                tooltip.style.transform = 'translateY(-50%)';
-                tooltip.style.left = 'auto';
-                tooltip.style.bottom = 'auto';
-                break;
-            case 'right':
-                tooltip.style.left = `${length + offset}px`;
-                tooltip.style.top = '50%';
-                tooltip.style.transform = 'translateY(-50%)';
-                tooltip.style.right = 'auto';
-                tooltip.style.bottom = 'auto';
-                break;
-            case 'top':
-                tooltip.style.bottom = `${length + offset}px`;
-                tooltip.style.left = '50%';
-                tooltip.style.transform = 'translateX(-50%)';
-                tooltip.style.top = 'auto';
-                tooltip.style.right = 'auto';
-                break;
-            case 'bottom':
-                tooltip.style.top = `${length + offset}px`;
-                tooltip.style.left = '50%';
-                tooltip.style.transform = 'translateX(-50%)';
-                tooltip.style.bottom = 'auto';
-                tooltip.style.right = 'auto';
-                break;
-        }
-    }
-
-    /**
      * Process markdown using Marked.js library
      */
     processMarkdown(text) {
@@ -717,15 +555,7 @@ class OverlayEngine {
             return `<p>${sanitizeHTML(text)}</p>`;
         }
 
-        // Configure marked once per page load (setOptions mutates global state)
-        if (!_markedConfigured) {
-            marked.setOptions({
-                gfm: true,      // GitHub Flavored Markdown
-                breaks: false,  // Don't convert \n to <br>
-            });
-            _markedConfigured = true;
-        }
-
+        configureMarked();
         const html = marked.parse(text);
         // Sanitize output with DOMPurify (marked v8+ removed built-in sanitization)
         if (typeof DOMPurify !== 'undefined') {
@@ -992,82 +822,16 @@ async function loadScriptsList() {
         return data;
     } catch (error) {
         console.error('Failed to load scripts list:', error);
-        // Fallback to hardcoded data if fetch fails
-        const fallbackData = getFallbackScriptsData();
-        renderScriptCards(fallbackData.scripts);
-        return fallbackData;
+        const grid = document.getElementById('scripts-grid');
+        if (grid) {
+            grid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
+                    <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">Failed to load scripts</p>
+                    <p style="font-size: 0.9rem;">Make sure to use an HTTP server: <code>npm run serve</code></p>
+                </div>`;
+        }
+        return { scripts: [], categories: [] };
     }
-}
-
-/**
- * Fallback scripts data when JSON file can't be loaded
- */
-function getFallbackScriptsData() {
-    return {
-        "scripts": [
-            {
-                "id": "sp-comp-setup",
-                "name": "SP Comp Setup",
-                "version": "0.8.2",
-                "category": "utility",
-                "description": "Streamlined composition setup with auto-interpretation and template management",
-                "thumbnail": "images/script-screenshots/SPCompSetup_0.8.2.png",
-                "screenshot": "images/script-screenshots/SPCompSetup_0.8.2.png",
-                "pinned": true,
-                "tags": ["composition", "setup", "automation", "template"]
-            },
-            {
-                "id": "sp-comp-edit",
-                "name": "SP Comp Edit",
-                "version": "0.1.6",
-                "category": "workflow",
-                "description": "Advanced composition editing tools with batch operations and property management",
-                "thumbnail": "images/script-screenshots/SPCompEdit_0.1.6.png",
-                "screenshot": "images/script-screenshots/SPCompEdit_0.1.6.png",
-                "pinned": false,
-                "tags": ["editing", "batch", "properties", "workflow"]
-            },
-            {
-                "id": "sp-srt-importer",
-                "name": "SP SRT Importer",
-                "version": "0.2.0",
-                "category": "automation",
-                "description": "Automated SRT subtitle file import with timing and formatting options",
-                "thumbnail": "images/script-screenshots/SPSRTImporter_0.2.0.png",
-                "screenshot": "images/script-screenshots/SPSRTImporter_0.2.0.png",
-                "pinned": true,
-                "tags": ["subtitle", "import", "srt", "timing"]
-            },
-            {
-                "id": "find-replace-expression",
-                "name": "Find and Replace in Expression",
-                "version": "1.0.0",
-                "category": "utility",
-                "description": "Powerful search and replace functionality for expressions across entire projects",
-                "thumbnail": "images/script-screenshots/FindAndReplaceInExpression.png",
-                "screenshot": "images/script-screenshots/FindAndReplaceInExpression.png",
-                "pinned": true,
-                "tags": ["find", "replace", "expressions", "batch"]
-            }
-        ],
-        "categories": [
-            {
-                "id": "utility",
-                "name": "Utility",
-                "color": "#4CAF50"
-            },
-            {
-                "id": "automation", 
-                "name": "Automation",
-                "color": "#2196F3"
-            },
-            {
-                "id": "workflow",
-                "name": "Workflow", 
-                "color": "#FF9800"
-            }
-        ]
-    };
 }
 
 /**
