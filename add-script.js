@@ -169,6 +169,7 @@ Simply run the script from your After Effects Scripts menu. No additional setup 
     <script src="../../js/utils.js"></script>
     <script src="../../js/theme.js"></script>
     <script src="../../js/overlay-defaults.js"></script>
+    <script src="../../js/overlay-utils.js"></script>
     <script src="../../js/overlay-engine.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

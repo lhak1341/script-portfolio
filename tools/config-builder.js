@@ -1,6 +1,16 @@
 /**
  * Visual Configuration Builder for Overlay System
  * Requires: OVERLAY_DEFAULTS (from overlay-defaults.js)
+ *
+ * @module config-builder
+ * @public ConfigurationBuilder class — init, exportConfiguration, loadConfiguration
+ *
+ * MIRRORED METHODS — keep in sync with js/overlay-engine.js:
+ *   getCurrentColorValue()              L141  ↔  OverlayEngine.getCurrentColorValue()  L19
+ *   getSafeColorValue()                 L156  (builder-only; wraps getCurrentColorValue for style strings)
+ *   processMarkdown()                   L1246 ↔  OverlayEngine.processMarkdown()       L551
+ *   hexToRgba()                         L1233 ↔  OverlayEngine.hexToRgb()              L644
+ *   positionTooltipForSegmentedLinePreview() L1150 ↔ OverlayEngine.positionTooltipForSegmentedLine() L454
  */
 
 // Selection highlight colors used in renderFullHotspotPreview and updateSelectionVisuals
@@ -135,32 +145,19 @@ class ConfigurationBuilder {
     }
 
     /**
-     * Get color value based on current theme
-     * Uses getEffectiveTheme() to respect manual theme overrides
+     * Get color value based on current theme.
+     * Delegates to resolveOverlayColor() in overlay-utils.js.
      */
     getCurrentColorValue(colorName) {
-        const isDark = typeof getEffectiveTheme !== 'undefined'
-            ? getEffectiveTheme() === 'dark'
-            : this.darkModeQuery.matches;
-        return OVERLAY_DEFAULTS.COLORS[colorName]
-            ? OVERLAY_DEFAULTS.COLORS[colorName][isDark ? 'dark' : 'light']
-            : colorName;
+        return resolveOverlayColor(colorName);
     }
 
     /**
      * Return a color value safe to inject into an inline style attribute string.
-     * getCurrentColorValue() passes through unknown color names verbatim, which
-     * allows CSS injection via a crafted config.json. This method validates the
-     * result is a hex color or rgb/rgba value before use in innerHTML style attrs.
+     * Delegates to safeStyleColor() in overlay-utils.js.
      */
     getSafeColorValue(colorName) {
-        const value = this.getCurrentColorValue(colorName);
-        // Allow hex colors (#rgb, #rrggbb, #rrggbbaa) and rgb/rgba functions
-        if (/^#[0-9a-fA-F]{3,8}$/.test(value) || /^rgba?\(/.test(value)) {
-            return value;
-        }
-        // Unknown/unresolved color name — return a neutral fallback
-        return '#808080';
+        return safeStyleColor(colorName);
     }
 
     /**
@@ -1241,34 +1238,21 @@ class ConfigurationBuilder {
     }
 
     /**
-     * Process markdown for tooltip preview using Marked.js
+     * Process markdown for tooltip preview using Marked.js.
+     * Wraps renderMarkdown() from overlay-utils.js with an LRU cache
+     * (builder renders many hotspots; engine renders one at a time so caching isn't needed there).
      */
     processMarkdown(text) {
         if (text === null || text === undefined) return '';
-        // Check cache first for performance
         if (this.markdownCache.has(text)) {
             return this.markdownCache.get(text);
         }
-
         // Limit cache size to prevent memory leaks
         if (this.markdownCache.size >= this.maxCacheSize) {
-            // Remove oldest entry (first entry in Map)
             const firstKey = this.markdownCache.keys().next().value;
             this.markdownCache.delete(firstKey);
         }
-
-        if (typeof marked === 'undefined') {
-            console.warn('Marked.js not loaded, falling back to plain text');
-            const fallback = `<p>${sanitizeHTML(text)}</p>`;
-            this.markdownCache.set(text, fallback);
-            return fallback;
-        }
-
-        configureMarked();
-        const html = marked.parse(text);
-        // Sanitize output with DOMPurify (marked v8+ removed built-in sanitization)
-        // Fall back to escaped plain text if DOMPurify unavailable to prevent XSS
-        const result = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : sanitizeHTML(text);
+        const result = renderMarkdown(text);
         this.markdownCache.set(text, result);
         return result;
     }

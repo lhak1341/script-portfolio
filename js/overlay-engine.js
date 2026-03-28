@@ -1,6 +1,16 @@
 /**
  * Overlay Engine - Core functionality for interactive script showcases
  * Requires: OVERLAY_DEFAULTS (from overlay-defaults.js)
+ *
+ * @module overlay-engine
+ * @public initializeOverlayEngine(containerId) — factory; returns OverlayEngine or null
+ * @public OverlayEngine class — loadConfig, destroy
+ *
+ * MIRRORED METHODS — keep in sync with tools/config-builder.js:
+ *   getCurrentColorValue()  L19  ↔  ConfigurationBuilder.getCurrentColorValue()  L141
+ *   processMarkdown()       L551 ↔  ConfigurationBuilder.processMarkdown()       L1246
+ *   hexToRgb()              L644 ↔  ConfigurationBuilder.hexToRgba()             L1233
+ *   positionTooltipForSegmentedLine() L454 ↔ positionTooltipForSegmentedLinePreview() L1150
  */
 
 class OverlayEngine {
@@ -14,22 +24,11 @@ class OverlayEngine {
     }
 
     /**
-     * Get color value based on current theme
+     * Get color value based on current theme.
+     * Delegates to resolveOverlayColor() in overlay-utils.js.
      */
     getCurrentColorValue(colorName) {
-        if (!colorName || typeof colorName !== 'string') return '#808080';
-        // Handle legacy hex colors
-        if (colorName.startsWith('#')) {
-            return colorName;
-        }
-        // Handle new color system — use manual theme override if available
-        const effectiveTheme = typeof getEffectiveTheme !== 'undefined'
-            ? getEffectiveTheme()
-            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        const isDark = effectiveTheme === 'dark';
-        return OVERLAY_DEFAULTS.COLORS[colorName] ? 
-            OVERLAY_DEFAULTS.COLORS[colorName][isDark ? 'dark' : 'light'] : 
-            colorName;
+        return resolveOverlayColor(colorName);
     }
 
     /**
@@ -546,23 +545,11 @@ class OverlayEngine {
 
 
     /**
-     * Process markdown using Marked.js library
+     * Process markdown using Marked.js library.
+     * Delegates to renderMarkdown() in overlay-utils.js.
      */
     processMarkdown(text) {
-        if (text === null || text === undefined) return '';
-        if (typeof marked === 'undefined') {
-            console.warn('Marked.js not loaded, falling back to plain text');
-            return `<p>${sanitizeHTML(text)}</p>`;
-        }
-
-        configureMarked();
-        const html = marked.parse(text);
-        // Sanitize output with DOMPurify (marked v8+ removed built-in sanitization)
-        if (typeof DOMPurify !== 'undefined') {
-            return DOMPurify.sanitize(html);
-        }
-        // DOMPurify unavailable: fall back to escaped plain text to prevent XSS
-        return sanitizeHTML(text);
+        return renderMarkdown(text);
     }
 
     /**

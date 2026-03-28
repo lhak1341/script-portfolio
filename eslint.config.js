@@ -17,6 +17,10 @@ const projectBrowserGlobals = {
     isValidSegmentPattern: 'readonly',
     buildSegmentedLineSegments: 'readonly',
     configureMarked: 'readonly',
+    // js/overlay-utils.js
+    resolveOverlayColor: 'readonly',
+    safeStyleColor: 'readonly',
+    renderMarkdown: 'readonly',
     // js/overlay-engine.js
     OverlayEngine: 'readonly',
     initializeOverlayEngine: 'readonly',
@@ -78,6 +82,7 @@ module.exports = [
             'add-script.js',
             'generate-system.js',
             'update-config-builder.js',
+            'jest.config.js',
             'eslint.config.js',
         ],
         languageOptions: {

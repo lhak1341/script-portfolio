@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node build-system.js",
     "new-script": "node add-script.js",
-    "serve": "python3 -m http.server 8000",
+    "serve": "echo 'Open: http://localhost:8000' && python3 -m http.server 8000",
+    "test": "jest",
     "lint": "eslint js/ tools/config-builder.js *.js"
   },
   "engines": {
@@ -15,6 +16,8 @@
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "eslint": "^9.0.0",
-    "globals": "^15.0.0"
+    "globals": "^15.0.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0"
   }
 }
