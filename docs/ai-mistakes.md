@@ -54,10 +54,9 @@ Patterns that have silently broken this codebase before. Load this when working 
 30. **Forgetting `this.tooltips.push(tooltip)`** — Tooltips not tracked in `this.tooltips[]` can't be removed by `clearOverlays()` → duplicates accumulate on resize.
 31. **`overlay.line.segments` without null guard** — `overlay.description` can exist without `overlay.line`. Guard before accessing `.segments`.
 32. **`initializeOverlayEngine()` returns null — no guard** — Rule #12 applies to every call site, including generated pages from `add-script.js`.
-33. **Parallel implementations in engine vs builder** — `overlay-engine.js` and `config-builder.js` now share `resolveOverlayColor`, `safeStyleColor`, `renderMarkdown` via `js/overlay-utils.js`. When patching a shared method, grep for its name in both files and check the shared source first.
+33. **Parallel implementations in engine vs builder** — `overlay-engine.js` and `config-builder.js` share `resolveOverlayColor`, `safeStyleColor`, `renderMarkdown`, `hexToRgba`, `positionTooltipForSegmentedLine` via `js/overlay-utils.js`. When patching any of these, edit the shared source only — no per-file copies remain.
 34. **`_deleteHotspot(index)` (dead index-based method)** — Must remain deleted; its presence risks regression (rules #27/#37 from original catalogue).
 35. **`createHotspot()` IDs must be stable** — Use `generateUniqueId('hotspot')`; sequential `hotspot-${length+1}` collides after deletions.
-36. **`positionTooltipForSegmentedLine` — empty segments guard** — Add `if (segments.length === 0) return;` before accessing `segments[0]` in both engine and builder preview.
 37. **`dynamic onclick` — use ID not index** — Capture `hotspot.id`, use `findIndex` at click time; array indices go stale after deletions.
 38. **ID-based methods must not delegate to index-based methods** — Inline the logic; delegating reintroduces the stale-index risk.
 39. **`loadImageFromPath` race condition** — Use a `_loadSeq` counter; increment on call, check inside `onload` to abort stale loads when the user switches scripts quickly.
@@ -74,7 +73,6 @@ Patterns that have silently broken this codebase before. Load this when working 
 47. **`replace_all: true` self-corrupting constant declarations** — Add the constant declaration as a targeted edit first, then do `replace_all` on usage sites; otherwise the constant's own initializer gets replaced → `ReferenceError`.
 48. **CDN version pinning without verifying file paths** — Check `https://cdn.jsdelivr.net/npm/<package>@<version>/` to confirm the path exists before pinning.
 49. **`utils.js` load order** — Must be: `utils.js` → `theme.js` → `overlay-defaults.js` → `overlay-utils.js` → `overlay-engine.js`.
-50. **`generateUniqueId` must be in `projectBrowserGlobals`** — Register in `eslint.config.js` with other utils globals, or ESLint flags it as `no-undef`.
 51. **HTML-callable functions need `/* exported funcName */`** — Prevents false "unused variable" ESLint warnings for functions only called from HTML `onclick` handlers.
 52. **`lucide.createIcons({ nodes: [el] })` for targeted refresh** — Pass `{ nodes: [el] }` when only one element's icons changed to avoid a full DOM scan.
 53. **Verify function parameters are consumed in the body** — A param listed in the signature but never read silently drops the caller's intent. Search the body for each param name after editing a signature.
@@ -83,3 +81,4 @@ Patterns that have silently broken this codebase before. Load this when working 
 56. **`img.onerror` wipes container** — After `imageContainer.innerHTML = ...` in the onerror handler, reset `this.overlays = []; this.tooltips = [];` to remove stale references.
 57. **`convertLegacyLineToSegments` mirrored in builder** — Check config-builder.js when editing this method in overlay-engine.js.
 58. **`createHighlight`, `createSimpleLine`, `createLine` take overlay as parameter** — Never read overlay/scaleX/scaleY from instance state inside these methods; pass as explicit parameters.
+59. **`createTooltipAbsolute` / `createPreviewTooltip` offset must be 0** — Both call `positionTooltipForSegmentedLine(..., 0)`. Passing `offset=15` creates a visible 15px gap between the line end and the tooltip in show-all and builder-preview modes. `createSimpleTooltipAbsolute` (hover) positions flush with no offset; show-all must match.

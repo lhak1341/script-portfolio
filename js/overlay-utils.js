@@ -8,7 +8,7 @@
  * in both files. Single-source fixes here propagate to both automatically.
  */
 
-/* exported resolveOverlayColor, safeStyleColor, renderMarkdown */
+/* exported resolveOverlayColor, safeStyleColor, renderMarkdown, hexToRgba, positionTooltipForSegmentedLine */
 
 /**
  * Resolve a color name to a CSS value for the current theme.
@@ -55,6 +55,101 @@ function safeStyleColor(colorName) {
         return value;
     }
     return '#808080';
+}
+
+/**
+ * Convert a hex color string to an rgba() CSS value.
+ * Returns null when hex cannot be parsed (callers decide the fallback).
+ * Replaces the diverging OverlayEngine.hexToRgb() + ConfigurationBuilder.hexToRgba() pair.
+ *
+ * @param {string} hex - CSS hex color (#rrggbb or rrggbb)
+ * @param {number} alpha - Alpha value 0–1
+ * @returns {string|null} e.g. 'rgba(255, 128, 0, 0.1)' or null
+ */
+function hexToRgba(hex, alpha) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) return null;
+    const r = parseInt(result[1], 16);
+    const g = parseInt(result[2], 16);
+    const b = parseInt(result[3], 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+/**
+ * Position a tooltip element at the end of a segmented line.
+ * Extracted from the identical OverlayEngine and ConfigurationBuilder implementations.
+ *
+ * @param {HTMLElement} tooltip
+ * @param {Array<{type:string,length:number}>} segments - Pre-resolved, non-empty segments array
+ * @param {{x:number,y:number,width:number,height:number}} coords - Hotspot coordinates (unscaled)
+ * @param {number} scaleX
+ * @param {number} scaleY
+ * @param {number} offset - Gap between line end and tooltip edge (px)
+ */
+function positionTooltipForSegmentedLine(tooltip, segments, coords, scaleX, scaleY, offset) {
+    // No segments — position tooltip flush with the right edge of the hotspot
+    if (!segments || segments.length === 0) {
+        tooltip.style.left = `${(coords.x + coords.width) * scaleX + offset}px`;
+        tooltip.style.right = 'auto';
+        tooltip.style.top = `${(coords.y + coords.height / 2) * scaleY}px`;
+        tooltip.style.bottom = 'auto';
+        tooltip.style.transform = 'translateY(-50%)';
+        return;
+    }
+
+    const scale = Math.min(scaleX, scaleY);
+    const firstSegment = segments[0];
+    const lastSegment = segments[segments.length - 1];
+
+    const hotspotLeft = coords.x * scaleX;
+    const hotspotTop = coords.y * scaleY;
+    const hotspotWidth = coords.width * scaleX;
+    const hotspotHeight = coords.height * scaleY;
+
+    let startX, startY;
+    if (firstSegment.type === 'horizontal') {
+        startY = hotspotTop + hotspotHeight / 2;
+        startX = firstSegment.length > 0 ? hotspotLeft + hotspotWidth : hotspotLeft;
+    } else {
+        startX = hotspotLeft + hotspotWidth / 2;
+        startY = firstSegment.length > 0 ? hotspotTop + hotspotHeight : hotspotTop;
+    }
+
+    let endX = startX;
+    let endY = startY;
+    segments.forEach(segment => {
+        if (segment.type === 'horizontal') {
+            endX += segment.length * scale;
+        } else {
+            endY += segment.length * scale;
+        }
+    });
+
+    if (lastSegment.type === 'horizontal') {
+        if (lastSegment.length > 0) {
+            tooltip.style.left = `${endX + offset}px`;
+            tooltip.style.right = 'auto';
+            tooltip.style.transform = 'translateY(-50%)';
+        } else {
+            tooltip.style.right = `calc(100% - ${endX - offset}px)`;
+            tooltip.style.left = 'auto';
+            tooltip.style.transform = 'translateY(-50%)';
+        }
+        tooltip.style.top = `${endY}px`;
+        tooltip.style.bottom = 'auto';
+    } else {
+        if (lastSegment.length > 0) {
+            tooltip.style.top = `${endY + offset}px`;
+            tooltip.style.bottom = 'auto';
+            tooltip.style.transform = 'translateX(-50%)';
+        } else {
+            tooltip.style.bottom = `calc(100% - ${endY - offset}px)`;
+            tooltip.style.top = 'auto';
+            tooltip.style.transform = 'translateX(-50%)';
+        }
+        tooltip.style.left = `${endX}px`;
+        tooltip.style.right = 'auto';
+    }
 }
 
 /**

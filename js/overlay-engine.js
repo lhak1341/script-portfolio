@@ -5,12 +5,6 @@
  * @module overlay-engine
  * @public initializeOverlayEngine(containerId) — factory; returns OverlayEngine or null
  * @public OverlayEngine class — loadConfig, destroy
- *
- * MIRRORED METHODS — keep in sync with tools/config-builder.js:
- *   getCurrentColorValue()  L19  ↔  ConfigurationBuilder.getCurrentColorValue()  L141
- *   processMarkdown()       L551 ↔  ConfigurationBuilder.processMarkdown()       L1246
- *   hexToRgb()              L644 ↔  ConfigurationBuilder.hexToRgba()             L1233
- *   positionTooltipForSegmentedLine() L454 ↔ positionTooltipForSegmentedLinePreview() L1150
  */
 
 class OverlayEngine {
@@ -265,11 +259,8 @@ class OverlayEngine {
         if (overlayColor) {
             const colorValue = this.getCurrentColorValue(overlayColor);
             highlight.style.borderColor = colorValue;
-            // Create semi-transparent background
-            const rgb = this.hexToRgb(colorValue);
-            if (rgb) {
-                highlight.style.background = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`;
-            }
+            const rgba = hexToRgba(colorValue, 0.1);
+            if (rgba) highlight.style.background = rgba;
         }
 
         // Apply border radius (use default if not specified)
@@ -286,24 +277,20 @@ class OverlayEngine {
         const container = document.createElement('div');
         container.className = 'overlay-line-container';
 
-        // Use color from overlay or line config
         const overlayColor = overlay?.color || lineConfig.color || 'cyan';
         const lineColor = this.getCurrentColorValue(overlayColor);
         const thickness = lineConfig.thickness || OVERLAY_DEFAULTS.LINE_THICKNESS;
 
-        // Calculate total horizontal distance from segments
-        const segments = lineConfig.segments || [];
+        // Use simplifyLineSegments so zero-length and invalid segments are handled
+        // consistently with createLine, then collapse to a single horizontal segment.
+        const simplified = this.simplifyLineSegments(lineConfig.segments || []);
         let totalHorizontal = 0;
-        segments.forEach(seg => {
-            if (seg.type === 'horizontal') {
-                totalHorizontal += seg.length;
-            }
+        simplified.forEach(seg => {
+            if (seg.type === 'horizontal') totalHorizontal += seg.length;
         });
 
-        // Create single horizontal segment
-        const simpleSegments = [{type: 'horizontal', length: totalHorizontal}];
-
-        this.createSegmentedLine(container, simpleSegments, lineColor, thickness, scaleX, scaleY);
+        const simpleSegments = [{type: 'horizontal', length: totalHorizontal || 1}];
+        buildSegmentedLineSegments(container, simpleSegments, lineColor, thickness, scaleX, scaleY);
 
         return container;
     }
@@ -315,19 +302,15 @@ class OverlayEngine {
         const container = document.createElement('div');
         container.className = 'overlay-line-container';
 
-        // Use color from overlay or line config (single source of truth)
         const overlayColor = overlay?.color || lineConfig.color || 'cyan';
         const lineColor = this.getCurrentColorValue(overlayColor);
         const thickness = lineConfig.thickness || OVERLAY_DEFAULTS.LINE_THICKNESS;
 
-        // Use passed scale factors (fall back to 1 for safety)
         scaleX = scaleX || 1;
         scaleY = scaleY || 1;
 
-        // Simplify segments: remove segments with zero length
         const simplifiedSegments = this.simplifyLineSegments(lineConfig.segments);
-
-        this.createSegmentedLine(container, simplifiedSegments, lineColor, thickness, scaleX, scaleY);
+        buildSegmentedLineSegments(container, simplifiedSegments, lineColor, thickness, scaleX, scaleY);
 
         return container;
     }
@@ -355,14 +338,6 @@ class OverlayEngine {
 
         return filtered;
     }
-
-    /**
-     * Create multi-segment line (horizontal-vertical-horizontal)
-     */
-    createSegmentedLine(container, segments, lineColor, thickness, scaleX, scaleY) {
-        buildSegmentedLineSegments(container, segments, lineColor, thickness, scaleX, scaleY);
-    }
-
 
     /**
      * Create simple tooltip positioned at end of horizontal line
@@ -439,108 +414,12 @@ class OverlayEngine {
         const content = this.processMarkdown(overlay.description.content);
         tooltip.innerHTML = content;
 
-        const offset = 15; // Space between line end and tooltip
-
-        // Use unified multi-segment positioning
-        this.positionTooltipForSegmentedLine(tooltip, overlay, scaleX, scaleY, offset);
+        const segments = overlay.line ? this.simplifyLineSegments(overlay.line.segments) : [];
+        positionTooltipForSegmentedLine(
+            tooltip, segments, this.getOverlayCoordinates(overlay), scaleX, scaleY, 0
+        );
 
         return tooltip;
-    }
-
-    /**
-     * Position tooltip for segmented line system
-     */
-    positionTooltipForSegmentedLine(tooltip, overlay, scaleX, scaleY, offset) {
-        // If no line config, position tooltip directly adjacent to the hotspot
-        if (!overlay.line) {
-            const coords = this.getOverlayCoordinates(overlay);
-            tooltip.style.left = `${(coords.x + coords.width) * scaleX + offset}px`;
-            tooltip.style.right = 'auto';
-            tooltip.style.top = `${(coords.y + coords.height / 2) * scaleY}px`;
-            tooltip.style.bottom = 'auto';
-            tooltip.style.transform = 'translateY(-50%)';
-            return;
-        }
-
-        // Use simplified segments for positioning
-        const segments = this.simplifyLineSegments(overlay.line.segments);
-        if (segments.length === 0) return;
-        const scale = Math.min(scaleX, scaleY);
-        const firstSegment = segments[0];
-        const lastSegment = segments[segments.length - 1];
-
-        // Calculate starting position based on hotspot edge
-        let startX, startY;
-        const coords = this.getOverlayCoordinates(overlay);
-        const hotspotLeft = coords.x * scaleX;
-        const hotspotTop = coords.y * scaleY;
-        const hotspotWidth = coords.width * scaleX;
-        const hotspotHeight = coords.height * scaleY;
-
-        if (firstSegment.type === 'horizontal') {
-            startY = hotspotTop + hotspotHeight / 2; // Middle of hotspot vertically
-            if (firstSegment.length > 0) {
-                // Starting from right edge
-                startX = hotspotLeft + hotspotWidth;
-            } else {
-                // Starting from left edge
-                startX = hotspotLeft;
-            }
-        } else {
-            startX = hotspotLeft + hotspotWidth / 2; // Middle of hotspot horizontally
-            if (firstSegment.length > 0) {
-                // Starting from bottom edge
-                startY = hotspotTop + hotspotHeight;
-            } else {
-                // Starting from top edge
-                startY = hotspotTop;
-            }
-        }
-
-        // Calculate final position after all segments
-        let endX = startX;
-        let endY = startY;
-
-        segments.forEach(segment => {
-            if (segment.type === 'horizontal') {
-                endX += segment.length * scale;
-            } else {
-                endY += segment.length * scale;
-            }
-        });
-
-        // Position tooltip at end of segmented line with offset gap
-        if (lastSegment.type === 'horizontal') {
-            // Last segment is horizontal - position tooltip left/right of end point
-            if (lastSegment.length > 0) {
-                // Line ends going right, tooltip to the right
-                tooltip.style.left = `${endX + offset}px`;
-                tooltip.style.right = 'auto';
-                tooltip.style.transform = 'translateY(-50%)';
-            } else {
-                // Line ends going left, tooltip to the left
-                tooltip.style.right = `calc(100% - ${endX - offset}px)`;
-                tooltip.style.left = 'auto';
-                tooltip.style.transform = 'translateY(-50%)';
-            }
-            tooltip.style.top = `${endY}px`;
-            tooltip.style.bottom = 'auto';
-        } else {
-            // Last segment is vertical - position tooltip above/below end point
-            if (lastSegment.length > 0) {
-                // Line ends going down, tooltip below
-                tooltip.style.top = `${endY + offset}px`;
-                tooltip.style.bottom = 'auto';
-                tooltip.style.transform = 'translateX(-50%)';
-            } else {
-                // Line ends going up, tooltip above
-                tooltip.style.bottom = `calc(100% - ${endY - offset}px)`;
-                tooltip.style.top = 'auto';
-                tooltip.style.transform = 'translateX(-50%)';
-            }
-            tooltip.style.left = `${endX}px`;
-            tooltip.style.right = 'auto';
-        }
     }
 
 
@@ -593,48 +472,13 @@ class OverlayEngine {
 
         // Update tags
         if (config.tags) {
-            // Look for either old structure (.script-tags) or new structure (.script-tags-section .script-tags)
-            let tagsContainer = document.querySelector('.script-tags-section .script-tags');
-            if (!tagsContainer) {
-                tagsContainer = document.querySelector('.script-tags');
-                // If we found old structure, upgrade it
-                if (tagsContainer && tagsContainer.previousElementSibling?.tagName === 'H3') {
-                    const h3 = tagsContainer.previousElementSibling;
-                    const newSection = document.createElement('div');
-                    newSection.className = 'script-tags-section';
-                    newSection.innerHTML = `
-                        <svg class="tag-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                        <div class="script-tags"></div>
-                    `;
-                    h3.parentNode.replaceChild(newSection, h3);
-                    tagsContainer.remove();
-                    tagsContainer = newSection.querySelector('.script-tags');
-                    
-                    // Re-initialize Lucide icons
-                    if (typeof lucide !== 'undefined') {
-                        lucide.createIcons();
-                    }
-                }
-            }
-            
+            const tagsContainer = document.querySelector('.script-tags-section .script-tags');
             if (tagsContainer) {
                 tagsContainer.innerHTML = [...config.tags].sort().map(tag =>
                     `<a href="../../index.html?tag=${encodeURIComponent(tag)}" class="tag">${sanitizeHTML(tag)}</a>`
                 ).join(' ');
             }
         }
-    }
-
-    /**
-     * Convert hex color to RGB
-     */
-    hexToRgb(hex) {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-        } : null;
     }
 
     /**
@@ -723,20 +567,6 @@ class OverlayEngine {
                 showAllLines.forEach(l => l.style.display = 'none');
             });
         }
-    }
-
-    /**
-     * Toggle show all overlays mode (legacy method for compatibility)
-     */
-    toggleShowAll() {
-        const toggleInput = document.getElementById('overlay-toggle');
-        this.showAllMode = !this.showAllMode;
-        
-        if (toggleInput) {
-            toggleInput.checked = this.showAllMode;
-        }
-        
-        this.updateOverlayVisibility();
     }
 
     /**
@@ -894,9 +724,9 @@ function createScriptCard(script) {
             e.preventDefault();
             
             const tag = tagElement.dataset.tag;
-            // Update URL and trigger filtering
+            // Normalize to lowercase so URL round-trips consistently with the case-insensitive filter
             const url = new URL(window.location);
-            url.searchParams.set('tag', tag);
+            url.searchParams.set('tag', tag.toLowerCase());
             window.history.pushState({}, '', url);
             
             // Clear search input
@@ -960,16 +790,17 @@ function createScriptCard(script) {
     return card;
 }
 
+const CATEGORY_NAMES = {
+    'utility': 'Utility',
+    'automation': 'Automation',
+    'workflow': 'Workflow'
+};
+
 /**
  * Get category display name
  */
 function getCategoryName(categoryId) {
-    const categories = {
-        'utility': 'Utility',
-        'automation': 'Automation',
-        'workflow': 'Workflow'
-    };
-    return categories[categoryId] || categoryId;
+    return CATEGORY_NAMES[categoryId] || categoryId;
 }
 
 /**

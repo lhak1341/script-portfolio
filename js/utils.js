@@ -20,76 +20,6 @@ function debounce(func, wait, immediate = false) {
 }
 
 /**
- * Throttle function to limit function calls
- */
-function throttle(func, limit) {
-    let inThrottle;
-    return function(...args) {
-        if (!inThrottle) {
-            func.apply(this, args);
-            inThrottle = true;
-            setTimeout(() => inThrottle = false, limit);
-        }
-    };
-}
-
-/**
- * Get element's position relative to viewport
- */
-function getElementPosition(element) {
-    const rect = element.getBoundingClientRect();
-    return {
-        top: rect.top + window.pageYOffset,
-        left: rect.left + window.pageXOffset,
-        width: rect.width,
-        height: rect.height
-    };
-}
-
-/**
- * Check if element is in viewport
- */
-function isInViewport(element, threshold = 0) {
-    const rect = element.getBoundingClientRect();
-    const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-    const windowWidth = window.innerWidth || document.documentElement.clientWidth;
-
-    return (
-        rect.top >= -threshold &&
-        rect.left >= -threshold &&
-        rect.bottom <= windowHeight + threshold &&
-        rect.right <= windowWidth + threshold
-    );
-}
-
-/**
- * Smooth scroll to element
- */
-function smoothScrollTo(element, offset = 0, duration = 500) {
-    const targetPosition = getElementPosition(element).top - offset;
-    const startPosition = window.pageYOffset;
-    const distance = targetPosition - startPosition;
-    let startTime = null;
-
-    function animation(currentTime) {
-        if (startTime === null) startTime = currentTime;
-        const timeElapsed = currentTime - startTime;
-        const run = easeInOutQuad(timeElapsed, startPosition, distance, duration);
-        window.scrollTo(0, run);
-        if (timeElapsed < duration) requestAnimationFrame(animation);
-    }
-
-    function easeInOutQuad(t, b, c, d) {
-        t /= d / 2;
-        if (t < 1) return c / 2 * t * t + b;
-        t--;
-        return -c / 2 * (t * (t - 2) - 1) + b;
-    }
-
-    requestAnimationFrame(animation);
-}
-
-/**
  * Create element with attributes and content
  */
 function createElement(tag, attributes = {}, content = '') {
@@ -118,53 +48,6 @@ function createElement(tag, attributes = {}, content = '') {
     }
 
     return element;
-}
-
-/**
- * Load image with promise
- */
-function loadImage(src) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        img.src = src;
-    });
-}
-
-/**
- * Copy text to clipboard
- */
-async function copyToClipboard(text) {
-    try {
-        await navigator.clipboard.writeText(text);
-        return true;
-    } catch (err) {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-            document.execCommand('copy');
-            textArea.remove();
-            return true;
-        } catch (err) {
-            textArea.remove();
-            return false;
-        }
-    }
-}
-
-/**
- * Generate unique ID
- */
-function generateUniqueId(prefix = 'id') {
-    return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
 /**
@@ -208,24 +91,6 @@ function removeURLParam(key) {
 }
 
 /**
- * Deep clone object
- */
-function deepClone(obj) {
-    if (obj === null || typeof obj !== 'object') return obj;
-    if (obj instanceof Date) return new Date(obj.getTime());
-    if (obj instanceof Array) return obj.map(item => deepClone(item));
-    if (typeof obj === 'object') {
-        const clonedObj = {};
-        for (const key in obj) {
-            if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                clonedObj[key] = deepClone(obj[key]);
-            }
-        }
-        return clonedObj;
-    }
-}
-
-/**
  * Compare two semver strings numerically.
  * Returns negative if a < b, positive if a > b, 0 if equal.
  */
@@ -234,18 +99,6 @@ function compareSemver(a, b) {
     const [aMaj, aMin, aPatch] = parse(a);
     const [bMaj, bMin, bPatch] = parse(b);
     return (aMaj - bMaj) || (aMin - bMin) || (aPatch - bPatch);
-}
-
-/**
- * Check if point is inside rectangle
- */
-function pointInRect(point, rect) {
-    return (
-        point.x >= rect.x &&
-        point.x <= rect.x + rect.width &&
-        point.y >= rect.y &&
-        point.y <= rect.y + rect.height
-    );
 }
 
 /**
@@ -296,9 +149,8 @@ const storage = {
 // Export utilities if in module environment
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-        debounce, throttle, getElementPosition, isInViewport, smoothScrollTo,
-        createElement, loadImage, copyToClipboard, generateUniqueId,
+        debounce, createElement,
         sanitizeHTML, getURLParams, setURLParam, removeURLParam,
-        deepClone, pointInRect, storage, compareSemver
+        storage, compareSemver
     };
 }

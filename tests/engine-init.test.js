@@ -19,11 +19,14 @@ function loadAndExpose(relPath, exportNames) {
 
 beforeAll(() => {
     // Load in the same order as HTML pages: utils → overlay-defaults → overlay-utils → overlay-engine
-    loadAndExpose('js/utils.js', ['debounce', 'throttle', 'sanitizeHTML', 'generateUniqueId']);
+    loadAndExpose('js/utils.js', ['debounce', 'sanitizeHTML']);
     loadAndExpose('js/overlay-defaults.js', [
         'OVERLAY_DEFAULTS', 'isValidSegmentPattern', 'buildSegmentedLineSegments', 'configureMarked',
     ]);
-    loadAndExpose('js/overlay-utils.js', ['resolveOverlayColor', 'safeStyleColor', 'renderMarkdown']);
+    loadAndExpose('js/overlay-utils.js', [
+        'resolveOverlayColor', 'safeStyleColor', 'renderMarkdown',
+        'hexToRgba', 'positionTooltipForSegmentedLine',
+    ]);
     loadAndExpose('js/overlay-engine.js', ['OverlayEngine', 'initializeOverlayEngine']);
 });
 

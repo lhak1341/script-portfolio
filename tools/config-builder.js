@@ -4,13 +4,6 @@
  *
  * @module config-builder
  * @public ConfigurationBuilder class — init, exportConfiguration, loadConfiguration
- *
- * MIRRORED METHODS — keep in sync with js/overlay-engine.js:
- *   getCurrentColorValue()              L141  ↔  OverlayEngine.getCurrentColorValue()  L19
- *   getSafeColorValue()                 L156  (builder-only; wraps getCurrentColorValue for style strings)
- *   processMarkdown()                   L1246 ↔  OverlayEngine.processMarkdown()       L551
- *   hexToRgba()                         L1233 ↔  OverlayEngine.hexToRgb()              L644
- *   positionTooltipForSegmentedLinePreview() L1150 ↔ OverlayEngine.positionTooltipForSegmentedLine() L454
  */
 
 // Selection highlight colors used in renderFullHotspotPreview and updateSelectionVisuals
@@ -971,7 +964,7 @@ class ConfigurationBuilder {
             const colorValue = this.getCurrentColorValue(hotspot.color);
             highlight.style.border = `2px solid ${colorValue}`;
             highlight.style.borderRadius = `${OVERLAY_DEFAULTS.BORDER_RADIUS}px`;
-            highlight.style.backgroundColor = this.hexToRgba(colorValue, 0.1);
+            highlight.style.backgroundColor = hexToRgba(colorValue, 0.1) || 'rgba(52, 152, 219, 0.1)';
             highlight.style.pointerEvents = 'none';
             highlight.style.zIndex = '5';
             canvas.appendChild(highlight);
@@ -1124,117 +1117,10 @@ class ConfigurationBuilder {
         tooltip.style.opacity = '1'; // Always visible in preview
         tooltip.style.zIndex = '25';
 
-        const offset = 15; // Same offset as real engine
-
-        // Position at end of multi-segment line (like "Show All" mode)
-        if (!hotspot.line || !(hotspot.line.segments || []).length) {
-            // No line config: position tooltip to the right of the hotspot
-            const hotspotRight = (hotspot.coordinates.x + hotspot.coordinates.width) * scaleX;
-            const hotspotMidY = (hotspot.coordinates.y + hotspot.coordinates.height / 2) * scaleY;
-            tooltip.style.left = `${hotspotRight + offset}px`;
-            tooltip.style.top = `${hotspotMidY}px`;
-            tooltip.style.transform = 'translateY(-50%)';
-        } else {
-            this.positionTooltipForSegmentedLinePreview(tooltip, hotspot, scaleX, scaleY, offset);
-        }
+        const segments = hotspot.line ? (hotspot.line.segments || []) : [];
+        positionTooltipForSegmentedLine(tooltip, segments, hotspot.coordinates, scaleX, scaleY, 0);
 
         return tooltip;
-    }
-
-    /**
-     * Position tooltip for segmented line preview - matches main engine positioning
-     */
-    positionTooltipForSegmentedLinePreview(tooltip, hotspot, scaleX, scaleY, offset) {
-        const segments = hotspot.line ? (hotspot.line.segments || []) : [];
-        if (segments.length === 0) return;
-        const scale = Math.min(scaleX, scaleY);
-        const firstSegment = segments[0];
-        const lastSegment = segments[segments.length - 1];
-
-        // Calculate starting position based on hotspot edge
-        let startX, startY;
-        const hotspotLeft = hotspot.coordinates.x * scaleX;
-        const hotspotTop = hotspot.coordinates.y * scaleY;
-        const hotspotWidth = hotspot.coordinates.width * scaleX;
-        const hotspotHeight = hotspot.coordinates.height * scaleY;
-
-        if (firstSegment.type === 'horizontal') {
-            startY = hotspotTop + hotspotHeight / 2; // Middle of hotspot vertically
-            if (firstSegment.length > 0) {
-                // Starting from right edge
-                startX = hotspotLeft + hotspotWidth;
-            } else {
-                // Starting from left edge
-                startX = hotspotLeft;
-            }
-        } else {
-            startX = hotspotLeft + hotspotWidth / 2; // Middle of hotspot horizontally
-            if (firstSegment.length > 0) {
-                // Starting from bottom edge
-                startY = hotspotTop + hotspotHeight;
-            } else {
-                // Starting from top edge
-                startY = hotspotTop;
-            }
-        }
-
-        // Calculate final position after all segments
-        let endX = startX;
-        let endY = startY;
-
-        segments.forEach(segment => {
-            if (segment.type === 'horizontal') {
-                endX += segment.length * scale;
-            } else {
-                endY += segment.length * scale;
-            }
-        });
-
-        // Position tooltip at end of segmented line with offset gap
-        if (lastSegment.type === 'horizontal') {
-            // Last segment is horizontal - position tooltip left/right of end point
-            if (lastSegment.length > 0) {
-                // Line ends going right, tooltip to the right
-                tooltip.style.left = `${endX + offset}px`;
-                tooltip.style.right = 'auto';
-                tooltip.style.transform = 'translateY(-50%)';
-            } else {
-                // Line ends going left, tooltip to the left
-                tooltip.style.right = `calc(100% - ${endX - offset}px)`;
-                tooltip.style.left = 'auto';
-                tooltip.style.transform = 'translateY(-50%)';
-            }
-            tooltip.style.top = `${endY}px`;
-            tooltip.style.bottom = 'auto';
-        } else {
-            // Last segment is vertical - position tooltip above/below end point
-            if (lastSegment.length > 0) {
-                // Line ends going down, tooltip below
-                tooltip.style.top = `${endY + offset}px`;
-                tooltip.style.bottom = 'auto';
-                tooltip.style.transform = 'translateX(-50%)';
-            } else {
-                // Line ends going up, tooltip above
-                tooltip.style.bottom = `calc(100% - ${endY - offset}px)`;
-                tooltip.style.top = 'auto';
-                tooltip.style.transform = 'translateX(-50%)';
-            }
-            tooltip.style.left = `${endX}px`;
-            tooltip.style.right = 'auto';
-        }
-    }
-
-    /**
-     * Convert hex to rgba
-     */
-    hexToRgba(hex, alpha) {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        if (!result) return `rgba(52, 152, 219, ${alpha})`;
-        
-        const r = parseInt(result[1], 16);
-        const g = parseInt(result[2], 16);
-        const b = parseInt(result[3], 16);
-        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
 
     /**
