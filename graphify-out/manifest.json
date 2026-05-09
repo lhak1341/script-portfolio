@@ -1,0 +1,194 @@
+{
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/generate-system.js": {
+    "mtime": 1771424662.966249,
+    "hash": "1e4b8d64b2fac74a0f9085ffe134f8e1"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/add-script.js": {
+    "mtime": 1774710624.0714698,
+    "hash": "de6b5235edecbb6bf70b9645909c4120"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/jest.config.js": {
+    "mtime": 1774710823.0893915,
+    "hash": "0b4de1bba8a53ea0384a18c5afc14cec"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/eslint.config.js": {
+    "mtime": 1774711226.2645445,
+    "hash": "64ec3418492cc795897d4f1b5b78fb6a"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/update-config-builder.js": {
+    "mtime": 1770335887.0843067,
+    "hash": "1a0c1939f3ea69547731a8f78de990a1"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/build-system.js": {
+    "mtime": 1775310810.2208567,
+    "hash": "5db7797ecd1bcc229cfe9b387fbe48f9"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/tools/config-builder.js": {
+    "mtime": 1775341759.4769204,
+    "hash": "69914f898310cafc5fd99b56a5ea4756"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/js/overlay-engine.js": {
+    "mtime": 1775341752.0364847,
+    "hash": "636424c9471b4cf553dddac575ad9139"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/js/theme.js": {
+    "mtime": 1772290961.0401874,
+    "hash": "c81afa1ba33b065fc58495057ae8c9c3"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/js/overlay-defaults.js": {
+    "mtime": 1774707478.9823854,
+    "hash": "15f056f154265a3fbe7f227ddeb6cb33"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/js/utils.js": {
+    "mtime": 1775310779.3541465,
+    "hash": "6fae495d99ef2355b44a4f5d15c5410a"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/js/overlay-utils.js": {
+    "mtime": 1775341739.9053388,
+    "hash": "99ed3c8fd10b07507e7a510ab7dfa1f7"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/tests/overlay-utils.test.js": {
+    "mtime": 1774711445.657588,
+    "hash": "4bdaf9fc916fd4faeff7aab9960aed54"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/tests/overlay-engine-lines.test.js": {
+    "mtime": 1775341777.0348916,
+    "hash": "39afe9e053b1776909130f9e19a10977"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/tests/sanitize.test.js": {
+    "mtime": 1774710988.6045637,
+    "hash": "9eeb04a1fa5fef6cac80ae126b663096"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/tests/setup.js": {
+    "mtime": 1774711445.5190475,
+    "hash": "10ee1588317117f1ca25d99afbcc1547"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/tests/engine-init.test.js": {
+    "mtime": 1775310829.5086207,
+    "hash": "d04109d5e28d2da29c6f52b52ad22120"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/index.html": {
+    "mtime": 1774710613.9538991,
+    "hash": "1bce55f5968dd7d3b087b879e9ab650d"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/README.md": {
+    "mtime": 1774712192.7987955,
+    "hash": "fbe44faeb8e749a7cb82d3affbbc3016"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/CLAUDE.md": {
+    "mtime": 1774712192.7987955,
+    "hash": "fbe44faeb8e749a7cb82d3affbbc3016"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/tools/config-builder.html": {
+    "mtime": 1774710615.084012,
+    "hash": "c8948e2030367938c693a170c4feb725"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/docs/build-system.md": {
+    "mtime": 1770339785.2925406,
+    "hash": "19446fa0bc3df6c7a265a21c36f6de96"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/docs/architecture.md": {
+    "mtime": 1770339746.4080489,
+    "hash": "0d100ab76d03dd6d43fc4818f39f9c4f"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/docs/ai-mistakes.md": {
+    "mtime": 1775342055.8841767,
+    "hash": "a685afaef413d89383554662dc7b72f1"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/docs/README.md": {
+    "mtime": 1770339901.6757224,
+    "hash": "132f2d4c8c01410c0baefe2e7067c2c7"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/docs/configuration.md": {
+    "mtime": 1770339766.9582124,
+    "hash": "2c18b4747974e8adc3d5935a08505ea6"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/docs/debugging.md": {
+    "mtime": 1771424668.0436592,
+    "hash": "60a51e6e9af15f0dfa8ed0cb8b0cae8a"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/docs/config-builder.md": {
+    "mtime": 1771424665.489654,
+    "hash": "11903fafb5035da1d00038d9dd864dde"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/sp-versioning-setup-toolkit/index.html": {
+    "mtime": 1774710604.396906,
+    "hash": "c9f20d17b9daff1ea3e3ea179b36d7d3"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/sp-versioning-setup-toolkit/description.md": {
+    "mtime": 1757395113.0,
+    "hash": "863e25599dc80a13bc707a94cce4d922"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/find-replace-expression/index.html": {
+    "mtime": 1774710604.3737662,
+    "hash": "a57581546682f5061654fe1920aa4b5a"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/find-replace-expression/description.md": {
+    "mtime": 1757395113.0,
+    "hash": "6a11216b2214cc2ba96e8e11ad05d7ba"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/sp-comp-setup/index.html": {
+    "mtime": 1774710604.3835332,
+    "hash": "a1f1a455fab1218f66635904f1dbf17c"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/sp-comp-setup/description.md": {
+    "mtime": 1759383789.0,
+    "hash": "276328fbe5710cb7892227df219ebb35"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/sp-deadline/index.html": {
+    "mtime": 1774710604.3871486,
+    "hash": "4ef0f6bf0f4193b4d12afd1b314508a1"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/sp-deadline/description.md": {
+    "mtime": 1759383750.0,
+    "hash": "795933ead76917920395dd6188607dd5"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/effect-usage-analyzer/index.html": {
+    "mtime": 1774710604.366506,
+    "hash": "a90e91c91c4ce7275add4ad8bdea1288"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/effect-usage-analyzer/description.md": {
+    "mtime": 1757395113.0,
+    "hash": "d88937adc1a605d2c018c2a158508a0e"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/sp-versioning-csv/index.html": {
+    "mtime": 1774710604.3937643,
+    "hash": "98039aff2d353befb5d68c116a2d2159"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/sp-versioning-csv/description.md": {
+    "mtime": 1757395113.0,
+    "hash": "b68a52345bad3e782469ed65218541d4"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/sp-comp-edit/index.html": {
+    "mtime": 1774710604.380333,
+    "hash": "4bf204491e4eb445c7924bad64da4f1e"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/sp-comp-edit/description.md": {
+    "mtime": 1757395113.0,
+    "hash": "e519ed0c9d221ee4e69ee258f03d862c"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/sp-srt-importer/index.html": {
+    "mtime": 1774710604.390467,
+    "hash": "cf6b3f2c7995d2003c5f15c769988445"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/sp-srt-importer/description.md": {
+    "mtime": 1757395113.0,
+    "hash": "d80ed3dccc158c46d945b46aa436ba77"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/expression-usage-analyzer/index.html": {
+    "mtime": 1774710604.3704944,
+    "hash": "5e8957e6e852bbd1073461ec1927ab96"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/expression-usage-analyzer/description.md": {
+    "mtime": 1757395113.0,
+    "hash": "16a5cb4c1872a61da87252b11c5c8a8e"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/khoa-sharing-toolbar/index.html": {
+    "mtime": 1774710604.3770664,
+    "hash": "4f29f773f365f01e1b570e8601f21502"
+  },
+  "/Users/lhak/workspace/github.com/lhak1341/script-portfolio/scripts/khoa-sharing-toolbar/description.md": {
+    "mtime": 1757395113.0,
+    "hash": "17ac0d8824381995f8d85fcca9afff0c"
+  }
+}
