@@ -1,142 +1,129 @@
-# Graph Report - .  (2026-05-09)
+# Graph Report - .  (2026-06-15)
 
 ## Corpus Check
-- Corpus is ~25,242 words - fits in a single context window. You may not need a graph.
+- Corpus is ~23,645 words - fits in a single context window. You may not need a graph.
 
 ## Summary
-- 202 nodes · 295 edges · 26 communities (15 shown, 11 thin omitted)
-- Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 37 edges (avg confidence: 0.86)
+- 186 nodes · 264 edges · 38 communities (10 shown, 28 thin omitted)
+- Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 27 edges (avg confidence: 0.82)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Configuration Builder Logic|Configuration Builder Logic]]
-- [[_COMMUNITY_Overlay Core & Markdown|Overlay Core & Markdown]]
-- [[_COMMUNITY_Portfolio UI & Filtering|Portfolio UI & Filtering]]
-- [[_COMMUNITY_Overlay Utilities & Rendering|Overlay Utilities & Rendering]]
-- [[_COMMUNITY_Script Pages & Schema|Script Pages & Schema]]
-- [[_COMMUNITY_Segmented Line Tests|Segmented Line Tests]]
-- [[_COMMUNITY_System Generation Utilities|System Generation Utilities]]
-- [[_COMMUNITY_Core Architecture Principles|Core Architecture Principles]]
+- [[_COMMUNITY_Configuration Builder Core Logic|Configuration Builder Core Logic]]
+- [[_COMMUNITY_Build and Script Generation|Build and Script Generation]]
+- [[_COMMUNITY_Overlay Engine Core Rendering|Overlay Engine Core Rendering]]
+- [[_COMMUNITY_UI Utilities and Script Cards|UI Utilities and Script Cards]]
+- [[_COMMUNITY_Overlay Configuration and Utilities|Overlay Configuration and Utilities]]
+- [[_COMMUNITY_System Architecture and Documentation|System Architecture and Documentation]]
+- [[_COMMUNITY_Theme Management System|Theme Management System]]
+- [[_COMMUNITY_ESLint Configuration and Globals|ESLint Configuration and Globals]]
+- [[_COMMUNITY_Config Builder Guide and Patterns|Config Builder Guide and Patterns]]
+- [[_COMMUNITY_Build System Documentation|Build System Documentation]]
+- [[_COMMUNITY_Versioning Toolkit Documentation|Versioning Toolkit Documentation]]
+- [[_COMMUNITY_SP Comp Setup Module|SP Comp Setup Module]]
+- [[_COMMUNITY_SP Deadline Module|SP Deadline Module]]
+- [[_COMMUNITY_Script Usage Analyzer Documentation|Script Usage Analyzer Documentation]]
+- [[_COMMUNITY_Overlay Engine Source File|Overlay Engine Source File]]
+- [[_COMMUNITY_Theme Management Source File|Theme Management Source File]]
+- [[_COMMUNITY_Common Utility Source File|Common Utility Source File]]
+- [[_COMMUNITY_Config Builder Tool Source|Config Builder Tool Source]]
+- [[_COMMUNITY_Project Configuration Documentation|Project Configuration Documentation]]
+- [[_COMMUNITY_AI Mistakes and Lessons|AI Mistakes and Lessons]]
 - [[_COMMUNITY_Script Creation Utility|Script Creation Utility]]
-- [[_COMMUNITY_Theme Management|Theme Management]]
-- [[_COMMUNITY_Engine Initialization Tests|Engine Initialization Tests]]
-- [[_COMMUNITY_Project Documentation|Project Documentation]]
-- [[_COMMUNITY_ESLint Configuration|ESLint Configuration]]
-- [[_COMMUNITY_Config Data Updates|Config Data Updates]]
-- [[_COMMUNITY_Test Setup|Test Setup]]
-- [[_COMMUNITY_Build & Data Sync|Build & Data Sync]]
-- [[_COMMUNITY_Build System Orchestrator|Build System Orchestrator]]
-- [[_COMMUNITY_Overlay Utils Tests|Overlay Utils Tests]]
-- [[_COMMUNITY_Sanitization Tests|Sanitization Tests]]
-- [[_COMMUNITY_Theme Architecture|Theme Architecture]]
-- [[_COMMUNITY_Script Template Utilities|Script Template Utilities]]
-- [[_COMMUNITY_Script List Schema|Script List Schema]]
-- [[_COMMUNITY_Color System|Color System]]
-- [[_COMMUNITY_CORS Debugging|CORS Debugging]]
+- [[_COMMUNITY_Script Card Rendering Logic|Script Card Rendering Logic]]
+- [[_COMMUNITY_Theme System Architecture Notes|Theme System Architecture Notes]]
+- [[_COMMUNITY_Versioning Setup Toolkit Page|Versioning Setup Toolkit Page]]
+- [[_COMMUNITY_Find and Replace Tool Page|Find and Replace Tool Page]]
+- [[_COMMUNITY_Find and Replace Tool Documentation|Find and Replace Tool Documentation]]
+- [[_COMMUNITY_Effect Usage Analyzer Page|Effect Usage Analyzer Page]]
+- [[_COMMUNITY_Versioning CSV Tool Page|Versioning CSV Tool Page]]
+- [[_COMMUNITY_SP Comp Edit Page|SP Comp Edit Page]]
+- [[_COMMUNITY_SP Comp Edit Documentation|SP Comp Edit Documentation]]
+- [[_COMMUNITY_SP SRT Importer Page|SP SRT Importer Page]]
+- [[_COMMUNITY_SP SRT Importer Documentation|SP SRT Importer Documentation]]
+- [[_COMMUNITY_Expression Usage Analyzer Page|Expression Usage Analyzer Page]]
+- [[_COMMUNITY_Khoa Sharing Toolbar Page|Khoa Sharing Toolbar Page]]
+- [[_COMMUNITY_Khoa Sharing Toolbar Documentation|Khoa Sharing Toolbar Documentation]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `ConfigurationBuilder` - 53 edges
 2. `OverlayEngine` - 23 edges
-3. `Script Config Schema` - 10 edges
-4. `sanitizeHTML()` - 6 edges
-5. `applyTheme()` - 5 edges
-6. `resolveOverlayColor()` - 5 edges
-7. `renderMarkdown()` - 5 edges
-8. `Overlay Engine Class` - 5 edges
-9. `generateScriptsList()` - 4 edges
-10. `setupFilters()` - 4 edges
+3. `sanitizeHTML()` - 6 edges
+4. `applyTheme()` - 5 edges
+5. `resolveOverlayColor()` - 5 edges
+6. `renderMarkdown()` - 5 edges
+7. `generateScriptsList()` - 4 edges
+8. `setupFilters()` - 4 edges
+9. `handleFiltering()` - 4 edges
+10. `getEffectiveTheme()` - 4 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Overlay Engine Class` --rationale_for--> `Coordinate Scaling System`  [INFERRED]
+- `OverlayEngine` --implements--> `Coordinate Scaling System`  [INFERRED]
   js/overlay-engine.js → docs/architecture.md
-- `Create Script Utility` --rationale_for--> `Template Sync Requirement`  [INFERRED]
-  add-script.js → docs/ai-mistakes.md
-- `Shared Markdown Renderer` --rationale_for--> `Marked.js Sanitization Rationale`  [INFERRED]
-  js/overlay-utils.js → docs/ai-mistakes.md
-- `Get Effective Theme` --rationale_for--> `Theme System Architecture`  [INFERRED]
-  js/theme.js → docs/architecture.md
-- `Generate Scripts List` --shares_data_with--> `Scripts List Data`  [EXTRACTED]
-  generate-system.js → data/scripts-list.json
+- `OverlayEngine` --implements--> `Multi-Segment Line System`  [INFERRED]
+  js/overlay-engine.js → docs/architecture.md
+- `resolveOverlayColor()` --calls--> `getEffectiveTheme()`  [INFERRED]
+  js/overlay-utils.js → js/theme.js
+- `renderMarkdown()` --calls--> `configureMarked()`  [INFERRED]
+  js/overlay-utils.js → js/overlay-defaults.js
+- `renderMarkdown()` --calls--> `sanitizeHTML()`  [INFERRED]
+  js/overlay-utils.js → js/utils.js
 
 ## Hyperedges (group relationships)
-- **Build Pipeline** — buildsystem_node, generatesystem_generatescriptslist, updateconfigbuilder_updateconfigbuilderdata [EXTRACTED 1.00]
-- **Overlay Rendering System** — overlayengine_overlayengine, overlayutils_rendermarkdown, overlayutils_resolveoverlaycolor, overlayutils_positiontooltipforsegmentedline [INFERRED 0.85]
-- **Cross-cutting Utilities** — utils_sanitizehtml, theme_geteffectivetheme [INFERRED 0.75]
-- **Script Page Rendering Flow** — schema_script_config, color_system_semantic, sp_comp_edit_index [INFERRED 0.85]
+- **Build Sync Pipeline** — generate_system_js, update_config_builder_js, config_builder_js [INFERRED 0.95]
+- **Overlay Rendering System** — overlay_engine_js, overlay_utils_js, overlay_defaults_js, utils_js [INFERRED 0.95]
+- **Usage Analysis Scripts** — effect_usage_analyzer_index, expression_usage_analyzer_index, find_replace_expression_index [INFERRED 0.85]
+- **Project Versioning Scripts** — sp_versioning_setup_toolkit_index, sp_versioning_csv_index [INFERRED 0.95]
 
-## Communities (26 total, 11 thin omitted)
+## Communities (38 total, 28 thin omitted)
 
-### Community 1 - "Overlay Core & Markdown"
-Cohesion: 0.15
-Nodes (5): buildSegmentedLineSegments(), configureMarked(), isValidSegmentPattern(), OVERLAY_DEFAULTS, OverlayEngine
+### Community 1 - "Build and Script Generation"
+Cohesion: 0.11
+Nodes (17): generateScriptsList, args, createScript(), escapeHtml(), fs, path, { execSync }, steps (+9 more)
 
-### Community 2 - "Portfolio UI & Filtering"
+### Community 3 - "UI Utilities and Script Cards"
 Cohesion: 0.14
 Nodes (12): CATEGORY_NAMES, createScriptCard(), getCategoryName(), handleFiltering(), initializeOverlayEngine(), loadScriptsList(), renderScriptCards(), setupFilters() (+4 more)
 
-### Community 3 - "Overlay Utilities & Rendering"
-Cohesion: 0.24
-Nodes (5): hexToRgba(), positionTooltipForSegmentedLine(), renderMarkdown(), resolveOverlayColor(), safeStyleColor()
+### Community 4 - "Overlay Configuration and Utilities"
+Cohesion: 0.16
+Nodes (8): configureMarked(), isValidSegmentPattern(), OVERLAY_DEFAULTS, hexToRgba(), positionTooltipForSegmentedLine(), renderMarkdown(), resolveOverlayColor(), safeStyleColor()
 
-### Community 4 - "Script Pages & Schema"
-Cohesion: 0.2
-Nodes (11): Effect Usage Analyzer Page, Expression Usage Analyzer Page, Find & Replace in Expression Page, Khoa Sharing Toolbar Page, Script Config Schema, SP Comp Edit Page, SP Comp Setup Page, SP Deadline Page (+3 more)
+### Community 5 - "System Architecture and Documentation"
+Cohesion: 0.33
+Nodes (7): Coordinate Scaling System, docs/architecture.md, Multi-Segment Line System, ConfigurationBuilder, js/overlay-defaults.js, OverlayEngine, js/overlay-utils.js
 
-### Community 5 - "Segmented Line Tests"
-Cohesion: 0.2
-Nodes (8): container, coords, fs, path, result, segments, segs, tooltip
-
-### Community 6 - "System Generation Utilities"
-Cohesion: 0.36
-Nodes (7): CATEGORIES, createDirectoryIfNotExists(), fs, generateScriptsList(), main(), path, scanScriptDirectories()
-
-### Community 7 - "Core Architecture Principles"
-Cohesion: 0.32
-Nodes (8): Marked.js Sanitization Rationale, Coordinate Scaling System, Configuration Builder Class, Overlay Engine Class, Position Tooltip for Segmented Line, Shared Markdown Renderer, Resolve Overlay Color, Sanitize HTML
-
-### Community 8 - "Script Creation Utility"
-Cohesion: 0.4
-Nodes (5): args, createScript(), escapeHtml(), fs, path
-
-### Community 9 - "Theme Management"
+### Community 6 - "Theme Management System"
 Cohesion: 0.67
 Nodes (5): applyTheme(), getEffectiveTheme(), setupThemeDetection(), toggleTheme(), updateThemeIndicator()
 
-### Community 10 - "Engine Initialization Tests"
-Cohesion: 0.33
-Nodes (4): container, engine, fs, path
-
-### Community 12 - "Project Documentation"
-Cohesion: 0.4
-Nodes (5): Config Builder User Guide, Configuration Reference, Memory Issues Management, Debugging Guide, Documentation README
-
-### Community 13 - "ESLint Configuration"
+### Community 8 - "ESLint Configuration and Globals"
 Cohesion: 0.5
 Nodes (3): globals, js, projectBrowserGlobals
 
-### Community 16 - "Build & Data Sync"
+### Community 9 - "Config Builder Guide and Patterns"
 Cohesion: 0.67
-Nodes (4): Build System Orchestrator, Generate Scripts List, Scripts List Data, Update Config Builder Data
+Nodes (3): Config Builder User Guide, H-V-H Path Pattern, Straight Horizontal Line Pattern
 
 ## Knowledge Gaps
-- **53 isolated node(s):** `fs`, `path`, `CATEGORIES`, `fs`, `path` (+48 more)
+- **52 isolated node(s):** `fs`, `path`, `CATEGORIES`, `fs`, `path` (+47 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **28 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `ConfigurationBuilder` connect `Configuration Builder Logic` to `Overlay Utilities & Rendering`, `Overlay Core & Markdown`, `Config Builder Interactions`?**
-  _High betweenness centrality (0.223) - this node is a cross-community bridge._
-- **Why does `OverlayEngine` connect `Overlay Core & Markdown` to `Portfolio UI & Filtering`?**
-  _High betweenness centrality (0.092) - this node is a cross-community bridge._
-- **Why does `renderMarkdown()` connect `Overlay Utilities & Rendering` to `Overlay Core & Markdown`, `Portfolio UI & Filtering`?**
-  _High betweenness centrality (0.072) - this node is a cross-community bridge._
-- **Are the 10 inferred relationships involving `Script Config Schema` (e.g. with `SP Versioning Setup Toolkit Page` and `Find & Replace in Expression Page`) actually correct?**
-  _`Script Config Schema` has 10 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `ConfigurationBuilder` connect `Configuration Builder Core Logic` to `Overlay Configuration and Utilities`, `Config Builder Tool Interface`?**
+  _High betweenness centrality (0.263) - this node is a cross-community bridge._
+- **Why does `OverlayEngine` connect `Overlay Engine Core Rendering` to `UI Utilities and Script Cards`?**
+  _High betweenness centrality (0.109) - this node is a cross-community bridge._
+- **Why does `renderMarkdown()` connect `Overlay Configuration and Utilities` to `Overlay Engine Core Rendering`, `UI Utilities and Script Cards`?**
+  _High betweenness centrality (0.085) - this node is a cross-community bridge._
 - **Are the 4 inferred relationships involving `sanitizeHTML()` (e.g. with `.loadConfig()` and `.updateScriptMetadata()`) actually correct?**
   _`sanitizeHTML()` has 4 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 3 inferred relationships involving `resolveOverlayColor()` (e.g. with `.getCurrentColorValue()` and `.getCurrentColorValue()`) actually correct?**
+  _`resolveOverlayColor()` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `fs`, `path`, `CATEGORIES` to the rest of the system?**
-  _53 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Configuration Builder Logic` be split into smaller, more focused modules?**
+  _52 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Configuration Builder Core Logic` be split into smaller, more focused modules?**
   _Cohesion score 0.09 - nodes in this community are weakly interconnected._

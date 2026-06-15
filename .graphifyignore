@@ -1,5 +1,6 @@
-# Claude Code settings
+# AI settings
 .claude/
+.gemini/
 
 # Dependencies
 node_modules/
@@ -47,6 +48,7 @@ Thumbs.db
 # Test/debug files
 test-load.html
 test*.html
+tests/
 
 # Design prototype directories
 1a/
