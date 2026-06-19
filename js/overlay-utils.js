@@ -162,6 +162,17 @@ function positionTooltipForSegmentedLine(tooltip, segments, coords, scaleX, scal
  * @param {string} text - Markdown source
  * @returns {string} Sanitized HTML string
  */
+let _markedConfigured = false;
+
+function configureMarked() {
+    if (typeof marked === 'undefined' || _markedConfigured) return;
+    marked.setOptions({
+        gfm: true,
+        breaks: false,
+    });
+    _markedConfigured = true;
+}
+
 function renderMarkdown(text) {
     if (text === null || text === undefined) return '';
     if (typeof marked === 'undefined') {

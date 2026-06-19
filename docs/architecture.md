@@ -49,8 +49,11 @@ scripts/
 data/
 ├── scripts-list.json     # Generated from all configs
 js/
-├── overlay-engine.js     # Core rendering engine
-├── overlay-defaults.js   # Shared color palette
+├── overlay-engine.js     # OverlayEngine class + initializeOverlayEngine factory
+├── overlay-utils.js      # Shared color/markdown/tooltip helpers (engine + builder)
+├── overlay-defaults.js   # OVERLAY_DEFAULTS constants + segment geometry helpers
+├── portfolio.js          # Main page only: script listing, filtering, card rendering
+├── script-page.js        # Script pages only: bindScriptMeta (config → page DOM)
 ├── theme.js              # Theme management
 └── utils.js              # Helper functions
 tools/

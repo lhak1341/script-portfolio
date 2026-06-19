@@ -1,6 +1,7 @@
 # AI settings
 .claude/
 .gemini/
+.codex/
 
 # Dependencies
 node_modules/
@@ -41,6 +42,7 @@ Thumbs.db
 *.tmp
 *.temp
 .cache/
+temp/
 
 # Backup files
 *.bak

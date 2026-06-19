@@ -2,7 +2,7 @@
  * Shared overlay configuration defaults and utilities
  * Used by both overlay-engine.js and config-builder.js
  */
-/* exported OVERLAY_DEFAULTS, isValidSegmentPattern, buildSegmentedLineSegments, configureMarked */
+/* exported OVERLAY_DEFAULTS, isValidSegmentPattern, buildSegmentedLineSegments */
 
 // ---------------------------------------------------------------------------
 // Segment helpers
@@ -84,26 +84,6 @@ function buildSegmentedLineSegments(container, segments, lineColor, thickness, s
 
     container.setAttribute('data-end-x', currentX);
     container.setAttribute('data-end-y', currentY);
-}
-
-// ---------------------------------------------------------------------------
-// Markdown configuration
-// ---------------------------------------------------------------------------
-
-let _markedConfigured = false;
-
-/**
- * Configure marked.js once per page load.
- * Calling this inside every processMarkdown() invocation is safe — the flag
- * ensures setOptions() only mutates global state on the first call.
- */
-function configureMarked() {
-    if (typeof marked === 'undefined' || _markedConfigured) return;
-    marked.setOptions({
-        gfm: true,     // GitHub Flavored Markdown
-        breaks: false, // Don't convert \n to <br>
-    });
-    _markedConfigured = true;
 }
 
 // ---------------------------------------------------------------------------

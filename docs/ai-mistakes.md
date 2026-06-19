@@ -72,7 +72,7 @@ Patterns that have silently broken this codebase before. Load this when working 
 46. **Script pages with stale placeholder content** — `.script-content` div must be empty (populated from `description.md`); remove any `<h2>About This Script</h2>` or `<li>Professional After Effects integration</li>` left over from old templates.
 47. **`replace_all: true` self-corrupting constant declarations** — Add the constant declaration as a targeted edit first, then do `replace_all` on usage sites; otherwise the constant's own initializer gets replaced → `ReferenceError`.
 48. **CDN version pinning without verifying file paths** — Check `https://cdn.jsdelivr.net/npm/<package>@<version>/` to confirm the path exists before pinning.
-49. **`utils.js` load order** — Must be: `utils.js` → `theme.js` → `overlay-defaults.js` → `overlay-utils.js` → `overlay-engine.js`.
+49. **`utils.js` load order** — Must be: `utils.js` → `theme.js` → `overlay-defaults.js` → `overlay-utils.js` → `overlay-engine.js`. Then `portfolio.js` in `index.html` only; `script-page.js` in `scripts/*/index.html` only. Never cross-load these.
 51. **HTML-callable functions need `/* exported funcName */`** — Prevents false "unused variable" ESLint warnings for functions only called from HTML `onclick` handlers.
 52. **`lucide.createIcons({ nodes: [el] })` for targeted refresh** — Pass `{ nodes: [el] }` when only one element's icons changed to avoid a full DOM scan.
 53. **Verify function parameters are consumed in the body** — A param listed in the signature but never read silently drops the caller's intent. Search the body for each param name after editing a signature.

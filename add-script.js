@@ -171,6 +171,7 @@ Simply run the script from your After Effects Scripts menu. No additional setup 
     <script src="../../js/overlay-defaults.js"></script>
     <script src="../../js/overlay-utils.js"></script>
     <script src="../../js/overlay-engine.js"></script>
+    <script src="../../js/script-page.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             (async function() {
@@ -194,7 +195,7 @@ Simply run the script from your After Effects Scripts menu. No additional setup 
             
             if (success && engine.config) {
                 // Update metadata from config
-                engine.updateScriptMetadata(engine.config);
+                bindScriptMeta(engine.config);
                 
                 // Load and render description from description.md
                 const descriptionHtml = await engine.loadDescription('.');
